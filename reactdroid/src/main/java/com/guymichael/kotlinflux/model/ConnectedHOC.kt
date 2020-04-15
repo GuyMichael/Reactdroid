@@ -1,8 +1,8 @@
 package com.guymichael.kotlinflux.model
 
-import com.guymichael.reactdroid.model.Component
-import com.guymichael.reactdroid.model.HOC
-import com.guymichael.reactdroid.model.OwnProps
+import com.guymichael.kotlinreact.model.Component
+import com.guymichael.kotlinreact.model.HOC
+import com.guymichael.kotlinreact.model.OwnProps
 import io.reactivex.rxjava3.disposables.Disposable
 
 /**

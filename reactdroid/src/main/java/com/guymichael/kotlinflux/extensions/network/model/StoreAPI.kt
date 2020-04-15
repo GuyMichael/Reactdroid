@@ -1,7 +1,7 @@
 package com.guymichael.kotlinflux.extensions.network.model
 
 import com.guymichael.promise.Promise
-import com.guymichael.reactdroid.Logger
+import com.guymichael.kotlinreact.Logger
 import io.reactivex.rxjava3.disposables.Disposable
 
 

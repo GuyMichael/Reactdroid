@@ -2,7 +2,7 @@ package com.guymichael.kotlinflux.model.reducers
 
 import com.guymichael.kotlinflux.model.GlobalState
 import com.guymichael.kotlinflux.model.actions.Action
-import com.guymichael.reactdroid.Logger
+import com.guymichael.kotlinreact.Logger
 
 //THINK make internal
 abstract class SideEffectReducer(

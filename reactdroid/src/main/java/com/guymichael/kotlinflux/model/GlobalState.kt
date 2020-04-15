@@ -2,9 +2,9 @@ package com.guymichael.kotlinflux.model
 
 import com.guymichael.kotlinflux.fromTimedReducerMap
 import com.guymichael.kotlinflux.model.reducers.Reducer
-import com.guymichael.reactdroid.BuildConfig
-import com.guymichael.reactdroid.Logger
-import com.guymichael.reactdroid.Utils
+import com.guymichael.kotlinreact.BuildConfig
+import com.guymichael.kotlinreact.Logger
+import com.guymichael.kotlinreact.Utils
 import io.reactivex.rxjava3.schedulers.Timed
 import kotlin.reflect.KClass
 

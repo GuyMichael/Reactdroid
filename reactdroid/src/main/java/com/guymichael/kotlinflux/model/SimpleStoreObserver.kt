@@ -1,6 +1,6 @@
 package com.guymichael.kotlinflux.model
 
-import com.guymichael.reactdroid.model.OwnProps
+import com.guymichael.kotlinreact.model.OwnProps
 import io.reactivex.rxjava3.disposables.Disposable
 
 class SimpleStoreObserver<P : OwnProps>(

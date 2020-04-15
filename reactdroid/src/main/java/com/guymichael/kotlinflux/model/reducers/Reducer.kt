@@ -3,7 +3,7 @@ package com.guymichael.kotlinflux.model.reducers
 import com.guymichael.kotlinflux.model.GlobalState
 import com.guymichael.kotlinflux.model.actions.Action
 import com.guymichael.kotlinflux.model.actions.GenericAction
-import com.guymichael.reactdroid.Utils
+import com.guymichael.kotlinreact.Utils
 
 /**
  * should be extended as an 'object' (Kotlin's singleton)

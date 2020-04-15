@@ -1,0 +1,113 @@
+package com.guymichael.reactdroid.extensions.components.dialog
+
+import android.view.LayoutInflater
+import android.view.View
+import androidx.appcompat.app.AlertDialog
+import com.guymichael.kotlinreact.model.EmptyOwnState
+import com.guymichael.reactdroid.Utils
+import com.guymichael.reactdroid.model.AComponent
+
+/**
+ * @param bindToParent A parent [AComponent] to bind the dialog to its lifecycle.
+ * Normally the page (Activity), or just any component that when unmounts, this dialog should begone altogether
+ *
+ * @param onDismiss callback for when the dialog is dismissed but `props` state is `shown`, e.g. by the user.
+ * You should then update the `props` (call [onRender] with `shown = false`) to align with actual dialog state
+ */
+open class CDialog<P : BaseADialogProps>(
+        dialog: Lazy<AlertDialog>
+        , bindToParent: View
+        , onDismiss: () -> Unit
+        , onShow: ((P) -> Unit)? = null
+        , customContent: Lazy<AComponent<P, *, *>>? = null
+    ) : BaseDialogComponent<P, EmptyOwnState, AlertDialog>(
+        dialog, bindToParent, onDismiss, onShow, customContent
+    ) {
+
+    constructor(
+        dialog: Lazy<AlertDialog>
+        , bindToParent: AComponent<*, *, *>
+        , onDismiss: () -> Unit
+        , onShow: ((P) -> Unit)? = null
+        , customContent: Lazy<AComponent<P, *, *>>? = null
+    ): this(dialog, bindToParent.mView, onDismiss, onShow, customContent)
+
+    override fun createInitialState(props: P) = EmptyOwnState
+}
+
+class CSimpleDialog(
+        dialog: Lazy<AlertDialog>
+        , bindToParent: View
+        , onDismiss: () -> Unit
+        , onShow: ((SimpleDialogProps) -> Unit)? = null
+    ) : CDialog<SimpleDialogProps>(dialog, bindToParent, onDismiss, onShow) {
+
+    constructor(
+        dialog: Lazy<AlertDialog>
+        , bindToParent: AComponent<*, *, *>
+        , onDismiss: () -> Unit
+        , onShow: ((SimpleDialogProps) -> Unit)? = null
+    ): this(dialog, bindToParent.mView, onDismiss, onShow)
+
+    fun onRender(shown: Boolean) {
+        super.onRender(SimpleDialogProps(shown))
+    }
+}
+
+
+
+//export as a method
+
+/**
+ * creates a simple [dialog][CDialog] with `bindToParent = this`, to bind the dialog to this
+ * [AComponent]'s lifecycle.
+ *
+ * @param onDismiss callback for when the dialog is dismissed but `props` state is `shown`,
+ * e.g. by the user. You should then update the `props` (change your state to then call
+ * [AComponent.onRender] with `shown = false`) to align with actual dialog state
+ */
+fun AComponent<*, *, *>.with(dialog: Lazy<AlertDialog>, onDismiss: () -> Unit, onShow: ((SimpleDialogProps) -> Unit)? = null)
+    : CSimpleDialog {
+
+    return CSimpleDialog(dialog, Utils.getActivityView(mView) ?: mView, onDismiss, onShow)
+}
+
+/**
+ * creates a simple [dialog][CDialog] with `bindToParent = this`, to bind the dialog to this
+ * [AComponent]'s lifecycle.
+ *
+ * @param onDismiss callback for when the dialog is dismissed but `props` state is `shown`,
+ * e.g. by the user. You should then update the `props` (change your state to then call
+ * [AComponent.onRender] with `shown = false`) to align with actual dialog state
+ */
+fun <P : BaseADialogProps> AComponent<*, *, *>.with(dialog: Lazy<AlertDialog>
+                                                    , customContent: Lazy<AComponent<P, *, *>>
+                                                    , onDismiss: () -> Unit
+                                                    , onShow: ((P) -> Unit)? = null
+    ) : CDialog<P> {
+
+    return CDialog(dialog, Utils.getActivityView(mView) ?: mView, onDismiss, onShow, customContent)
+}
+
+/**
+ * creates a simple [dialog][CDialog] with `bindToParent = this`, to bind the dialog to this
+ * [AComponent]'s lifecycle.
+ *
+ * @param customLayout a [Pair] of layout resource to Component[AComponent] supplier
+ *
+ * @param onDismiss callback for when the dialog is dismissed but `props` state is `shown`,
+ * e.g. by the user. You should then update the `props` (change your state to then call
+ * [AComponent.onRender] with `shown = false`) to align with actual dialog state
+ */
+fun <P : BaseADialogProps> AComponent<*, *, *>.with(dialog: Lazy<AlertDialog>
+                                                    , customLayout: Pair<Int, (View) -> AComponent<P, *, *>>
+                                                    , onDismiss: () -> Unit
+                                                    , onShow: ((P) -> Unit)? = null
+    ) : CDialog<P> {
+
+    return with(dialog, lazy {
+        customLayout.second.invoke(
+            LayoutInflater.from(mView.context!!).inflate(customLayout.first, null)//THINK null context
+        )
+    }, onDismiss, onShow)
+}

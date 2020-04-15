@@ -3,7 +3,7 @@ package com.guymichael.kotlinflux.model.actions
 import com.guymichael.kotlinflux.model.GlobalState
 import com.guymichael.kotlinflux.model.StoreKey
 import com.guymichael.kotlinflux.toTimedReducerMap
-import com.guymichael.reactdroid.Utils
+import com.guymichael.kotlinreact.Utils
 import io.reactivex.rxjava3.schedulers.Timed
 
 /** This is an abstract class in order for each `Reducer` to have its own action type,

@@ -40,4 +40,10 @@ dependencies {
 
     //APromise
     implementation 'com.github.GuyMichael:APromise:0.1.2'
+
+    //androidx
+    implementation "androidx.recyclerview:recyclerview:1.1.0"
+
+    //google
+    implementation 'com.google.android:flexbox:1.1.0'
 }

@@ -1,8 +1,8 @@
 package com.guymichael.kotlinflux.model
 
-import com.guymichael.reactdroid.model.ComponentDataManager
-import com.guymichael.reactdroid.model.OwnProps
-import com.guymichael.reactdroid.model.OwnState
+import com.guymichael.kotlinreact.model.ComponentDataManager
+import com.guymichael.kotlinreact.model.OwnProps
+import com.guymichael.kotlinreact.model.OwnState
 
 abstract class ConnectedComponentDataManager<API_PROPS: OwnProps, DATA_PROPS : OwnState>
     : ComponentDataManager<API_PROPS, DATA_PROPS>() {

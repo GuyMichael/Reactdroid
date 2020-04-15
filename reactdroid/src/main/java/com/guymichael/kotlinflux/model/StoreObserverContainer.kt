@@ -1,7 +1,7 @@
 package com.guymichael.kotlinflux.model
 
-import com.guymichael.reactdroid.Logger
-import com.guymichael.reactdroid.model.OwnProps
+import com.guymichael.kotlinreact.Logger
+import com.guymichael.kotlinreact.model.OwnProps
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
 import java.lang.ref.WeakReference

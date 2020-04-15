@@ -1,7 +1,7 @@
 package com.guymichael.kotlinflux
 
 import com.guymichael.kotlinflux.model.GlobalState
-import com.guymichael.reactdroid.BuildConfig
+import com.guymichael.kotlinreact.BuildConfig
 
 object Utils {
     private val strictMode = BuildConfig.DEBUG

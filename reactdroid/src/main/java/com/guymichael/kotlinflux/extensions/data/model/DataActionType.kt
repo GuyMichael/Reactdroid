@@ -2,7 +2,7 @@ package com.guymichael.kotlinflux.extensions.data.model
 
 import com.guymichael.kotlinflux.model.GlobalState
 import com.guymichael.kotlinflux.model.actions.DataAction
-import com.guymichael.reactdroid.Logger
+import com.guymichael.kotlinreact.Logger
 
 enum class DataActionType(
         val persistOrThrow: ((action: DataAction) -> Unit)? = null

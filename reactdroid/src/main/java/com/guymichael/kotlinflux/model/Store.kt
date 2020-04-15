@@ -3,9 +3,9 @@ package com.guymichael.kotlinflux.model
 import com.guymichael.kotlinflux.Utils
 import com.guymichael.kotlinflux.model.actions.Action
 import com.guymichael.kotlinflux.model.reducers.Reducer
-import com.guymichael.reactdroid.BuildConfig
-import com.guymichael.reactdroid.Logger
-import com.guymichael.reactdroid.model.OwnProps
+import com.guymichael.kotlinreact.BuildConfig
+import com.guymichael.kotlinreact.Logger
+import com.guymichael.kotlinreact.model.OwnProps
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.core.Scheduler
