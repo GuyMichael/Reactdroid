@@ -6,7 +6,7 @@ import com.guymichael.reactdroid.model.OwnProps
 import io.reactivex.rxjava3.disposables.Disposable
 
 /**
- * An interface representing a Component that is connected to a 'redux' [Store].
+ * An interface representing a Component that is connected to a 'flux' [Store].
  * It is the binding point between 3 streams, and we are in charge of merging them:
  * 1. COMPONENT_PROPS - This HOC's 'inner'component's props
  * 2. global state
