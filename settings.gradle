@@ -1,0 +1,3 @@
+rootProject.name='Reactdroid'
+include ':app'
+include ':reactdroid'
