@@ -68,6 +68,7 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
 
         intent?.let(::mapIntentToProps) ?: run {
             //no apiProps -> we can't continue
+            Logger.e(this::class, "missing apiProps in Intent")
             finish()
             return
         }
