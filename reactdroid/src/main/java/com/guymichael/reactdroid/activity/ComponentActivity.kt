@@ -50,6 +50,12 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
         return (intent.getSerializableExtra(INTENT_KEY_API_PROPS) as? P?)
     }
 
+    /**
+     * Notifies you that a new `Intent` has been receieved, either by [onCreate] or [onNewIntent].
+     * Default implementation is a no-op so no need to call super
+     */
+    protected open fun onIntentChanged(newIntent: Intent) {}
+
     /** @return a layout resource id. If you prefer to manually inflate a layout, override [inflateLayout],
      * in which case you may return 0 here */
     @LayoutRes
@@ -96,24 +102,25 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
 
         //THINK move to onCreate to avoid calling mapIntentToProps() twice
         //first render. As Activities don't have parents, we have to force the first render ourselves
-        intent?.let(::mapIntentToProps)?.also {
-            onRender(it)
+        intent?.let { newIntent ->
+            newIntent.let(::mapIntentToProps)?.also {
+                onRender(it)
+                onIntentChanged(newIntent)
 
-        } ?: run {
-            //no apiProps -> we can't continue
-            finish()
-            return
+            } ?: finish() //no apiProps -> we can't continue
         }
     }
 
     final override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
-        intent?.let(::mapIntentToProps)?.also {
-            onRender(it)
+        intent?.let { newIntent ->
+            newIntent.let(::mapIntentToProps)?.also {
+                onRender(it)
+                onIntentChanged(newIntent)
 
-            //fallback
-        } ?: finish()
+            } ?: finish() //no apiProps -> we can't continue
+        }
     }
 
     final override fun onDestroy() {
@@ -187,43 +194,29 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
         return this::ownState.isInitialized
     }
 
-    //make final
+    //make final and implement
     final override fun createInitialState(props: P) = EmptyOwnState
 
     //make final
     final override fun setState(nextState: EmptyOwnState) {
         super.setState(nextState)
     }
-
-    //make final
     final override fun updateProps(nextProps: P) {
         super.updateProps(nextProps)
     }
-
-    //make final
-    /*final override fun UNSAFE_componentWillReceivePropsHint(nextProps: P) {
-        super.UNSAFE_componentWillReceivePropsHint(nextProps)
-    }*/
-
-    //make final
     final override fun notifyComponentWillMount() {
         super.notifyComponentWillMount()
     }
-
-    //make final
-    /*final override fun UNSAFE_componentWillUnmountHint() {
+    final override fun UNSAFE_componentWillUnmountHint() {
         super.UNSAFE_componentWillUnmountHint()
-    }*/
+    }
+    final override fun onRender(nextProps: P) {
+        super.onRender(nextProps)
+    }
+    final override fun UNSAFE_forceRender(nextProps: P) {
+        super.UNSAFE_forceRender(nextProps)
+    }
 
-    //make final
-    /*final override fun UNSAFE_componentWillRemountHint() {
-        super.UNSAFE_componentWillRemountHint()
-    }*/
-
-    //make final
-    /*final override fun onRender(nextProps: P, forceUpdate: Boolean) {
-        super.onRender(nextProps, forceUpdate)
-    }*/
 
 
 

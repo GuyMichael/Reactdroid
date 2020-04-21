@@ -89,11 +89,6 @@ abstract class AComponent<P : OwnProps, S : OwnState, V : View>(
 
     /* final overrides (Component)*/
 
-    //make final
-    final override fun UNSAFE_componentWillFirstRenderHint(remount: Boolean) {
-        super.UNSAFE_componentWillFirstRenderHint(remount)
-    }
-
     //make final and better logic
     final override fun isPropsInitialized(): Boolean {
         return this::props.isInitialized
@@ -120,6 +115,17 @@ abstract class AComponent<P : OwnProps, S : OwnState, V : View>(
     /** NOTICE: override at your own risk */
     override fun listenOnMountStateChanges(consumer: (Boolean) -> Unit) {
         ViewUtils.listenOnMountStateChanges(mView, consumer)
+    }
+
+    //make final
+    final override fun onRender(nextProps: P) {
+        super.onRender(nextProps)
+    }
+    final override fun onRenderOrThrow(nextProps: OwnProps) {
+        super.onRenderOrThrow(nextProps)
+    }
+    final override fun UNSAFE_forceRender(nextProps: P) {
+        super.UNSAFE_forceRender(nextProps)
     }
 }
 

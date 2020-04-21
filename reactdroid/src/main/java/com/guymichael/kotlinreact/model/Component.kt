@@ -74,8 +74,6 @@ interface Component<P : OwnProps, S : OwnState> {
     fun shouldComponentUpdate(nextState: S): Boolean {
         return isPassedOrDuringFirstRender() && !Utils.shallowEquality(this.ownState, nextState)
     }
-    @Deprecated("use getSnapshotBeforeUpdate and componentDidUpdate instead")
-    fun UNSAFE_componentWillReceiveProps(nextProps: P) {}
     /** **CONTRACT:**
      * 1. DO NOT call yourself, called by the system
      * 2. MUST call super to let the whole inheritance chain get a peak
@@ -240,10 +238,6 @@ interface Component<P : OwnProps, S : OwnState> {
 
     /** **CONTRACT:** DO NOT override or call yourself, consider private.
      * If you do override, call super to let the whole inheritance chain have a peak */
-    fun UNSAFE_componentWillRemountHint() {}
-
-    /** **CONTRACT:** DO NOT override or call yourself, consider private.
-     * If you do override, call super to let the whole inheritance chain have a peak */
     fun UNSAFE_componentDidMountHint() {}
 
     /** **CONTRACT:** DO NOT override or call yourself, consider private.
@@ -256,14 +250,6 @@ interface Component<P : OwnProps, S : OwnState> {
      * NOTICE: currently called AFTER un-mount!*/
     fun UNSAFE_componentWillUnmountHint() {}
 
-    /** **CONTRACT:** DO NOT override or call yourself, consider private.
-     * If you do override, call super to let the whole inheritance chain have a peak */
-    fun UNSAFE_componentWillReceivePropsHint(nextProps: P) {}
-
-    /** **CONTRACT:** DO NOT override or call yourself, consider private.
-     * If you do override, call super to let the whole inheritance chain have a peak */
-    fun UNSAFE_componentWillFirstRenderHint(remount: Boolean) {}
-
     fun getDisplayName(): String = javaClass.simpleName
 
 
@@ -273,7 +259,6 @@ interface Component<P : OwnProps, S : OwnState> {
     private fun onComponentMounted(isRemount: Boolean) {
         if (isRemount) {
             notifyComponentWillMount()//THINK first time is(should) be called from actual View implementation as we can't know before first render
-            UNSAFE_componentWillRemountHint()
         }
 
         performFirstRenderChain(isRemount)
@@ -284,7 +269,6 @@ interface Component<P : OwnProps, S : OwnState> {
             reRenderOnRemountDueToNewProps = false
 
             //first render (not a remount), or a remount and force due to props updated during unmount time
-            UNSAFE_componentWillFirstRenderHint(isRemount)
 
             //if its the first render - its the first time we initialize the lateinit state.
             // doing this (only) here is of huge importance -
@@ -351,10 +335,9 @@ interface Component<P : OwnProps, S : OwnState> {
         val prevProps = this.props
 
         if (shouldComponentUpdate(nextState)) {//no render until first props are set
-//        Logger.e(getDisplayName(), "UNSAFE_componentWillReceiveProps(${getDisplayName()})")
-
             updateState(nextState)
             performStandardRenderChain(prevProps, prevState)
+
         } else {
             //update anyway, in case not fully equal (see state's getAllMembers)
             updateState(nextState)  //safe to update because this is not the first render
@@ -371,9 +354,6 @@ interface Component<P : OwnProps, S : OwnState> {
         //if from parent component, check if should update. Else, assume this question has been already asked
         // TODO in rx (shouldComponentUpdate off-main-thread), but think about synchronization! Inside lists it will surely matter
         if (forceUpdate || shouldComponentUpdate(nextProps)) {
-//            Logger.e(getDisplayName(), "UNSAFE_componentWillReceiveProps()")
-            UNSAFE_componentWillReceiveProps(nextProps)
-            UNSAFE_componentWillReceivePropsHint(nextProps)
 
             updateProps(nextProps)
             performStandardRenderChain(prevProps, prevState)
