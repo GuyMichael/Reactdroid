@@ -21,5 +21,5 @@ data class SimpleProgressProps(
     override val progress: Int
     , @RequiresApi(Build.VERSION_CODES.O) override val min: Int? = null
     , @RequiresApi(Build.VERSION_CODES.O) override val max: Int? = null
-    , @RequiresApi(Build.VERSION_CODES.N) override val animateChanges: Boolean
+    , @RequiresApi(Build.VERSION_CODES.N) override val animateChanges: Boolean = false
 ): BaseProgressProps(progress, min, max, animateChanges)

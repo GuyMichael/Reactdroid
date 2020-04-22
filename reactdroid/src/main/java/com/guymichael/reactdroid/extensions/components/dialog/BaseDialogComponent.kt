@@ -102,11 +102,11 @@ abstract class BaseDialogComponent<P : BaseDialogProps, S : OwnState, D : Dialog
         mDialog.value.also { d ->                       //initializes the dialog (lazy)
             onBindDialogListeners(d)                    //bind listeners
 
+            renderDialogContent(d, true)   //callback for extending classes
             mCustomContent?.also {
                 d.setContentView(it.value.mView)        //init the component and set its view
                 it.value.onRender(this.props)           //first content render
             }
-            renderDialogContent(d, true)   //callback for extending classes
             updateDialogShownState(d, true)    //show dialog (first time)
         }
     }
