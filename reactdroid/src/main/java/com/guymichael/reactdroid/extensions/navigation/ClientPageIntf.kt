@@ -33,7 +33,7 @@ interface ClientPageIntf {
         ) : APromise<out ComponentActivity<*>> {
 
         return if (allowToOpen()) {
-                openPage(context, props, animations).then {showLoader(it)}
+                openPage(context, props, animations)
                     //loader
                     .letIf({ showLoader }) {
                         it.doOnExecutionWithContext(context) { callingActivity ->
