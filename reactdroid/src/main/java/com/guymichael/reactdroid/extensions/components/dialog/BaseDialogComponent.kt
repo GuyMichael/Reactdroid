@@ -1,7 +1,7 @@
 package com.guymichael.reactdroid.extensions.components.dialog
 
+import android.app.Dialog
 import android.view.View
-import androidx.appcompat.app.AlertDialog
 import com.guymichael.reactdroid.model.AComponent
 import com.guymichael.kotlinreact.model.OwnState
 
@@ -12,12 +12,13 @@ import com.guymichael.kotlinreact.model.OwnState
  * @param onDismiss callback for when the dialog is dismissed but `props` state is `shown`, e.g. by the user.
  * You should then update the `props` (call [onRender] with `shown = false`) to align with actual dialog state
  */
-abstract class BaseDialogComponent<P : BaseADialogProps, S : OwnState, D : AlertDialog>(
-        val mDialog: Lazy<D>
+abstract class BaseDialogComponent<P : BaseDialogProps, S : OwnState, D : Dialog>(
+        private val mDialog: Lazy<D>
         , bindToParent: View
         , private val onDismiss: () -> Unit
         , private val onShow: ((P) -> Unit)? = null
-        , private val mCustomContent: Lazy<AComponent<P, *, *>>? = null
+        , /** calls [Dialog.setContentView] which sets the screen content to an explicit view */
+          private val mCustomContent: Lazy<AComponent<P, *, *>>?
     ) : AComponent<P, S, View>(bindToParent) {
 
     /**
@@ -28,10 +29,26 @@ abstract class BaseDialogComponent<P : BaseADialogProps, S : OwnState, D : Alert
      * You should then update the `props` (call [onRender] with `shown = false`) to align with actual dialog state
      */
     constructor(dialog: Lazy<D>, bindToParent: AComponent<*, *, *>
-            , onDismiss: () -> Unit, onShow: ((P) -> Unit)? = null
-            , customContent: Lazy<AComponent<P, *, *>>? = null)
-        : this(dialog, bindToParent.mView, onDismiss, onShow, customContent)
+        , onDismiss: () -> Unit, onShow: ((P) -> Unit)? = null
+        , customContent: Lazy<AComponent<P, *, *>>? = null
+    ): this(dialog, bindToParent.mView, onDismiss, onShow, customContent)
 
+
+    /* API / callbacks */
+
+    /** This is the `render` method of this component.
+     * With the showing/hiding of the dialog already handled for you, this is where you can
+     * adjust the contents or other properties of the dialog
+     *
+     * @param beforeFirstShow if true, the dialog has never been shown before and is about to be,
+     * after this method/callback finishes
+     * */
+    protected abstract fun renderDialogContent(dialog: D, beforeFirstShow: Boolean)
+
+
+
+
+    /* Lifecycle */
 
     final override fun UNSAFE_componentDidMountHint() {
         super.UNSAFE_componentDidMountHint()
@@ -58,11 +75,16 @@ abstract class BaseDialogComponent<P : BaseADialogProps, S : OwnState, D : Alert
         }
     }
 
-    private fun onBindDialogListeners() {
+
+
+
+    /* Privates */
+
+    private fun onBindDialogListeners(dialog: D) {
         //wait for dismiss to align props. Also used when activity is destroyed
         try {
-            mDialog.value.setOnDismissListener {
-                if (props.shown) {
+            dialog.setOnDismissListener {
+                if (this.props.shown) {
                     //cancelled/dismissed without props (e.g. outside or back key, or anti-pattern manual dismiss() )
                     onDismiss()
                 }
@@ -74,43 +96,61 @@ abstract class BaseDialogComponent<P : BaseADialogProps, S : OwnState, D : Alert
         }
     }
 
-    private fun updateDialogShownState(nextShown: Boolean) {
-        if (nextShown != mDialog.value.isShowing) {
-            if (nextShown) {
-                mDialog.value.show()
-            } else {
-                mDialog.value.dismiss()
+
+
+    private fun renderOnFirstShow() {
+        mDialog.value.also { d ->                       //initializes the dialog (lazy)
+            onBindDialogListeners(d)                    //bind listeners
+
+            mCustomContent?.also {
+                d.setContentView(it.value.mView)        //init the component and set its view
+                it.value.onRender(this.props)           //first content render
             }
+            renderDialogContent(d, true)   //callback for extending classes
+            updateDialogShownState(d, true)    //show dialog (first time)
         }
     }
 
-    private fun renderFirstShow() {
-        mDialog.value                           //init. dialog
-        onBindDialogListeners()                 //bind listeners
-
-        //custom content (?)
-        mCustomContent?.value?.also {
-            mDialog.value.setView(it.mView)
-            it.onRender(this.props)             //render (custom content)
+    private fun renderStandard(shown: Boolean) {
+        mDialog.value.also { d ->
+            updateDialogShownState(d, shown)
+            renderDialogContent(d, false)
         }
-        updateDialogShownState(true)   //show dialog
-    }
 
-    private fun render(shown: Boolean) {
-        updateDialogShownState(shown)
-        mCustomContent?.value?.onRender(this.props)
+        if (shown) {
+            mCustomContent?.value?.onRender(this.props)
+        }
     }
 
     final override fun render() {
         when {
             //was already shown
-            mDialog.isInitialized() -> render(props.shown)
+            mDialog.isInitialized() -> renderStandard(props.shown)
 
             //first show (not yet init.)
-            props.shown -> renderFirstShow()
+            props.shown -> renderOnFirstShow()
 
             //never showed and still shouldn't
             else -> {}
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+private fun updateDialogShownState(dialog: Dialog, nextShown: Boolean) {
+    if (nextShown != dialog.isShowing) {
+        if (nextShown) {
+            dialog.show()
+        } else {
+            dialog.dismiss()
         }
     }
 }

@@ -1,23 +1,26 @@
-package com.guymichael.reactdroid.model
+package com.guymichael.reactdroid.extensions.components.input
 
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
+import com.guymichael.reactdroid.extensions.components.text.ReactdroidTextHelper
 import java.lang.ref.WeakReference
 import java.text.ParseException
 
-class ReactTextWatcher<T> private constructor(
+class ReactdroidTextWatcher<T> private constructor(
         private val et: WeakReference<EditText>
-        , private val listener: ReactTextWatcherListener<T>
-)
-        : TextWatcher {
+        , private val listener: ReactdroidTextWatcherListener<T>
+    ): TextWatcher {
 
     private var prevText: String? = et.get()?.text?.toString()
 
     fun setValue(value: T?) {
         et.get()?.let {
             it.removeTextChangedListener(this)
-            ReactTextHelper.setText(it, listener.formatValue(value))
+            ReactdroidTextHelper.setText(
+                it,
+                listener.formatValue(value)
+            )
             it.addTextChangedListener(this)
         }
     }
@@ -25,7 +28,10 @@ class ReactTextWatcher<T> private constructor(
     private fun setValue(value: T?, forUserInput: String?) {
         et.get()?.let {
             it.removeTextChangedListener(this)
-            ReactTextHelper.setText(it, listener.formatValue(value, forUserInput))
+            ReactdroidTextHelper.setText(
+                it,
+                listener.formatValue(value, forUserInput)
+            )
             it.addTextChangedListener(this)
         }
     }
@@ -33,7 +39,10 @@ class ReactTextWatcher<T> private constructor(
     fun setText(s: CharSequence?) {
         et.get()?.let {
             it.removeTextChangedListener(this)
-            ReactTextHelper.setText(it, s)
+            ReactdroidTextHelper.setText(
+                it,
+                s
+            )
             it.addTextChangedListener(this)
         }
     }
@@ -63,25 +72,33 @@ class ReactTextWatcher<T> private constructor(
 
     companion object {
         @JvmStatic
-        fun <S> create(et: EditText, listener: ReactTextWatcherListener<S>) : ReactTextWatcher<S> {
-            val watcher = ReactTextWatcher(WeakReference(et), listener)
+        fun <S> create(et: EditText, listener: ReactdroidTextWatcherListener<S>) : ReactdroidTextWatcher<S> {
+            val watcher =
+                ReactdroidTextWatcher(
+                    WeakReference(et),
+                    listener
+                )
             et.addTextChangedListener(watcher)
             return watcher
         }
 
-        fun create(et: EditText, listener: (String?) -> Unit) : ReactTextWatcher<String?> {
+        fun create(et: EditText, listener: (String?) -> Unit) : ReactdroidTextWatcher<String?> {
 
-            val watcher = ReactTextWatcher(WeakReference(et), object: ReactSimpleTextWatcherListener {
-                override fun onChanged(value: String?) {
-                    listener(value)
-                }
-            })
+            val watcher =
+                ReactdroidTextWatcher(
+                    WeakReference(et),
+                    object :
+                        ReactdroidSimpleTextWatcherListener {
+                        override fun onChanged(value: String?) {
+                            listener(value)
+                        }
+                    })
             et.addTextChangedListener(watcher)
             return watcher
         }
     }
 
-    interface ReactTextWatcherListener<R> {
+    interface ReactdroidTextWatcherListener<R> {
         /** Called off the main thread */
         fun onChanged(value: R?)
         /** @throws ParseException */
@@ -90,7 +107,8 @@ class ReactTextWatcher<T> private constructor(
         fun formatValue(value: R?, forUserInput: String? = null) : CharSequence?
     }
 
-    interface ReactSimpleTextWatcherListener: ReactTextWatcherListener<String?> {
+    interface ReactdroidSimpleTextWatcherListener:
+        ReactdroidTextWatcherListener<String?> {
         override fun parseValueOrThrow(rawValue: String?) = rawValue
         override fun formatValue(value: String?, forUserInput: String?) = value
     }

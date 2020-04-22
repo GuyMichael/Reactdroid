@@ -9,7 +9,7 @@ data class CollapsingTextProps(
     , val expandBtnText: CharSequence = TextUtils.colorize("more", TextUtils.parseColor("#2196f3"))
     , val scrollParentOnExpand: Boolean = true
 
-    ) : BaseATextProps(text) {
+    ) : BaseTextProps(text) {
 
     override fun getAllMembers(): List<*> = listOf(
         text, collapsedLineCount, expandedMaxLines

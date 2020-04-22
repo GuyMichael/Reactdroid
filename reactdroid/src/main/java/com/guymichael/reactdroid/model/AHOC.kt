@@ -9,4 +9,20 @@ abstract class AHOC<HOC_PROPS : OwnProps, COMPONENT_PROPS : OwnProps, V : View, 
         override val mComponent: C
         , reRenderOnRemount: Boolean = false
     ) : HOC<HOC_PROPS, COMPONENT_PROPS, C>
-    , AComponent<HOC_PROPS, EmptyOwnState, V>(mComponent.mView, reRenderOnRemount)
+    , AComponent<HOC_PROPS, EmptyOwnState, V>(mComponent.mView, reRenderOnRemount) {
+
+
+    companion object {
+        @JvmStatic
+        fun <HOC_PROPS : OwnProps, COMPONENT_PROPS : OwnProps, V : View> from(
+            component: AComponent<COMPONENT_PROPS, *, V>
+            , mapToInnerProps: (HOC_PROPS) -> COMPONENT_PROPS
+        ): AComponent<HOC_PROPS, *, *> {
+
+            return object : AHOC<HOC_PROPS, COMPONENT_PROPS, V, AComponent<COMPONENT_PROPS, *, V>>
+                (component) {
+                override fun mapToComponentProps(hocProps: HOC_PROPS) = mapToInnerProps.invoke(hocProps)
+            }
+        }
+    }
+}

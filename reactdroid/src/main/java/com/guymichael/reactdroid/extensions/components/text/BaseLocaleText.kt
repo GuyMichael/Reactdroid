@@ -5,7 +5,7 @@ import android.widget.TextView
 import com.guymichael.kotlinreact.model.OwnState
 import com.guymichael.reactdroid.model.AComponent
 
-abstract class BaseLocaleText<P : BaseATextProps, S : OwnState, T : AComponent<P, *, TextView>>(v: LinearLayout)
+abstract class BaseLocaleText<P : BaseTextProps, S : OwnState, T : AComponent<P, *, TextView>>(v: LinearLayout)
         : AComponent<P, S, LinearLayout>(v) {
 
     protected val cText: T = onBindTextView(findTextView())

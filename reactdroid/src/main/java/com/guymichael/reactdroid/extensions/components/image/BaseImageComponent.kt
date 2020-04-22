@@ -6,7 +6,7 @@ import androidx.annotation.DrawableRes
 import com.guymichael.kotlinreact.model.OwnState
 import com.guymichael.reactdroid.model.AComponent
 
-abstract class BaseAImageComponent<P : BaseAImageProps, S : OwnState, V : ImageView>(v: V)
+abstract class BaseImageComponent<P : BaseImageProps, S : OwnState, V : ImageView>(v: V)
     : AComponent<P, S, V>(v) {
 
     /** @param url trimmed and not empty

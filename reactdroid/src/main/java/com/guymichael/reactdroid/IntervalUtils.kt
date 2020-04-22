@@ -4,34 +4,12 @@ import android.os.Handler
 import android.os.Looper
 import android.util.LongSparseArray
 import com.guymichael.reactdroid.model.IntervalRunnable
-import com.guymichael.reactdroid.model.TimeoutRunnable
 import java.util.concurrent.atomic.AtomicLong
 
-class TimeoutUtils {companion object {
+object IntervalUtils {
     private val timeoutKeyGenerator = AtomicLong(1L)
     private val mRunnableMap = LongSparseArray<Runnable>()
     internal val mTimeoutHandler = Handler(Looper.getMainLooper())
-
-    /**
-     * Sets timeout using [Handler.postDelayed].<br></br>Cancels previous 'key' runnable if key != null
-     * @param runnable to onTick. You can use [.clearTimeout] to cancel.
-     * @param timeoutMs
-     * @return the timeout key, to use with [clearTimeout]
-     */
-    fun setTimeout(runnable: TimeoutRunnable, timeoutMs: Long): Long {
-        val timeout = if (timeoutMs >= 0) timeoutMs else 0
-        val key = timeoutKeyGenerator.getAndIncrement()
-
-        synchronized(mRunnableMap) {
-            mRunnableMap.put(key, runnable)
-        }
-
-        synchronized(mTimeoutHandler) {
-            mTimeoutHandler.postDelayed(runnable, timeout)
-        }
-
-        return key
-    }
 
     /**
      * Sets interval using [Handler.postDelayed].<br></br>Cancels previous 'key' runnable, if 'key' != null
@@ -78,7 +56,7 @@ class TimeoutUtils {companion object {
     /**
      * Convenience method. Calls [.clearTimeout].
      */
-    fun clearTimeout(key: Long): Boolean {
+    fun clearInterval(key: Long): Boolean {
         synchronized(mRunnableMap) {//THINK synchronization without synchronize
             mRunnableMap.get(key)?.let {
                 mRunnableMap.remove(key)
@@ -93,17 +71,12 @@ class TimeoutUtils {companion object {
         return false
     }
 
-    fun clearInterval(key: Long): Boolean {
-        return clearTimeout(key)
-    }
-
     /**
      * @param runnable Same one used to call [.setTimeout] or
      * [.setInterval]
      * @return True if the [Runnable] was found and removed.
      */
-    fun clearTimeout(runnable: Runnable): Boolean {
-
+    fun clearInterval(runnable: Runnable): Boolean {
         synchronized(mTimeoutHandler) {
             mTimeoutHandler.removeCallbacks(runnable)
         }
@@ -118,10 +91,6 @@ class TimeoutUtils {companion object {
         return true
     }
 
-    fun clearInterval(runnable: Runnable): Boolean {
-        return clearTimeout(runnable)
-    }
-
     fun isRunnablePending(key: Long): Boolean {
         synchronized(mRunnableMap) {
             return mRunnableMap.indexOfKey(key) > -1
@@ -133,4 +102,4 @@ class TimeoutUtils {companion object {
             return mRunnableMap.indexOfValue(runnable) > -1
         }
     }
-}}
+}

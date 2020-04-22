@@ -1,10 +1,10 @@
-package com.guymichael.reactdroid.model
+package com.guymichael.reactdroid.extensions.components.text
 
 import android.widget.EditText
 import kotlin.math.max
 import kotlin.math.min
 
-class ReactTextHelper {companion object {
+object ReactdroidTextHelper {
     /**
      * Uses to easily handle EditText#setText during renders, while maintaining cursor position behaviour
      */
@@ -24,4 +24,4 @@ class ReactTextHelper {companion object {
             editText.setSelection(max(0, min(prevCursorPos + textLengthDiff, nextTextLength)))
         }
     }
-}}
+}

@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
 //import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.guymichael.reactdroid.TimeoutUtils
+import com.guymichael.reactdroid.IntervalUtils
 import com.guymichael.reactdroid.Utils
 import com.guymichael.reactdroid.ViewUtils
 import com.guymichael.reactdroid.extensions.list.ComponentListUtils
@@ -545,7 +545,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor( //THINK make Comp
 
         if (intervalMs > 0) {
             cancelAutoScroll()
-            autoscrollRunnableKey = TimeoutUtils.setInterval(object : IntervalRunnable() {
+            autoscrollRunnableKey = IntervalUtils.setInterval(object : IntervalRunnable() {
                 override fun onTick(): Boolean {
                     if (this@RecyclerComponentAdapter.recyclerView.context == null
                             || !this@RecyclerComponentAdapter.recyclerView.isAttachedToWindow) {
@@ -593,7 +593,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor( //THINK make Comp
 
     fun cancelAutoScroll() {
         autoscrollRunnableKey?.let {
-            if (TimeoutUtils.clearTimeout(it)) {
+            if (IntervalUtils.clearInterval(it)) {
                 if (this.autoScrollCancelledListener != null) {
                     this.autoScrollCancelledListener!!.onListAutoScrollCancelled()
                 }

@@ -2,15 +2,14 @@ package com.guymichael.reactdroid.extensions.components.input
 
 import android.widget.EditText
 import com.guymichael.reactdroid.model.AComponent
-import com.guymichael.reactdroid.model.ReactTextWatcher
 import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.kotlinreact.model.OwnState
 
-abstract class BaseInputComponent<I : Any, P : OwnProps, S : OwnState, V : EditText>(v: V)
-    : AComponent<P, S, V>(v), ReactTextWatcher.ReactTextWatcherListener<I> {
+abstract class BaseEditTextComponent<I : Any, P : OwnProps, S : OwnState, V : EditText>(v: V)
+    : AComponent<P, S, V>(v), ReactdroidTextWatcher.ReactdroidTextWatcherListener<I> {
 
-    private val mTextHandler: ReactTextWatcher<I> by lazy {
-        ReactTextWatcher.create(mView, this)
+    private val mTextHandler: ReactdroidTextWatcher<I> by lazy {
+        ReactdroidTextWatcher.create(mView, this)
     }
 
     protected abstract fun getValue(props: P): I?

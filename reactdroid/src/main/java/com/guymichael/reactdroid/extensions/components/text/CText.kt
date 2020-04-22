@@ -6,8 +6,8 @@ import androidx.annotation.IdRes
 import com.guymichael.kotlinreact.model.EmptyOwnState
 import com.guymichael.reactdroid.model.AComponent
 
-class CText(v: TextView) : BaseATextComponent<ATextProps, EmptyOwnState, TextView>(v) {
-    override fun createInitialState(props: ATextProps) = EmptyOwnState
+class CText(v: TextView) : BaseTextComponent<TextProps, EmptyOwnState, TextView>(v) {
+    override fun createInitialState(props: TextProps) = EmptyOwnState
 }
 
 //THINK as Annotations

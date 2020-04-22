@@ -210,6 +210,12 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
     final override fun UNSAFE_componentWillUnmountHint() {
         super.UNSAFE_componentWillUnmountHint()
     }
+    final override fun UNSAFE_componentDidMountHint() {
+        super.UNSAFE_componentDidMountHint()
+    }
+    final override fun UNSAFE_componentDidUpdateHint(prevProps: P, prevState: EmptyOwnState, snapshot: Any?) {
+        super.UNSAFE_componentDidUpdateHint(prevProps, prevState, snapshot)
+    }
     final override fun onRender(nextProps: P) {
         super.onRender(nextProps)
     }

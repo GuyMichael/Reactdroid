@@ -9,7 +9,7 @@ import com.guymichael.reactdroid.applyOrGone
 import com.guymichael.reactdroid.applyOrInvisible
 import com.guymichael.reactdroid.model.AComponent
 
-fun <P : BaseATextProps> AComponent<P, *, *>.renderBaseTextOrGone(props: P?, vararg visibilityBoundViews: View) {
+fun <P : BaseTextProps> AComponent<P, *, *>.renderBaseTextOrGone(props: P?, vararg visibilityBoundViews: View) {
     mView.applyOrGone(props?.takeIf { !it.text.isNullOrBlank() }, {
         onRender(it)
         if (this.visibility != View.VISIBLE) {
@@ -18,7 +18,7 @@ fun <P : BaseATextProps> AComponent<P, *, *>.renderBaseTextOrGone(props: P?, var
     }, *visibilityBoundViews)
 }
 
-fun <P : BaseATextProps> AComponent<P, *, *>.renderBaseTextOrInvisible(props: P?, vararg visibilityBoundViews: View) {
+fun <P : BaseTextProps> AComponent<P, *, *>.renderBaseTextOrInvisible(props: P?, vararg visibilityBoundViews: View) {
     mView.applyOrInvisible(props?.takeIf { !it.text.isNullOrBlank() }, {
         onRender(it)
         if (this.visibility != View.VISIBLE) {
@@ -36,27 +36,27 @@ fun AVComponent<BaseATextProps, *, *>.renderBaseTextOrInvisible(text: CharSequen
 }*/
 
 /** Keeps/makes View visible no matter the text value */
-fun <V : TextView> AComponent<ATextProps, *, V>.renderText(text: CharSequence?) {
-    onRender(ATextProps(text))
+fun <V : TextView> AComponent<TextProps, *, V>.renderText(text: CharSequence?) {
+    onRender(TextProps(text))
     if (mView.visibility != View.VISIBLE) {
         mView.visibility = View.VISIBLE
     }
 }
 
-fun <V : TextView> AComponent<ATextProps, *, V>.renderTextColor(@ColorInt color: Int) {
+fun <V : TextView> AComponent<TextProps, *, V>.renderTextColor(@ColorInt color: Int) {
     if (mView.currentTextColor != color) {
         mView.setTextColor(color)
     }
 }
 
-fun <V : TextView> AComponent<ATextProps, *, V>.renderTextColorRes(@ColorRes colorRes: Int) {
+fun <V : TextView> AComponent<TextProps, *, V>.renderTextColorRes(@ColorRes colorRes: Int) {
     ContextCompat.getColor(mView.context, colorRes).let(::renderTextColor)
 }
 
 /** Keeps/makes View visible no matter the text value
  * @param textRes if 0 (valid), will act like [renderText] with null */
-fun <V : TextView> AComponent<ATextProps, *, V>.renderTextRes(textRes: Int) {
-    onRender(ATextProps(
+fun <V : TextView> AComponent<TextProps, *, V>.renderTextRes(textRes: Int) {
+    onRender(TextProps(
         textRes.takeIf { it != 0 }?.let {
             mView.context?.getText(it)
         }
@@ -67,12 +67,12 @@ fun <V : TextView> AComponent<ATextProps, *, V>.renderTextRes(textRes: Int) {
     }
 }
 
-fun AComponent<ATextProps, *, *>.renderTextOrGone(text: CharSequence?, vararg visibilityBoundViews: View) {
-    renderBaseTextOrGone(text?.let(::ATextProps), *visibilityBoundViews) //will also check for empty
+fun AComponent<TextProps, *, *>.renderTextOrGone(text: CharSequence?, vararg visibilityBoundViews: View) {
+    renderBaseTextOrGone(text?.let(::TextProps), *visibilityBoundViews) //will also check for empty
 }
 
-fun AComponent<ATextProps, *, *>.renderTextOrInvisible(text: CharSequence?, vararg visibilityBoundViews: View) {
-    renderBaseTextOrInvisible(text?.let(::ATextProps), *visibilityBoundViews) //will also check for empty
+fun AComponent<TextProps, *, *>.renderTextOrInvisible(text: CharSequence?, vararg visibilityBoundViews: View) {
+    renderBaseTextOrInvisible(text?.let(::TextProps), *visibilityBoundViews) //will also check for empty
 }
 
 fun AComponent<CollapsingTextProps, *, *>.renderCTextOrGone(text: CharSequence?

@@ -7,9 +7,9 @@ import android.widget.TextView
 import androidx.annotation.IdRes
 import com.guymichael.kotlinreact.model.EmptyOwnState
 
-class CTextLocale(v: LinearLayout) : BaseLocaleText<ATextProps, EmptyOwnState, CText>(v) {
-    override fun createInitialState(props: ATextProps) = EmptyOwnState
-    override fun mapTextToProps(text: CharSequence) = ATextProps(text)
+class CTextLocale(v: LinearLayout) : BaseLocaleText<TextProps, EmptyOwnState, CText>(v) {
+    override fun createInitialState(props: TextProps) = EmptyOwnState
+    override fun mapTextToProps(text: CharSequence) = TextProps(text)
     override fun onBindTextView(view: TextView) = withText(view)
 }
 

@@ -6,8 +6,8 @@ import android.widget.Button
 import androidx.annotation.IdRes
 import com.guymichael.kotlinreact.model.EmptyOwnState
 
-class CBtn(v: Button) : BaseATextComponent<ATextProps, EmptyOwnState, Button>(v) {
-    override fun createInitialState(props: ATextProps) = EmptyOwnState
+class CBtn(v: Button) : BaseTextComponent<TextProps, EmptyOwnState, Button>(v) {
+    override fun createInitialState(props: TextProps) = EmptyOwnState
 }
 
 //THINK as Annotations

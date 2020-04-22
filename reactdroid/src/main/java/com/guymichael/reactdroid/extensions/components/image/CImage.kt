@@ -7,7 +7,7 @@ import com.guymichael.kotlinreact.model.EmptyOwnState
 /**
  * Extend and add your remote image rendering logic
  */
-abstract class CImage(v: ImageView) : BaseAImageComponent<AImageProps, EmptyOwnState, ImageView>(v) {
+abstract class CImage(v: ImageView) : BaseImageComponent<ImageProps, EmptyOwnState, ImageView>(v) {
 
-    override fun createInitialState(props: AImageProps) = EmptyOwnState
+    override fun createInitialState(props: ImageProps) = EmptyOwnState
 }

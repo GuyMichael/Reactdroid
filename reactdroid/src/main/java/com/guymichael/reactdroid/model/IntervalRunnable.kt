@@ -1,20 +1,20 @@
 package com.guymichael.reactdroid.model
 
-import com.guymichael.reactdroid.TimeoutUtils
+import com.guymichael.reactdroid.IntervalUtils
 
 abstract class IntervalRunnable : Runnable {
     private var intervalMs: Long = 0
 
     val isTicking: Boolean
-        get() = TimeoutUtils.isRunnablePending(this)
+        get() = IntervalUtils.isRunnablePending(this)
 
     override fun run() {
         if (onTick()) {
-            synchronized(TimeoutUtils.mTimeoutHandler) {
-                TimeoutUtils.mTimeoutHandler.postDelayed(this, intervalMs)
+            synchronized(IntervalUtils.mTimeoutHandler) {
+                IntervalUtils.mTimeoutHandler.postDelayed(this, intervalMs)
             }
         } else {
-            TimeoutUtils.clearTimeout(this)
+            IntervalUtils.clearInterval(this)
         }
     }
 

@@ -6,12 +6,12 @@ import androidx.annotation.IdRes
 import com.guymichael.kotlinreact.model.EmptyOwnState
 import java.text.ParseException
 
-class CInput<I : Any>(
+class CEditText<I : Any>(
         v: EditText
         , private val onChange: (I?) -> Unit
         , private val parseValueOrThrow: (String) -> I
         , private val formatter: (I?, forUserInput: String?) -> CharSequence?
-    ) : BaseInputComponent<I, InputProps<I>, EmptyOwnState, EditText>(v) {
+    ) : BaseEditTextComponent<I, InputProps<I>, EmptyOwnState, EditText>(v) {
 
     override fun createInitialState(props: InputProps<I>) = EmptyOwnState
     override fun getValue(props: InputProps<I>) = props.value
@@ -25,17 +25,17 @@ class CInput<I : Any>(
 }
 
 
-fun View.withStringInput(@IdRes editText: Int, onChange: (String?) -> Unit) : CInput<String> {
-    return CInput(findViewById(editText), onChange, { it }, { value, _ -> value })
+fun View.withStringInput(@IdRes editText: Int, onChange: (String?) -> Unit) : CEditText<String> {
+    return CEditText(findViewById(editText), onChange, { it }, { value, _ -> value })
 }
 
 fun View.withLongInput(@IdRes editText: Int, onChange: (Long?) -> Unit
         , parseValueOrThrow: (String) -> Long
         , formatter: (Long?, forUserInput: String?) -> CharSequence?
-        , valueValidator: (Long) -> Boolean = { true }) : CInput<Long> {
+        , valueValidator: (Long) -> Boolean = { true }) : CEditText<Long> {
 
 
-    return CInput(findViewById(editText), onChange, {
+    return CEditText(findViewById(editText), onChange, {
         parseOrThrow(it, parseValueOrThrow, valueValidator)
     }, formatter)
 }
