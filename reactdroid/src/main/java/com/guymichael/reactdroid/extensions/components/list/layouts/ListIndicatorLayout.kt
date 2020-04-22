@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.extensions.list.layouts
+package com.guymichael.reactdroid.extensions.components.list.layouts
 
 import android.annotation.TargetApi
 import android.content.Context
@@ -7,8 +7,8 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.guymichael.reactdroid.extensions.list.ComponentListUtils
-import com.guymichael.reactdroid.extensions.list.adapter.RecyclerComponentAdapter
+import com.guymichael.reactdroid.extensions.components.list.ComponentListUtils
+import com.guymichael.reactdroid.extensions.components.list.adapter.RecyclerComponentAdapter
 
 class ListIndicatorLayout : LinearLayout {
     var adapter: RecyclerComponentAdapter? = null

@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.extensions.list.layouts.recycler
+package com.guymichael.reactdroid.extensions.components.list.layouts.recycler
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -9,8 +9,8 @@ import android.view.MotionEvent
 import android.view.ViewConfiguration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.guymichael.reactdroid.extensions.list.ComponentListUtils
-import com.guymichael.reactdroid.extensions.list.adapter.RecyclerComponentAdapter
+import com.guymichael.reactdroid.extensions.components.list.ComponentListUtils
+import com.guymichael.reactdroid.extensions.components.list.adapter.RecyclerComponentAdapter
 import kotlin.math.*
 
 class SnappingRecyclerView : RecyclerView {

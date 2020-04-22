@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.extensions.list.adapter
+package com.guymichael.reactdroid.extensions.components.list.adapter
 
 import android.os.Handler
 import android.text.TextUtils
@@ -12,10 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.guymichael.reactdroid.IntervalUtils
 import com.guymichael.reactdroid.Utils
 import com.guymichael.reactdroid.ViewUtils
-import com.guymichael.reactdroid.extensions.list.ComponentListUtils
-import com.guymichael.reactdroid.extensions.list.layouts.ListIndicatorLayout
-import com.guymichael.reactdroid.extensions.list.layouts.recycler.SnappingRecyclerView
-import com.guymichael.reactdroid.extensions.list.model.ListItemProps
+import com.guymichael.reactdroid.extensions.components.list.ComponentListUtils
+import com.guymichael.reactdroid.extensions.components.list.layouts.ListIndicatorLayout
+import com.guymichael.reactdroid.extensions.components.list.layouts.recycler.SnappingRecyclerView
+import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 import com.guymichael.reactdroid.model.IntervalRunnable
 import java.util.*
 import kotlin.collections.HashMap

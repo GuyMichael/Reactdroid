@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.model
+package com.guymichael.reactdroid.extensions.components.ratingbar
 
 import android.widget.RatingBar
 

@@ -23,4 +23,17 @@ data class ProgressDialogProps(
     , override val canceledOnTouchOutside: Boolean = cancelable
     , override val progressProps: SimpleProgressProps
 ): BaseProgressDialogProps<SimpleProgressProps>
-    (shown, dimBackground, cancelable, canceledOnTouchOutside, progressProps)
+    (shown, dimBackground, cancelable, canceledOnTouchOutside, progressProps) {
+
+    companion object {
+        @JvmStatic
+        fun open() = ProgressDialogProps(
+            true, progressProps = SimpleProgressProps(0)
+        )
+
+        @JvmStatic
+        fun hidden() = ProgressDialogProps(
+            false, progressProps = SimpleProgressProps(0)
+        )
+    }
+}

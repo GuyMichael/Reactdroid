@@ -4,9 +4,9 @@ import android.app.Activity
 import android.view.View
 import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
-import com.guymichael.reactdroid.extensions.list.adapter.RecyclerComponentViewHolder
-import com.guymichael.reactdroid.extensions.list.adapter.RecyclerComponentAdapter
-import com.guymichael.reactdroid.extensions.list.model.ListItemProps
+import com.guymichael.reactdroid.extensions.components.list.adapter.RecyclerComponentViewHolder
+import com.guymichael.reactdroid.extensions.components.list.adapter.RecyclerComponentAdapter
+import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 import com.guymichael.reactdroid.model.AComponent
 
 

@@ -1,9 +1,9 @@
-package com.guymichael.reactdroid.extensions.list.adapter
+package com.guymichael.reactdroid.extensions.components.list.adapter
 
 import android.view.View
 import com.guymichael.kotlinreact.BuildConfig
 import com.guymichael.kotlinreact.Logger
-import com.guymichael.reactdroid.extensions.list.model.ListItemProps
+import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 import com.guymichael.reactdroid.model.AComponent
 
 class RecyclerComponentViewHolder(itemView: View)

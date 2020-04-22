@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.extensions.list.model
+package com.guymichael.reactdroid.extensions.components.list.model
 
 import android.view.View
 import androidx.annotation.LayoutRes

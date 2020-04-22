@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.extensions.list.adapter
+package com.guymichael.reactdroid.extensions.components.list.adapter
 
 /**
  * Routes all callbacks to [.onChanged]

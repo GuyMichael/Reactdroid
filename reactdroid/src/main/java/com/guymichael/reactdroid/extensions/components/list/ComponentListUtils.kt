@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.extensions.list
+package com.guymichael.reactdroid.extensions.components.list
 
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager

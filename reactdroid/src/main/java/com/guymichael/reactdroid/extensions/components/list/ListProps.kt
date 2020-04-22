@@ -1,7 +1,6 @@
 package com.guymichael.reactdroid.extensions.components.list
 
-import com.guymichael.reactdroid.extensions.components.list.BaseListProps
-import com.guymichael.reactdroid.extensions.list.model.ListItemProps
+import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 
 data class ListProps(
         override val items: List<ListItemProps>

@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.extensions.list.adapter;
+package com.guymichael.reactdroid.extensions.components.list.adapter;
 
 import android.view.View;
 

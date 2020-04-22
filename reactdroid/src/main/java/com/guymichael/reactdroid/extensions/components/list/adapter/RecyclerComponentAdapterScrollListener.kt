@@ -1,8 +1,8 @@
-package com.guymichael.reactdroid.extensions.list.adapter
+package com.guymichael.reactdroid.extensions.components.list.adapter
 
 //import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.guymichael.reactdroid.extensions.list.ComponentListUtils
+import com.guymichael.reactdroid.extensions.components.list.ComponentListUtils
 import java.util.*
 
 class RecyclerComponentAdapterScrollListener(private val adapter: RecyclerComponentAdapter) : RecyclerView.OnScrollListener() {
