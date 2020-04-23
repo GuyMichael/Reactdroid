@@ -25,19 +25,36 @@ fun AComponent<*, *, *>.renderFullWidth(fullWidth: Boolean) {
 }
 
 fun AComponent<*, *, *>.renderMarginsPx(top: Int? = null, start: Int? = null
-                                        , bottom: Int? = null, end: Int? = null) {
+        , bottom: Int? = null, end: Int? = null) {
 
     mView.renderMarginsPx(top = top, start = start, bottom = bottom, end = end)
 }
 
 fun AComponent<*, *, *>.renderMarginsRes(@DimenRes top: Int? = null, @DimenRes start: Int? = null
-                                         , @DimenRes bottom: Int? = null, @DimenRes end: Int? = null) {
+        , @DimenRes bottom: Int? = null, @DimenRes end: Int? = null) {
 
     mView.renderMarginsRes(top = top, start = start, bottom = bottom, end = end)
 }
 
-fun APromise<*>.executeAutoHandleErrorMessage(component: AComponent<*, *, *>, autoCancel: Boolean = false): Disposable {
-    return executeAutoHandleErrorMessage(component.mView, autoCancel)
+/**
+ * Executes the promise on a `component`, giving you control over:
+ * * Canceling automatically when `component`'s `Context` (`Activity`) is destroyed
+ * * Handling (e.g. `Toast`) errors automatically.
+ *
+ * Note: if both `autoCancel` and `handleErrorMessage` are `false`, there is no use
+ * of this method. Use [execute] instead
+ *
+ * @param component
+ * @param autoCancel see [APromise.executeWhileAlive]. Default is `false`, as you might fetch
+ * some data (which can be cached) and you don't want to lose it
+ * @param handleErrorMessage see [APromise.setGlobalAutoErrorHandler]. Default is `true`
+ */
+fun APromise<*>.execute(component: AComponent<*, *, *>
+        , autoCancel: Boolean = false
+        , handleErrorMessage: Boolean = true)
+    : Disposable {
+
+    return execute(component.mView, autoCancel, handleErrorMessage)
 }
 
 /**

@@ -30,6 +30,8 @@ abstract class StoreDataAPIController : StoreAPIController {
      * @param dispatchSideEffects with dispatching the data (types) done for you,
      * here you can add any extra dispatch logic, such as some flag that came with the response
      * @param logErrors if true, logs errors and stack trace
+     *
+     * Also see the simpler single-dataType method
      */
     fun <API_RESPONSE : Any?, P : Promise<API_RESPONSE>> prepare(
             call: P
