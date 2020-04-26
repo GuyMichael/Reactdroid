@@ -3,22 +3,18 @@ package com.guymichael.reactdroid.model
 import android.os.Handler
 import android.os.Looper
 import java.util.*
-//THINK replace dependencyKeys with any 'data class' :)
-open class DependencyTrigger(vararg dependencyKeys: String, private val callback: (DependencyTrigger) -> Unit) {
-    private val mDependencyKeys: Set<String>
-    private val mValues: MutableMap<String, Any>
+
+open class DependencyTrigger(vararg dependencyKeys: String
+        , private val callback: (fulfilledState: Boolean, DependencyTrigger) -> Unit
+    ) {
+
+    private val mDependencyKeys = setOf(*dependencyKeys)
+    private val mValues = HashMap<String, Any?>()
     private val mNotifyHandler: Handler = Handler(Looper.getMainLooper())
-    private val mDependencyCheckRunnable: DependencyCheckRunnable
+    private val mDependencyCheckRunnable = DependencyCheckRunnable()
+    private var wasFulfilled: Boolean = false
+    private var canNotify = true//default
 
-    private var canNotifyOnFulfilment = true//default
-
-    init {
-        //some threads do not have a looper and it will crash. Maybe there is a better solution than going to the main thread..
-        this.mDependencyCheckRunnable = DependencyCheckRunnable()
-        this.mValues = HashMap()
-
-        this.mDependencyKeys = setOf(*dependencyKeys)
-    }
 
     fun put(key: String, value: Any): DependencyTrigger {
         //don't let same value trigger dependency check
@@ -37,11 +33,11 @@ open class DependencyTrigger(vararg dependencyKeys: String, private val callback
     }
 
     /**
-     * Default is [.canNotifyOnFulfilment]
-     * @param notifyOnFulfillment
+     * Set whether to notify on fulfillment state changes. Default is [canNotify]
+     * @param notify
      */
-    fun setNotifyOnFulfilment(notifyOnFulfillment: Boolean): DependencyTrigger {
-        this.canNotifyOnFulfilment = notifyOnFulfillment
+    fun setNotifyEnabled(notify: Boolean): DependencyTrigger {
+        this.canNotify = notify
         return this
     }
 
@@ -51,30 +47,36 @@ open class DependencyTrigger(vararg dependencyKeys: String, private val callback
      * @see .setNotifyOnFulfilment
      */
     fun checkAndNotify() {
-        this.mDependencyCheckRunnable.checkDependenciesFulfilled(true)
+        this.mDependencyCheckRunnable.checkDependencies(true)
     }
 
-    /**
-     * Triggers this event 'now', regardless of missing keys
-     */
+    /** Triggers this event 'now', regardless of missing keys */
     fun forceTrigger() {
-        callback(this)
+        callback(wasFulfilled, this)
     }
 
     private inner class DependencyCheckRunnable : Runnable {
         override fun run() {
-            checkDependenciesFulfilled(canNotifyOnFulfilment)
+            checkDependencies(canNotify)
         }
 
-        fun checkDependenciesFulfilled(notifyIfFulfilled: Boolean): Boolean {
+        /** @return new fulfilled state */
+        fun checkDependencies(notify: Boolean): Boolean {
             for (key in mDependencyKeys) {
-                if (!mValues.containsKey(key)) {//allows nulls
+                if( !mValues.containsKey(key)) {//allows nulls
+                    //not fulfilled
+                    if (wasFulfilled && notify) {
+                        //state changed
+                        callback(false, this@DependencyTrigger)
+                    }
                     return false
                 }
             }
 
-            if (notifyIfFulfilled) {
-                callback(this@DependencyTrigger)
+            //fulfilled
+            if( !wasFulfilled && notify) {
+                //state changed
+                callback(true, this@DependencyTrigger)
             }
 
             return true

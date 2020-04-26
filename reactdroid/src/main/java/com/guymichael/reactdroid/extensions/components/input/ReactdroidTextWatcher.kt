@@ -39,10 +39,7 @@ class ReactdroidTextWatcher<T> private constructor(
     fun setText(s: CharSequence?) {
         et.get()?.let {
             it.removeTextChangedListener(this)
-            ReactdroidTextHelper.setText(
-                it,
-                s
-            )
+            ReactdroidTextHelper.setText(it, s)
             it.addTextChangedListener(this)
         }
     }
@@ -73,28 +70,21 @@ class ReactdroidTextWatcher<T> private constructor(
     companion object {
         @JvmStatic
         fun <S> create(et: EditText, listener: ReactdroidTextWatcherListener<S>) : ReactdroidTextWatcher<S> {
-            val watcher =
-                ReactdroidTextWatcher(
-                    WeakReference(et),
-                    listener
-                )
-            et.addTextChangedListener(watcher)
-            return watcher
+            return ReactdroidTextWatcher(
+                WeakReference(et),
+                listener
+
+            ).also { et.addTextChangedListener(it) }
         }
 
         fun create(et: EditText, listener: (String?) -> Unit) : ReactdroidTextWatcher<String?> {
+            return ReactdroidTextWatcher(
+                WeakReference(et),
+                object : ReactdroidSimpleTextWatcherListener {
+                    override fun onChanged(value: String?) { listener.invoke(value) }
+                }
 
-            val watcher =
-                ReactdroidTextWatcher(
-                    WeakReference(et),
-                    object :
-                        ReactdroidSimpleTextWatcherListener {
-                        override fun onChanged(value: String?) {
-                            listener(value)
-                        }
-                    })
-            et.addTextChangedListener(watcher)
-            return watcher
+            ).also { et.addTextChangedListener(it) }
         }
     }
 
