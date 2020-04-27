@@ -101,7 +101,7 @@ abstract class AComponent<P : OwnProps, S : OwnState, V : View>(
 
     //make final and better logic
     final override fun notifyComponentWillMount() {
-        if (isPassedOrDuringFirstRender()) {
+        if (isPassedOrDuringRender()) {
             //remount call from Component. Will be removed once Component handles the first willMount as well
            super.notifyComponentWillMount()
         } else {

@@ -95,6 +95,15 @@ abstract class StoreDataType<DATA_MODEL : Any> : StoreKey {
         return getAll(state)?.find { getSchemaId(it) == id }
     }
 
+    /** @return `true` if the parent [data reducer][getReducer] contains any mapping for this type
+     * that is not null, according to [current state][getStore] */
+    fun existsInCurrentState(): Boolean = exists(getStore().state)
+
+    //make final
+    final override fun exists(state: GlobalState): Boolean {
+        return super.exists(state)
+    }
+
     fun exists(id: String, state: GlobalState = getStore().state): Boolean {
         return get(id, state) != null
     }

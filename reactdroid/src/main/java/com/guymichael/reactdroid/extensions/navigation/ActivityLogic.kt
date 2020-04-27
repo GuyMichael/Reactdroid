@@ -43,12 +43,15 @@ object ActivityLogic {
         val intent = Intent(context, cls).also { i ->
             bundleExtras?.let(i::putExtras)
             intentFlags?.let(i::setFlags)
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         }
 
         //prepare the Promise
         val promise = prepareActivityResumePromise(context, cls)
 
-        //open activity. If already open, activity.onNewIntent will be called
+        //open activity.
+        // If already open, activity.onNewIntent will be called
+        // thanks to previously set flag FLAG_ACTIVITY_REORDER_TO_FRONT
         if (forResult_requestCode == null) {
             context.startActivity(intent)
         } else {

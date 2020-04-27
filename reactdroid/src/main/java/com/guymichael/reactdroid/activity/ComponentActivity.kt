@@ -171,17 +171,8 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
     private var waitForMountStateChangeConsumer: ((Boolean) -> Unit)? = null
     final override fun listenOnMountStateChanges(consumer: (Boolean) -> Unit) {
         waitForMountStateChangeConsumer = consumer
-        //already mounted (Activity). onDestroy will call back this consumer for un-mounts.
-        //note: we don't have to call on mounts, because this is an Activity:
-        //      In short, Activities can't *re*mount, only recreate from scratch, and the first render is always on a mounted Activity.
-
-        //      As an Activity, it calls the first onRender by itself (onPostCreate), and as an Activity, it will
-        //      always be mounted at this point (setContentView inside onCreate).
-        //      Also, beside the fact that it will always be mounted during the first render,
-        //      Activities can't re-mount - if they get destroyed (unmount), they have to be recreated from scratch to be shown again,
-        //      meaning their props, state and everything gets re-created.
-        //      So -> this callback will never be called for the first mount (already mounted on first render),
-        //            and can never be called for re-mounts (there are none for an Activity). So no need to call it back for mounts, only unmounts
+        //already mounted (Activity after (see) onPostCreate).
+        // onDestroy will call back this consumer for un-mounts.
     }
 
     //make final and better logic

@@ -68,11 +68,11 @@ interface Component<P : OwnProps, S : OwnState> {
     fun componentDidMount() {}
     /** **CONTRACT:** DO NOT call yourself, called by the system */
     fun shouldComponentUpdate(nextProps: P): Boolean {
-        return isPassedOrDuringFirstRender() && !Utils.shallowEquality(this.props, nextProps)
+        return isPassedOrDuringRender() && !Utils.shallowEquality(this.props, nextProps)
     }
     /** **CONTRACT:** DO NOT call yourself, called by the system */
     fun shouldComponentUpdate(nextState: S): Boolean {
-        return isPassedOrDuringFirstRender() && !Utils.shallowEquality(this.ownState, nextState)
+        return isPassedOrDuringRender() && !Utils.shallowEquality(this.ownState, nextState)
     }
     /** **CONTRACT:**
      * 1. DO NOT call yourself, called by the system
@@ -123,7 +123,7 @@ interface Component<P : OwnProps, S : OwnState> {
 //        Logger.w(getDisplayName(), "setState called: $nextState")
         when {
             //before first render call - not yet ready to render - this is an illegal (prohibited) call
-            !isPassedOrDuringFirstRender() -> {
+            !isPassedOrDuringRender() -> {
                 Logger.w(getDisplayName(), "setState() called before first mount(render)")
                 //note: we can't update(init) the state at this point,
                 //      as we count on its initialization status, inside isPassedFirstRender()
@@ -155,7 +155,7 @@ interface Component<P : OwnProps, S : OwnState> {
     fun onHardwareBackPressed(): Boolean {
         //init state on back presses
 
-        return isPassedOrDuringFirstRender()
+        return isPassedOrDuringRender()
             .letIfTrue { createInitialState(props) }
             ?.takeIf { !it.equals(this.ownState) }
             ?.let { initialState ->
@@ -184,7 +184,7 @@ interface Component<P : OwnProps, S : OwnState> {
             //      be calling onFirstRenderRequest() multiple times
 
             //normal render THINK synchronization (lock) when during first render
-            isMounted() && isPassedOrDuringFirstRender() -> onStandardRender(nextProps, forceUpdate)
+            isMounted() && isPassedOrDuringRender() -> onStandardRender(nextProps, forceUpdate)
 
             //not mounted OR state not init., skip this render
             else -> {
@@ -299,11 +299,11 @@ interface Component<P : OwnProps, S : OwnState> {
         //note: we (first) update the 'state' inside performFirstRenderChain
 
         val wasMountedBeforeWait = isMounted()
-        val shouldRenderDueToAlreadyMounted = { wasMountedBeforeWait && !isPassedOrDuringFirstRender() }
+        val shouldRenderDueToAlreadyMounted = { wasMountedBeforeWait && !isPassedOrDuringRender() }
 
         // Prepare the didMount & willUnmount callbacks
         listenOnMountStateChanges { mounted ->
-            val isPassedFirstRender = isPassedOrDuringFirstRender()
+            val isPassedFirstRender = isPassedOrDuringRender()
 
             if (mounted) {                      //may be called multiple times during lifecycle
                 //may be called before method continues to below onComponentMounted(false), in which case the latter will be skipped
@@ -360,8 +360,8 @@ interface Component<P : OwnProps, S : OwnState> {
         }
     }
 
-    /** NOTICE: do not call from inside render() ! It will always return true */
-    fun isPassedOrDuringFirstRender(): Boolean {
+    /** @return `true` if this component has ever rendered or is currently undergoing a render cycle */
+    fun isPassedOrDuringRender(): Boolean {
         return isStateInitialized()//weird but effective way. State isn't init. until the first render
     }
 
@@ -376,7 +376,7 @@ interface Component<P : OwnProps, S : OwnState> {
 //        Logger.e(getDisplayName(), "render()")
         render()
 //        Logger.e(getDisplayName(), "componentDidUpdate()")
-        componentDidUpdate(prevProps, prevState, snapshot)
+        componentDidUpdate(prevProps, prevState, snapshot)//THINK end of execution queue (extend in APromise) to let View update
         UNSAFE_componentDidUpdateHint(prevProps, prevState, snapshot)
         //handle context management
         getContextManagerOrNull()?.onComponentDidUpdate(this.props, prevProps)

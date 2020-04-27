@@ -22,9 +22,6 @@ interface ClientPageIntf {
     /** @param extras may be from PUSH or Deep Link, or any other source.. */
     fun mapExtrasToPropsOrNull(extras: Map<String, String>): OwnProps?
 
-    fun showLoader(context: ComponentActivity<*>)
-    fun dismissLoader(context: ComponentActivity<*>)
-
     fun openOrReject(context: ComponentActivity<*>, props: OwnProps
             , animations: Pair<Int?, Int?>? = null
             , transitions: Array<Pair<View, String>>? = null
@@ -34,14 +31,6 @@ interface ClientPageIntf {
 
         return if (allowToOpen()) {
                 openPage(context, props, animations)
-                    //loader
-                    .letIf({ showLoader }) {
-                        it.doOnExecutionWithContext(context) { callingActivity ->
-                            showLoader(callingActivity)
-                        }.finallyWithContext(context) { (callingActivity, _) ->
-                            dismissLoader(callingActivity)
-                        }
-                    }
             } else {
                 APromise.ofReject("${getPageName()} requires login or not allowed for some other reason")
             }

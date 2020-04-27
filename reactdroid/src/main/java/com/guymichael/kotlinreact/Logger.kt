@@ -10,15 +10,24 @@ object Logger {
         mLogger = logger
     }
 
+    @JvmStatic
     fun i(cls: Class<*>, msg: String) {
         mLogger?.takeIf { it.shouldLogI() }?.i(cls.simpleName, msg)
     }
 
+    fun i(cls: KClass<*>, msg: String) {
+        mLogger?.takeIf { it.shouldLogI() }?.i(cls.java.simpleName, msg)
+    }
+
+    @JvmStatic
     fun d(cls: Class<*>, msg: String) {
         mLogger?.takeIf { it.shouldLogD() }?.d(cls.simpleName, msg)
     }
 
-    @Deprecated("use the KClass method")
+    fun d(cls: KClass<*>, msg: String) {
+        mLogger?.takeIf { it.shouldLogD() }?.d(cls.java.simpleName, msg)
+    }
+
     @JvmStatic
     fun w(cls: Class<*>, msg: String) {
         mLogger?.takeIf { it.shouldLogW() }?.w(cls.simpleName, msg)
@@ -28,7 +37,6 @@ object Logger {
         mLogger?.takeIf { it.shouldLogW() }?.w(cls.java.simpleName, msg)
     }
 
-    @Deprecated("use the KClass method")
     @JvmStatic
     fun e(cls: Class<*>, msg: String) {
         mLogger?.takeIf { it.shouldLogE() }?.e(cls.simpleName, msg)
@@ -37,6 +45,9 @@ object Logger {
     fun e(cls: KClass<*>, msg: String) {
         mLogger?.takeIf { it.shouldLogE() }?.e(cls.java.simpleName, msg)
     }
+
+
+
 
     fun i(tag: String, msg: String) {
         mLogger?.takeIf { it.shouldLogI() }?.i(tag, msg)
@@ -57,19 +68,22 @@ object Logger {
 
 
 
-
+    /** See [LoggerIntf.shouldLogI] */
     fun iLazy(cls: Class<*>, messageSupplier: () -> String) {
         mLogger?.takeIf { it.shouldLogI() }?.i(cls.simpleName, messageSupplier())
     }
 
+    /** See [LoggerIntf.shouldLogD] */
     fun dLazy(cls: Class<*>, messageSupplier: () -> String) {
         mLogger?.takeIf { it.shouldLogD() }?.d(cls.simpleName, messageSupplier())
     }
 
+    /** See [LoggerIntf.shouldLogW] */
     fun wLazy(cls: Class<*>, messageSupplier: () -> String) {
         mLogger?.takeIf { it.shouldLogW() }?.i(cls.simpleName, messageSupplier())
     }
 
+    /** See [LoggerIntf.shouldLogE] */
     fun eLazy(cls: Class<*>, messageSupplier: () -> String) {
         mLogger?.takeIf { it.shouldLogE() }?.e(cls.simpleName, messageSupplier())
     }
