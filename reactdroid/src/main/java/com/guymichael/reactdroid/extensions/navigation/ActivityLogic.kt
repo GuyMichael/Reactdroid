@@ -43,7 +43,7 @@ object ActivityLogic {
         val intent = Intent(context, cls).also { i ->
             bundleExtras?.let(i::putExtras)
             intentFlags?.let(i::setFlags)
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         }
 
         //prepare the Promise

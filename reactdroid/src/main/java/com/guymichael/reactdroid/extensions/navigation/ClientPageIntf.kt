@@ -4,7 +4,6 @@ import android.view.View
 import androidx.core.util.Pair
 import com.guymichael.apromise.APromise
 import com.guymichael.kotlinreact.model.OwnProps
-import com.guymichael.promise.letIf
 import com.guymichael.reactdroid.activity.ComponentActivity
 
 interface ClientPageIntf {
@@ -14,7 +13,9 @@ interface ClientPageIntf {
      * in which case we still want to call it for the new props to take affect,
      * but in case you have a long chain of screens, you might call the top one only in this case.
      * See [NavigationLogic.isPageOpen]*/
-    val openPage: (context: ComponentActivity<*>, OwnProps, animations: Pair<Int?, Int?>?)
+    val openPage: (context: ComponentActivity<*>, OwnProps, animations: Pair<Int?, Int?>?
+                   , transitions: Array<Pair<View, String>>?
+                   , forResult_requestCode: Int?)
             -> APromise<out ComponentActivity<*>>
 
     fun getPageName(): String
@@ -26,11 +27,10 @@ interface ClientPageIntf {
             , animations: Pair<Int?, Int?>? = null
             , transitions: Array<Pair<View, String>>? = null
             , forResult_requestCode: Int? = null
-            , showLoader: Boolean = false
         ) : APromise<out ComponentActivity<*>> {
 
         return if (allowToOpen()) {
-                openPage(context, props, animations)
+                openPage(context, props, animations, transitions, forResult_requestCode)
             } else {
                 APromise.ofReject("${getPageName()} requires login or not allowed for some other reason")
             }
@@ -41,11 +41,10 @@ interface ClientPageIntf {
             , animations: Pair<Int?, Int?>? = null
             , transitions: Array<Pair<View, String>>? = null
             , forResult_requestCode: Int? = null
-            , showLoader: Boolean = false
         ) : APromise<out ComponentActivity<*>> {
 
         return mapExtrasToPropsOrNull(extras)
-            ?.let { openOrReject(context, it, animations, transitions, forResult_requestCode, true) }
+            ?.let { openOrReject(context, it, animations, transitions, forResult_requestCode) }
             ?: return APromise.ofReject("${getPageName()} requires non-null props built from Map<String, String> extras")
     }
 
