@@ -4,6 +4,7 @@ import com.guymichael.apromise.APromise
 import com.guymichael.reactdroid.extensions.router.model.CustomDeepLinkAction
 import com.guymichael.reactdroid.activity.ComponentActivity
 import com.guymichael.reactdroid.extensions.navigation.ClientPageIntf
+import com.guymichael.reactdroid.extensions.navigation.NavigationLogic
 import java.io.File
 import java.io.UnsupportedEncodingException
 import java.net.URI
@@ -46,10 +47,10 @@ object DeepLinkLogic {
         return customActionParser?.invoke(key)?.executeOrReject(context, uri)
 
         //or open the new CLIENT_COMPONENT_PAGE model (per uri)
-        ?: pageParser.invoke(key)?.let { componentPage ->
+        ?: pageParser.invoke(key)?.let { page ->
             parseUri(uri)?.let { extras ->
 
-                componentPage.openOrReject(context, extras
+                NavigationLogic.open(page, context, extras
                     , null, null, null, true
                 ).thenMap { Unit } //THINK animations
             }

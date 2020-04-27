@@ -116,14 +116,8 @@ object AppForegroundLogic {
 
 
 
-    /**
-     * @return true if there is a record matching the given `page`
-     * and the page is alive according to [Activity.isFinishing], [Activity.isDestroyed] and
-     * the state (`CREATED` to `STOPPED`, inclusive)
-     */
-    internal fun isPageAlive(page: ClientPageIntf): Boolean {
-        return getActivityRecords(page).any { it.isPageAlive() }
-    }
+
+
 
     /**
      * @return a record matching the given `page` with a state `CREATED` to `STOPPED`, inclusive,
