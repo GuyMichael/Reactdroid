@@ -6,7 +6,7 @@ import com.guymichael.reactdroid.activity.ComponentActivity
 import com.guymichael.reactdroid.extensions.navigation.model.NavigationAction
 
 interface ClientPageIntf {
-    val key: String
+    val path: String
     val allowToOpen: () -> Boolean
     /** Note that the page might already ben open (and not necessarily foreground),
      * in which case we still want to call it for the new props to take affect,
@@ -14,9 +14,8 @@ interface ClientPageIntf {
      * See [NavigationLogic.isPageOpen]*/
     val openPage: (context: ComponentActivity<*>, NavigationAction<*>)
             -> APromise<out ComponentActivity<*>>
+    /** `extras` may be from PUSH or Deep Link, or any other source.. */
+    val mapExtrasToPropsOrNull: (extras: Map<String, String>) -> OwnProps?
 
     fun getPageName(): String
-
-    /** @param extras may be from PUSH or Deep Link, or any other source.. */
-    fun mapExtrasToPropsOrNull(extras: Map<String, String>): OwnProps?
 }

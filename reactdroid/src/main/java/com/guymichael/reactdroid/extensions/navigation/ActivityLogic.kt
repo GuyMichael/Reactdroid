@@ -71,10 +71,10 @@ object ActivityLogic {
     openActivity(context: Activity
             , cls: Class<T>
             , props: OWN_PROPS
-            , intentFlags: Int? = null
             , animations: Pair<Int?, Int?>? = null
             , transitions: Array<Pair<View, String>>? = null
             , forResult_requestCode: Int? = null
+            , intentFlags: Int? = null
         ) : APromise<T> {
 
 
