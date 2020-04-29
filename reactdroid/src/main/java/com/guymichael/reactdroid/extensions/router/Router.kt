@@ -1,7 +1,7 @@
 package com.guymichael.reactdroid.extensions.router
 
 import com.guymichael.reactdroid.extensions.navigation.ClientPageIntf
-import com.guymichael.reactdroid.extensions.router.model.CustomDeepLinkAction
+import com.guymichael.reactdroid.extensions.router.model.CustomDeepLinkActionIntf
 
 object Router {
 
@@ -29,7 +29,7 @@ object Router {
      */
     @JvmStatic
     fun init(deepLinkPageParser: (String) -> ClientPageIntf?
-         , deepLinkCustomActionParser: ((String) -> CustomDeepLinkAction?)? = null) {
+         , deepLinkCustomActionParser: ((String) -> CustomDeepLinkActionIntf?)? = null) {
 
         DeepLinkLogic.init(deepLinkPageParser, deepLinkCustomActionParser)
     }

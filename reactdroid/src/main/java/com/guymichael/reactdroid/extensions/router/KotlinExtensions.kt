@@ -22,5 +22,5 @@ fun ComponentActivity<*>.openDeepLinkOrReject(intent: Intent): APromise<Unit> {
     return intent.data?.let {
         DeepLinkLogic.openDeepLink(this, it.toString())
 
-    } ?: APromise.ofReject("intent contains no deep link data")
+    } ?: APromise.ofReject("intent contains no valid deep link data")
 }

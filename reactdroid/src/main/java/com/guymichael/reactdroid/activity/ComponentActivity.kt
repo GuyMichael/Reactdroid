@@ -15,15 +15,17 @@ import com.guymichael.kotlinreact.model.EmptyOwnState
 import com.guymichael.kotlinreact.model.OwnProps
 
 /**
- * An Activity which is also a Component, which mainly helps in two ways:
- * 1. Converts original lifecycle to Component-like lifecycle
- * 2. As an extension to #1, converts [Intent] to [OwnProps] and handles the `Intent` flow
- * from both `onCreate()` and `onNewIntent()`
+ * A reactdroid base-class for an `Activity` ([AppCompatActivity]), serving as a [Component].
+ * It is encouraged to use it for your `Activity`s base-class, especially for it to be treated
+ * as a component from outside (delivering `props` to open, instead of the Android way of Intents/extras).
  *
- * note: default implementation of [mapIntentToProps] simply casts an extra with the key [INTENT_KEY_API_PROPS]
- * to the props type (`P`). If that is not the desired behavior, override [mapIntentToProps]
+ * **Best practice** is **not** to use **any** `Activity` as the actual UI component, but use a single
+ * `AComponent` as the top "page" component, and use an `Activity` just to wrap it for Android-related
+ * usages (e.g. opening an `Activity`...).
  *
- * @param P
+ * **Note** that while this `Activity`'s lifecycle is converted to a reactdroid lifecycle just like any
+ * other `AComponent`, this is in fact a [Component] (`AComponent`'s pure kotlin interface),
+ * so it is best to avoid using it as a component or for UI rendering at all.
  */
 abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<P, EmptyOwnState> {
 
@@ -44,6 +46,8 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
 
 
 
+    /* API */
+
     /** @return apiProps from Intent, or null if Intent doesn't have enough information to create props.
      * If null is returned, the activity will not remain open, and close immediately */
     protected open fun mapIntentToProps(intent: Intent): P? {
@@ -63,6 +67,12 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
     protected open fun inflateLayout() { setContentView(getLayoutRes()) }
     protected abstract fun onBindViews(activityView: ViewGroup)
     protected abstract fun onBindViewListeners()
+
+
+
+
+
+
 
 
 

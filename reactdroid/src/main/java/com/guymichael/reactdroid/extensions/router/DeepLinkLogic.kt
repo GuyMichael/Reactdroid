@@ -1,7 +1,7 @@
 package com.guymichael.reactdroid.extensions.router
 
 import com.guymichael.apromise.APromise
-import com.guymichael.reactdroid.extensions.router.model.CustomDeepLinkAction
+import com.guymichael.reactdroid.extensions.router.model.CustomDeepLinkActionIntf
 import com.guymichael.reactdroid.activity.ComponentActivity
 import com.guymichael.reactdroid.extensions.navigation.ClientPageIntf
 import com.guymichael.reactdroid.extensions.navigation.NavigationLogic
@@ -9,17 +9,25 @@ import java.io.File
 import java.io.UnsupportedEncodingException
 import java.net.URI
 
+/**
+ * A logic class for opening a deep link. Default behavior opens a [ClientPageIntf] instance if found
+ * according to uri. When custom actions are found ([customActionParser], [CustomDeepLinkActionIntf]),
+ * they take precedence over opening a page
+ */
 object DeepLinkLogic {
 
     private lateinit var pageParser: (String) -> ClientPageIntf?
-    private var customActionParser: ((String) -> CustomDeepLinkAction?)? = null
+    private var customActionParser: ((String) -> CustomDeepLinkActionIntf?)? = null
 
     internal fun init(pageParser: (String) -> ClientPageIntf?
-            , customActionParser: ((String) -> CustomDeepLinkAction?)?) {
+            , customActionParser: ((String) -> CustomDeepLinkActionIntf?)?) {
         DeepLinkLogic.pageParser = pageParser
         DeepLinkLogic.customActionParser = customActionParser
     }
 
+    /**
+     * Opens a DeepLink and, if not found, opens `url` as a normal link - on the default browser
+     */
     @JvmStatic
     fun openDeepLinkOrNormalLink(context: ComponentActivity<*>, url: String): APromise<Unit> {
         return openDeepLink(context, url)
@@ -41,19 +49,18 @@ object DeepLinkLogic {
     }
 
     fun openDeepLink(context: ComponentActivity<*>, uri : URI) : APromise<Unit> {
-        val key = parseDeepLinkOrClientPageKey(uri)
+        val path = uri.getInnerPath()
+        val extras = uri.parseQuery()
 
-        //custom action for this key
-        return customActionParser?.invoke(key)?.executeOrReject(context, uri)
+        //parse custom action first
+        return customActionParser?.invoke(path)?.executeOrReject(context, extras)
 
-        //or open the new CLIENT_COMPONENT_PAGE model (per uri)
-        ?: pageParser.invoke(key)?.let { page ->
-            parseUri(uri)?.let { extras ->
+        //or open a ClientPage (default)
+        ?: pageParser.invoke(path)?.let { page ->
 
-                NavigationLogic.open(page, context, extras
-                    , null, null, null, true
-                ).thenMap { Unit } //THINK animations
-            }
+            NavigationLogic.open(page, context, extras
+                , null, null, null, true
+            ).thenMap { Unit } //THINK animations
         }
 
         ?: APromise.ofReject("error parsing page/uri: $uri\n")
@@ -65,16 +72,17 @@ object DeepLinkLogic {
 
 
 
-
-private fun parseDeepLinkOrClientPageKey(uri: URI): String {
-    return File(uri.path).name//use File to get last path segment;
+/** @return the uri path, without the hostname and protocol */
+private fun URI.getInnerPath(): String {
+    return File(this.path).name
 }
 
-private fun parseUri(uri: URI): Map<String, String>? {
+/** @return query params as a [Map]. If duplicate keys exist, first key&value pair is used  */
+private fun URI.parseQuery(): Map<String, String> {
     return try {
-        Utils.parseUrlQueryParamsSimple(uri)
+        Utils.parseUrlQueryParamsSimple(this)
     } catch (e: UnsupportedEncodingException) {
         e.printStackTrace()
-        null
+        HashMap()
     }
 }

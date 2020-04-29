@@ -14,6 +14,19 @@ import com.guymichael.kotlinreact.model.Component
 import com.guymichael.kotlinreact.model.EmptyOwnState
 import com.guymichael.kotlinreact.model.OwnProps
 
+/**
+ * A reactdroid base-class for a [Fragment], serving as a [Component].
+ * It is encouraged to use it for your `Fragment`s base-class, especially for it to be treated
+ * as a component from outside (delivering `props` to open, instead of the Android way of Arguments).
+ *
+ * **Best practice** is **not** to use **any** `Fragment` as the actual UI component, but use a single
+ * `AComponent` as the top "page" component, and use a `Fragment` just to wrap it for Android-related
+ * usages (e.g. a `PageViewer`).
+ *
+ * **Note** that while this `Fragment`'s lifecycle is converted to a reactdroid lifecycle just like any
+ * other `AComponent`, this is in fact a [Component] (`AComponent`'s pure kotlin interface),
+ * so it is best to avoid using it as a component or for UI rendering at all.
+ */
 abstract class ComponentFragment<P : OwnProps> : Fragment(), Component<P, EmptyOwnState> {
     /** **DO NOT set yourself.** */
     final override lateinit var ownState: EmptyOwnState
@@ -30,6 +43,9 @@ abstract class ComponentFragment<P : OwnProps> : Fragment(), Component<P, EmptyO
 //        private set THINK
 
 
+
+
+    /* API */
 
     /** This is called whenever the (android) system starts this fragment, with no arguments */
     abstract fun createDefaultProps(): P
@@ -49,6 +65,9 @@ abstract class ComponentFragment<P : OwnProps> : Fragment(), Component<P, EmptyO
     }
     protected abstract fun onBindViews(fragmentView: View)
     protected abstract fun onBindViewListeners()
+
+
+
 
 
 

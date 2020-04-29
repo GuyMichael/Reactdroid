@@ -12,6 +12,7 @@ import com.guymichael.reactdroid.activity.ComponentActivity
 import com.guymichael.reactdroid.post
 import java.io.Serializable
 
+/** A logic/helper class for opening an [Activity], or better yet, a [ComponentActivity] */
 object ActivityLogic {
 
     /**
@@ -86,6 +87,13 @@ object ActivityLogic {
         return openActivity(context, cls, bundle, intentFlags, animations, transitions, forResult_requestCode)
     }
 }
+
+
+
+
+
+
+
 
 private fun <T : Activity> prepareActivityResumePromise(
         currentlyOpenedActivity: Activity, cls: Class<T>
