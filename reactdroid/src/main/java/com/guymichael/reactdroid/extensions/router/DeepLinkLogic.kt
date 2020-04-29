@@ -5,7 +5,6 @@ import com.guymichael.reactdroid.extensions.router.model.CustomDeepLinkActionInt
 import com.guymichael.reactdroid.activity.ComponentActivity
 import com.guymichael.reactdroid.extensions.navigation.ClientPageIntf
 import com.guymichael.reactdroid.extensions.navigation.NavigationLogic
-import java.io.File
 import java.io.UnsupportedEncodingException
 import java.net.URI
 
@@ -49,7 +48,7 @@ object DeepLinkLogic {
     }
 
     fun openDeepLink(context: ComponentActivity<*>, uri : URI) : APromise<Unit> {
-        val path = uri.getInnerPath()
+        val path = uri.path
         val extras = uri.parseQuery()
 
         //parse custom action first
@@ -72,10 +71,6 @@ object DeepLinkLogic {
 
 
 
-/** @return the uri path, without the hostname and protocol */
-private fun URI.getInnerPath(): String {
-    return File(this.path).name
-}
 
 /** @return query params as a [Map]. If duplicate keys exist, first key&value pair is used  */
 private fun URI.parseQuery(): Map<String, String> {
