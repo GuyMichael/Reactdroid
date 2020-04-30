@@ -210,6 +210,8 @@ fun View.getString(@StringRes res: Int, vararg format: Any): String? {
     return this.context?.getString(res, *format)
 }
 
+/** Uses `View`'s `context` to load text resource
+ * @return text or null if `context` is null */
 fun View.getText(@StringRes res: Int): CharSequence? {
     return this.context?.getText(res)
 }
@@ -271,4 +273,8 @@ fun APromise.Companion.delayWhileAlive(component: AComponent<*, *, *>, vararg de
                 }
             }
         }}
+}
+
+fun <V : View> V.waitForMeasure(): APromise<V> {
+    return ViewUtils.waitForViewMeasure(this)
 }

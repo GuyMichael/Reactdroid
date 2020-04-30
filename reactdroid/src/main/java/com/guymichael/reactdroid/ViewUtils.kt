@@ -5,20 +5,22 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.HorizontalScrollView
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.RecyclerView
-import com.guymichael.reactdroid.model.android.SimpleTextWatcher
 import com.guymichael.apromise.APromise
 import com.guymichael.kotlinreact.Logger
 import com.guymichael.promise.Promise
+import com.guymichael.reactdroid.extensions.animation.AnimUtils
+import com.guymichael.reactdroid.model.android.SimpleTextWatcher
 import java.lang.ref.WeakReference
 import kotlin.reflect.KClass
 
-class ViewUtils { companion object {
+object ViewUtils {
 
     fun isFinishedInflate(view: View): Boolean {
         return ViewCompat.isLaidOut(view) || view.run { width > 0 && height > 0 }
@@ -109,16 +111,17 @@ class ViewUtils { companion object {
      * @param view
      * @param listener
      */
-    fun waitForViewMeasure(view: View, listener: (view: View, width: Int, height: Int) -> Unit) {
+    fun <T : View> waitForViewMeasure(view: T, listener: (view: T, width: Int, height: Int) -> Unit)
+        : OnGlobalLayoutListener? {
+
         if (view.height > 0 && view.width > 0) {
             listener(view, view.width, view.height)
-            return
+            return null
         }
 
-        //final WeakReference<OnViewSizeMeasuredListener> listenerWeakReference = new WeakReference<>(listener);
         val viewWeakReference = WeakReference(view)
 
-        view.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        return object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 viewWeakReference.get()?.let {
                     val width = it.width
@@ -131,7 +134,30 @@ class ViewUtils { companion object {
                     }
                 }
             }
-        })
+        }.also {
+            view.viewTreeObserver.addOnGlobalLayoutListener(it)
+        }
+    }
+
+    fun <T : View> waitForViewMeasure(view: T): APromise<T> {
+        val viewRef: WeakReference<T> = WeakReference(view)
+
+        return APromise.ofCallback<T, ViewTreeObserver.OnGlobalLayoutListener?>({ promiseCallback ->
+            viewRef.get()?.let {
+                waitForViewMeasure(it) { v, _, _ ->
+                    promiseCallback.onSuccess(v)
+                }
+            } ?: run {
+                promiseCallback.onFailure(Throwable("View ref released"))
+                null
+            }
+
+        //finally, release listener if set
+        }) { observer ->
+            observer?.let { o -> viewRef.get()?.let { v ->
+                removeViewGlobalLayoutListener(v, o)
+            }}
+        }
     }
 
     fun <V : View> waitForNextOnDraw(view: V) : Promise<V> {
@@ -340,15 +366,77 @@ class ViewUtils { companion object {
             //finally, unregister
         }) { textRef.get()?.removeTextChangedListener(it) }
     }
-}}
+
+    /**
+     * @param visibility one of [View.GONE], [View.VISIBLE] and [View.INVISIBLE]
+     * @param animStartVisibility is null by default to use the 'smart default', per given 'view'
+     * @param animStartAlpha is null by default to use the 'smart default', per given 'view'
+     */
+    fun applyVisibility(visibility: Int, vararg views: View
+        , animate: Boolean = false
+        , animDuration: Long = 0
+        , animStartDelay: Long = 0
+        , animStartVisibility: Int? = null
+        , animStartAlpha: Float? = null) {
+
+        views.forEach { it.takeIf { shouldVisibilityUpdate(it, visibility) }?.let { v ->
+            when {
+                animate -> {
+                    val startAlpha = animStartAlpha
+                    //default: address all 3 method types' defaults (see method impl.)
+                        ?: if (visibility != View.VISIBLE || v.visibility == View.VISIBLE) v.alpha else 0F
+
+                    val startVisibility = animStartVisibility
+                    //default: address all 2-relevant method types' defaults (see method impl.)
+                        ?: v.visibility
+
+                    when (visibility) {
+                        //THINK prevent re-animation if already animating to same destination? using View TAG?
+                        View.VISIBLE -> AnimUtils.animateFadeIn(v, animDuration, startAlpha, animStartDelay).execute()
+                        View.GONE -> AnimUtils.animateFadeOutAndGone(v, animDuration, startAlpha, animStartDelay, startVisibility).execute()
+                        View.INVISIBLE -> AnimUtils.animateFadeOutAndInvisible(v, animDuration, startAlpha, animStartDelay, startVisibility).execute()
+                        else -> {}
+                    }
+
+                }
+
+                v.visibility != visibility -> {
+                    v.visibility = visibility
+
+                    //note: we don't force alpha here. This is done only when animating,
+                    //      in which case it's obviously needed
+                }
+
+                else -> {}
+            }
+
+        } ?: Unit}
+    }
+}
 
 
 
-public fun viewVisibilityOf(bool: Boolean?, visibilityIfFalse: Int = View.GONE): Int {
+
+
+
+
+
+
+fun viewVisibilityOf(bool: Boolean?, visibilityIfFalse: Int = View.GONE): Int {
     return if (bool == true) {
         View.VISIBLE
     } else {
         visibilityIfFalse
+    }
+}
+
+internal fun shouldVisibilityUpdate(view: View, targetVisibility: Int): Boolean {
+    return targetVisibility != view.visibility || run {
+        //already in desired visibility. But are we visible (if that's what we want) ? check alpha
+        when (targetVisibility) {
+            View.VISIBLE -> view.alpha < 1F
+            else -> false
+        }
     }
 }
 

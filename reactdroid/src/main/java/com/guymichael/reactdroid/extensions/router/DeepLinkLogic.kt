@@ -48,7 +48,7 @@ object DeepLinkLogic {
     }
 
     fun openDeepLink(context: ComponentActivity<*>, uri : URI) : APromise<Unit> {
-        val path = uri.path
+        val path = uri.getInnerPath()
         val extras = uri.parseQuery()
 
         //parse custom action first
@@ -71,6 +71,10 @@ object DeepLinkLogic {
 
 
 
+/** @return the uri path, without the hostname and protocol */
+private fun URI.getInnerPath(): String {
+    return this.path.removePrefix("/").removeSuffix("/")
+}
 
 /** @return query params as a [Map]. If duplicate keys exist, first key&value pair is used  */
 private fun URI.parseQuery(): Map<String, String> {
