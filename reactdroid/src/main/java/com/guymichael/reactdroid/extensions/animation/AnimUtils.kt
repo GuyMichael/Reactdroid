@@ -17,8 +17,8 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.guymichael.apromise.APromise
-import com.guymichael.reactdroid.AndroidUtils
-import com.guymichael.reactdroid.waitForMeasure
+import com.guymichael.reactdroid.core.AndroidUtils
+import com.guymichael.reactdroid.core.waitForMeasure
 
 object AnimUtils {
 

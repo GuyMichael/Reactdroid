@@ -1,9 +1,9 @@
-package com.guymichael.reactdroid.model
+package com.guymichael.reactdroid.core.model
 
 import com.guymichael.kotlinreact.model.ComponentDataManager
 import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.kotlinreact.model.OwnState
-import com.guymichael.reactdroid.Utils
+import com.guymichael.reactdroid.core.Utils
 
 /**
  * Android [ComponentDataManager]

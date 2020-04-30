@@ -4,8 +4,8 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import com.guymichael.kotlinreact.model.EmptyOwnState
-import com.guymichael.reactdroid.Utils
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.Utils
+import com.guymichael.reactdroid.core.model.AComponent
 
 /**
  * @param bindToParent A parent [AComponent] to bind the dialog to its lifecycle.

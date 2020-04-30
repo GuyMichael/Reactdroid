@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid
+package com.guymichael.reactdroid.core
 
 import android.app.Activity
 import android.view.View
@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.annotation.DimenRes
 import androidx.annotation.StringRes
 import com.guymichael.apromise.APromise
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.model.AComponent
 import io.reactivex.rxjava3.disposables.Disposable
 import java.lang.ref.WeakReference
 
@@ -79,7 +79,8 @@ fun <A : Activity> APromise.Companion.post(context: A, delayMs: Long = 0L): APro
         }
 
         activityRef.get()?.let {
-            Utils.getActivityView(it)?.let { v ->
+            Utils.getActivityView(it)
+                ?.let { v ->
                 if (delayMs > 0) {
                     v.postDelayed(postRunnable, delayMs)
                 } else {

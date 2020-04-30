@@ -2,7 +2,7 @@ package com.guymichael.reactdroid.extensions.router
 
 import com.guymichael.apromise.APromise
 import com.guymichael.reactdroid.extensions.router.model.CustomDeepLinkActionIntf
-import com.guymichael.reactdroid.activity.ComponentActivity
+import com.guymichael.reactdroid.core.activity.ComponentActivity
 import com.guymichael.reactdroid.extensions.navigation.ClientPageIntf
 import com.guymichael.reactdroid.extensions.navigation.NavigationLogic
 import java.io.UnsupportedEncodingException

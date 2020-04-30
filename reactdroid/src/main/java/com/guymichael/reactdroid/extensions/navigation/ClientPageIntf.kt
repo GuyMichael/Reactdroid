@@ -2,7 +2,7 @@ package com.guymichael.reactdroid.extensions.navigation
 
 import com.guymichael.apromise.APromise
 import com.guymichael.kotlinreact.model.OwnProps
-import com.guymichael.reactdroid.activity.ComponentActivity
+import com.guymichael.reactdroid.core.activity.ComponentActivity
 import com.guymichael.reactdroid.extensions.navigation.model.NavigationAction
 
 /**

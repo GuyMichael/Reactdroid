@@ -5,7 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.guymichael.reactdroid.Utils
+import com.guymichael.reactdroid.core.Utils
 import java.io.UnsupportedEncodingException
 import java.net.URI
 import java.net.URLDecoder

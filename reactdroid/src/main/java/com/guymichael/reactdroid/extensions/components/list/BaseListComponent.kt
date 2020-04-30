@@ -3,7 +3,7 @@ package com.guymichael.reactdroid.extensions.components.list
 import androidx.recyclerview.widget.RecyclerView
 import com.guymichael.kotlinreact.model.OwnState
 import com.guymichael.reactdroid.extensions.components.list.adapter.RecyclerComponentAdapter
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.model.AComponent
 
 abstract class BaseListComponent<P : BaseListProps, S : OwnState, V : RecyclerView>(v: V)
     : AComponent<P, S, V>(v) {

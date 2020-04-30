@@ -12,8 +12,8 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
-import com.guymichael.reactdroid.model.AComponent
-import com.guymichael.reactdroid.runNotNull
+import com.guymichael.reactdroid.core.model.AComponent
+import com.guymichael.reactdroid.core.runNotNull
 import java.lang.ref.WeakReference
 import kotlin.math.min
 

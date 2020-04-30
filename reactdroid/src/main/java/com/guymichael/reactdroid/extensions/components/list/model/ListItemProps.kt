@@ -3,7 +3,7 @@ package com.guymichael.reactdroid.extensions.components.list.model
 import android.view.View
 import androidx.annotation.LayoutRes
 import com.guymichael.kotlinreact.model.OwnProps
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.model.AComponent
 import java.io.Serializable
 
 abstract class ListItemProps(open val id: String) : OwnProps(), Serializable {

@@ -7,7 +7,7 @@ import android.view.Window
 import android.view.WindowManager
 import androidx.annotation.StyleRes
 import com.guymichael.kotlinreact.model.OwnState
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.model.AComponent
 import java.lang.ref.WeakReference
 
 /**

@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid
+package com.guymichael.reactdroid.core
 
 import android.graphics.Point
 import android.view.Gravity
@@ -16,7 +16,7 @@ import com.guymichael.apromise.APromise
 import com.guymichael.kotlinreact.Logger
 import com.guymichael.promise.Promise
 import com.guymichael.reactdroid.extensions.animation.AnimUtils
-import com.guymichael.reactdroid.model.android.SimpleTextWatcher
+import com.guymichael.reactdroid.core.model.android.SimpleTextWatcher
 import java.lang.ref.WeakReference
 import kotlin.reflect.KClass
 
@@ -32,7 +32,9 @@ object ViewUtils {
 
     /** True when attached to window AND laid out for the first time */
     fun isMounted(view: View): Boolean {
-        return ViewCompat.isAttachedToWindow(view) && isFinishedInflate(view)
+        return ViewCompat.isAttachedToWindow(view) && isFinishedInflate(
+            view
+        )
     }
 
     /**
@@ -75,7 +77,9 @@ object ViewUtils {
             if (isFinishedInflate(v)) {
                 Promise.of(v)
             } else {
-                waitForNextOnDraw(v) or waitForNextGlobalLayout(v)
+                waitForNextOnDraw(v) or waitForNextGlobalLayout(
+                    v
+                )
             }
         }
         .runNotNull(timeoutMs) { timeout(it) }
@@ -128,7 +132,10 @@ object ViewUtils {
                     val height = it.height
 
                     if (width > 0 && height > 0) {
-                        removeViewGlobalLayoutListener(it, this)
+                        removeViewGlobalLayoutListener(
+                            it,
+                            this
+                        )
 
                         listener(it, width, height)
                     }
@@ -155,7 +162,10 @@ object ViewUtils {
         //finally, release listener if set
         }) { observer ->
             observer?.let { o -> viewRef.get()?.let { v ->
-                removeViewGlobalLayoutListener(v, o)
+                removeViewGlobalLayoutListener(
+                    v,
+                    o
+                )
             }}
         }
     }
@@ -171,7 +181,10 @@ object ViewUtils {
                 null
             } else {
                 try {
-                    createOnDrawListener(viewRef, promiseCallback).also {
+                    createOnDrawListener(
+                        viewRef,
+                        promiseCallback
+                    ).also {
                         v.viewTreeObserver.addOnDrawListener(it)
                     }
                 } catch (e: IllegalStateException) {
@@ -204,7 +217,10 @@ object ViewUtils {
             (object : ViewTreeObserver.OnGlobalLayoutListener {
                 override fun onGlobalLayout() { viewRef.get()?.let {
                     //remove here as well (before finally) to prevent race conditions THINK needed?
-                    removeViewGlobalLayoutListener(it, this)
+                    removeViewGlobalLayoutListener(
+                        it,
+                        this
+                    )
 
                     promiseCallback.onSuccess(it)
                 }}
@@ -213,7 +229,12 @@ object ViewUtils {
             }).apply { viewRef.get()?.viewTreeObserver?.addOnGlobalLayoutListener(this) }
 
             //finally - unregister
-        }) { removeViewGlobalLayoutListener(viewRef.get(), it) }
+        }) {
+            removeViewGlobalLayoutListener(
+                viewRef.get(),
+                it
+            )
+        }
     }
 
 
@@ -253,13 +274,27 @@ object ViewUtils {
     }
 
     fun findAnyParent(child: View, possibleParents: List<View>): View? {
-        return possibleParents.firstOrNull { isParent(child, it) }
+        return possibleParents.firstOrNull {
+            isParent(
+                child,
+                it
+            )
+        }
     }
 
     fun findAnyScrollingParent(child: View): ViewGroup? {
-        return findParent(child, NestedScrollView::class)
-            ?: findParent(child, ScrollView::class)
-            ?: findParent(child, RecyclerView::class)
+        return findParent(
+            child,
+            NestedScrollView::class
+        )
+            ?: findParent(
+                child,
+                ScrollView::class
+            )
+            ?: findParent(
+                child,
+                RecyclerView::class
+            )
     }
 
 
@@ -280,7 +315,13 @@ object ViewUtils {
      * @param gravity to locate the child according to. Correlates to [Gravity.TOP], [Gravity.BOTTOM] or [Gravity.CENTER]/[Gravity.CENTER_VERTICAL]
      */
     fun smoothScrollToChild(parent: ScrollView, child: View, gravity: Int) {
-        parent.smoothScrollTo(0, getScrollChildInParentVerticalOffsetIntl(parent, child, gravity))
+        parent.smoothScrollTo(0,
+            getScrollChildInParentVerticalOffsetIntl(
+                parent,
+                child,
+                gravity
+            )
+        )
     }
 
     /**
@@ -290,7 +331,13 @@ object ViewUtils {
      * @param gravity to locate the child according to. Correlates to [Gravity.TOP], [Gravity.BOTTOM] or [Gravity.CENTER]/[Gravity.CENTER_VERTICAL]
      */
     fun smoothScrollToChild(parent: NestedScrollView, child: View, gravity: Int) {
-        parent.smoothScrollTo(0, getScrollChildInParentVerticalOffsetIntl(parent, child, gravity))
+        parent.smoothScrollTo(0,
+            getScrollChildInParentVerticalOffsetIntl(
+                parent,
+                child,
+                gravity
+            )
+        )
     }
 
     /**
@@ -300,7 +347,12 @@ object ViewUtils {
      * @param gravity to locate the child according to. Correlates to [Gravity.LEFT], [Gravity.RIGHT] or [Gravity.CENTER]/[Gravity.CENTER_HORIZONTAL]
      */
     fun smoothScrollToChild(parent: HorizontalScrollView, child: View, gravity: Int) {
-        parent.smoothScrollTo(getScrollChildInParentHorizontalOffsetIntl(parent, child, gravity), 0)
+        parent.smoothScrollTo(
+            getScrollChildInParentHorizontalOffsetIntl(
+                parent,
+                child,
+                gravity
+            ), 0)
     }
 
     /**
@@ -310,7 +362,10 @@ object ViewUtils {
      * @param gravity to locate the child according to. Correlates to [Gravity.LEFT], [Gravity.RIGHT] or [Gravity.CENTER]/[Gravity.CENTER_HORIZONTAL]
      */
     fun smoothScrollToChild(parent: androidx.recyclerview.widget.RecyclerView, child: View) {
-        findAnyParent(child, parent.children())?.let { recyclerItemParent ->
+        findAnyParent(
+            child,
+            parent.children()
+        )?.let { recyclerItemParent ->
         parent.getChildAdapterPosition(recyclerItemParent).takeIf { it != androidx.recyclerview.widget.RecyclerView.NO_POSITION }?.let {
 
             parent.smoothScrollToPosition(it)
@@ -327,17 +382,36 @@ object ViewUtils {
     @JvmStatic
     fun smoothScrollToChild(parent: View, child: View, gravity: Int) {
         when (parent) {
-            is NestedScrollView     -> smoothScrollToChild(parent, child, gravity)
-            is ScrollView           -> smoothScrollToChild(parent, child, gravity)
-            is HorizontalScrollView -> smoothScrollToChild(parent, child, gravity)
-            is androidx.recyclerview.widget.RecyclerView -> smoothScrollToChild(parent, child)
+            is NestedScrollView     -> smoothScrollToChild(
+                parent,
+                child,
+                gravity
+            )
+            is ScrollView           -> smoothScrollToChild(
+                parent,
+                child,
+                gravity
+            )
+            is HorizontalScrollView -> smoothScrollToChild(
+                parent,
+                child,
+                gravity
+            )
+            is androidx.recyclerview.widget.RecyclerView -> smoothScrollToChild(
+                parent,
+                child
+            )
             else -> Logger.w("ViewUtils","smoothScrollToChild() : parent of class " + parent.javaClass.simpleName + " is not supported")
         }
     }
 
     fun smoothScrollAnyScrollingParentToChild(child: View, gravity: Int) {
         findAnyScrollingParent(child)?.let {
-            smoothScrollToChild(it, child, gravity)
+            smoothScrollToChild(
+                it,
+                child,
+                gravity
+            )
         }
     }
 
@@ -379,7 +453,12 @@ object ViewUtils {
         , animStartVisibility: Int? = null
         , animStartAlpha: Float? = null) {
 
-        views.forEach { it.takeIf { shouldVisibilityUpdate(it, visibility) }?.let { v ->
+        views.forEach { it.takeIf {
+            shouldVisibilityUpdate(
+                it,
+                visibility
+            )
+        }?.let { v ->
             when {
                 animate -> {
                     val startAlpha = animStartAlpha
@@ -501,11 +580,21 @@ private fun getDeepChildOffset(mainParent: View, child: View, gravityVertical: I
 }
 
 private fun getScrollChildInParentVerticalOffsetIntl(parent: View, child: View, gravity: Int): Int {
-    return getDeepChildOffset(parent, child, gravity, Gravity.NO_GRAVITY).y
+    return getDeepChildOffset(
+        parent,
+        child,
+        gravity,
+        Gravity.NO_GRAVITY
+    ).y
 }
 
 private fun getScrollChildInParentHorizontalOffsetIntl(parent: View, child: View, gravity: Int): Int {
-    return getDeepChildOffset(parent, child, Gravity.NO_GRAVITY, gravity).x
+    return getDeepChildOffset(
+        parent,
+        child,
+        Gravity.NO_GRAVITY,
+        gravity
+    ).x
 }
 
 private fun <V : View> createOnDrawListener(viewRef: WeakReference<V>

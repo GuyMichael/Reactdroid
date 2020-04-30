@@ -5,9 +5,9 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
-import com.guymichael.reactdroid.applyOrGone
-import com.guymichael.reactdroid.applyOrInvisible
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.applyOrGone
+import com.guymichael.reactdroid.core.applyOrInvisible
+import com.guymichael.reactdroid.core.model.AComponent
 
 fun <P : BaseTextProps> AComponent<P, *, *>.renderBaseTextOrGone(props: P?, vararg visibilityBoundViews: View) {
     mView.applyOrGone(props?.takeIf { !it.text.isNullOrBlank() }, {

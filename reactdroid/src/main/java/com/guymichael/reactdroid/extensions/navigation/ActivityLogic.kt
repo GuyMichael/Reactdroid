@@ -8,8 +8,8 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
 import com.guymichael.apromise.APromise
 import com.guymichael.kotlinreact.model.OwnProps
-import com.guymichael.reactdroid.activity.ComponentActivity
-import com.guymichael.reactdroid.post
+import com.guymichael.reactdroid.core.activity.ComponentActivity
+import com.guymichael.reactdroid.core.post
 import java.io.Serializable
 
 /** A logic/helper class for opening an [Activity], or better yet, a [ComponentActivity] */

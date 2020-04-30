@@ -2,7 +2,7 @@ package com.guymichael.reactdroid.extensions.components.dialog
 
 import android.app.Dialog
 import android.view.View
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.model.AComponent
 import com.guymichael.kotlinreact.model.OwnState
 
 /**

@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid
+package com.guymichael.reactdroid.core
 
 import android.graphics.Color
 import android.os.Build
@@ -10,7 +10,7 @@ import androidx.core.content.ContextCompat
 import com.guymichael.apromise.APromise
 import com.guymichael.kotlinreact.Logger
 import com.guymichael.kotlinreact.model.OwnProps
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.model.AComponent
 import io.reactivex.rxjava3.disposables.Disposable
 
 inline fun <T, S> T.runNotNull(s: S?, crossinline block: T.(S) -> T): T {
@@ -170,9 +170,7 @@ fun View.renderBackgroundTint(@ColorRes res: Int?) {
     }
 }
 
-fun View.renderMarginsPx(top: Int? = null, start: Int? = null
-        , bottom: Int? = null, end: Int? = null) {
-
+fun View.renderMarginsPx(top: Int? = null, start: Int? = null, bottom: Int? = null, end: Int? = null) {
     layoutParams?.apply { if (this is ViewGroup.MarginLayoutParams) {
 
         if (top != null && top != topMargin) {
@@ -191,11 +189,14 @@ fun View.renderMarginsPx(top: Int? = null, start: Int? = null
             marginEnd = end
         }
 
-    }} ?: Logger.w("React_KotlinViewExtensions", "setMargins() failed, view's layoutParams are null")//TODO stacktrace
+    }} ?: run {
+        Logger.w("React_KotlinViewExtensions", "setMargins() failed, view's layoutParams are null")
+        Throwable("setMargins() failed, view's layoutParams are null").printStackTrace()
+    }
 }
 
 fun View.renderMarginsRes(@DimenRes top: Int? = null, @DimenRes start: Int? = null
-    , @DimenRes bottom: Int? = null, @DimenRes end: Int? = null) {
+                          , @DimenRes bottom: Int? = null, @DimenRes end: Int? = null) {
 
     renderMarginsPx(top = top?.let { getDimenPx(it) }, start = start?.let { getDimenPx(it) }
         , bottom = bottom?.let { getDimenPx(it) }, end = end?.let { getDimenPx(it) }

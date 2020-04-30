@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid
+package com.guymichael.reactdroid.core
 
 import android.util.Log
 import com.guymichael.kotlinreact.Logger
@@ -21,10 +21,14 @@ class ReactdroidLogger: LoggerIntf {
         Log.e(tag, msg)
     }
 
-    override fun shouldLogI() = iEnabled
-    override fun shouldLogD() = dEnabled
-    override fun shouldLogW() = wEnabled
-    override fun shouldLogE() = eEnabled
+    override fun shouldLogI() =
+        iEnabled
+    override fun shouldLogD() =
+        dEnabled
+    override fun shouldLogW() =
+        wEnabled
+    override fun shouldLogE() =
+        eEnabled
 
     companion object {
         private var iEnabled: Boolean = false

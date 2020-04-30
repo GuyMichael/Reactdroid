@@ -8,7 +8,7 @@ import com.guymichael.apromise.APromise
 import com.guymichael.kotlinreact.Logger
 import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.reactdroid.extensions.navigation.model.NavigationAction
-import com.guymichael.reactdroid.activity.ComponentActivity
+import com.guymichael.reactdroid.core.activity.ComponentActivity
 
 object NavigationLogic {
 

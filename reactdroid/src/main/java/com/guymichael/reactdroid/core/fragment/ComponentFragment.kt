@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.fragment
+package com.guymichael.reactdroid.core.fragment
 
 import android.app.Activity
 import android.content.Context

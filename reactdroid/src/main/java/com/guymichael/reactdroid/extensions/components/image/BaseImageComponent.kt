@@ -4,7 +4,7 @@ import android.view.View
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import com.guymichael.kotlinreact.model.OwnState
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.model.AComponent
 
 abstract class BaseImageComponent<P : BaseImageProps, S : OwnState, V : ImageView>(v: V)
     : AComponent<P, S, V>(v) {

@@ -1,8 +1,8 @@
-package com.guymichael.reactdroid.model
+package com.guymichael.reactdroid.core.model
 
 import android.view.View
-import com.guymichael.reactdroid.ViewUtils
-import com.guymichael.reactdroid.model.android.DebouncedClickListener
+import com.guymichael.reactdroid.core.ViewUtils
+import com.guymichael.reactdroid.core.model.android.DebouncedClickListener
 import com.guymichael.kotlinreact.BuildConfig
 import com.guymichael.kotlinreact.model.Component
 import com.guymichael.kotlinreact.model.EmptyOwnState

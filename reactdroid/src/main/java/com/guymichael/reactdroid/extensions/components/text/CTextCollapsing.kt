@@ -6,8 +6,8 @@ import android.view.Gravity
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.IdRes
-import com.guymichael.reactdroid.ViewUtils
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.ViewUtils
+import com.guymichael.reactdroid.core.model.AComponent
 
 //to understand how calculating line-count before rendering may be implemented,
 //see here: https://stackoverflow.com/questions/15679147/how-to-get-line-count-of-textview-before-rendering

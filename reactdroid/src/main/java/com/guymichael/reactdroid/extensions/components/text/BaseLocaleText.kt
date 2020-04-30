@@ -3,7 +3,7 @@ package com.guymichael.reactdroid.extensions.components.text
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.guymichael.kotlinreact.model.OwnState
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.model.AComponent
 
 abstract class BaseLocaleText<P : BaseTextProps, S : OwnState, T : AComponent<P, *, TextView>>(v: LinearLayout)
         : AComponent<P, S, LinearLayout>(v) {

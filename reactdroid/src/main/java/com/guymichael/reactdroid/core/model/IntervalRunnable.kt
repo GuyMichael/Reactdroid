@@ -1,6 +1,6 @@
-package com.guymichael.reactdroid.model
+package com.guymichael.reactdroid.core.model
 
-import com.guymichael.reactdroid.IntervalUtils
+import com.guymichael.reactdroid.core.IntervalUtils
 
 abstract class IntervalRunnable : Runnable {
     private var intervalMs: Long = 0

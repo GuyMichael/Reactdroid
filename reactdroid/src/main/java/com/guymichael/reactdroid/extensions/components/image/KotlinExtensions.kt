@@ -2,9 +2,9 @@ package com.guymichael.reactdroid.extensions.components.image
 
 import android.view.View
 import androidx.annotation.DrawableRes
-import com.guymichael.reactdroid.applyOrGone
-import com.guymichael.reactdroid.applyOrInvisible
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.applyOrGone
+import com.guymichael.reactdroid.core.applyOrInvisible
+import com.guymichael.reactdroid.core.model.AComponent
 
 fun <P : BaseImageProps> AComponent<P, *, *>.renderBaseImageOrGone(props: P?, vararg visibilityBoundViews: View) {
     mView.applyOrGone(props, {

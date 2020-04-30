@@ -2,7 +2,7 @@ package com.guymichael.reactdroid.extensions.router
 
 import android.content.Intent
 import com.guymichael.apromise.APromise
-import com.guymichael.reactdroid.activity.ComponentActivity
+import com.guymichael.reactdroid.core.activity.ComponentActivity
 
 inline fun <K, V, R : Any> Map<K, V>.mapValuesNotNull(transform: (Map.Entry<K, V>) -> R?): Map<K, R> {
     return mapValuesNotNullTo(LinkedHashMap(), transform)

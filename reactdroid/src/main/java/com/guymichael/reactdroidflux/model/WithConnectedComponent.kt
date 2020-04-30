@@ -4,8 +4,8 @@ import android.view.View
 import com.guymichael.kotlinflux.model.ConnectedHOC
 import com.guymichael.kotlinflux.model.GlobalState
 import com.guymichael.kotlinflux.model.Store
-import com.guymichael.reactdroid.model.AComponent
-import com.guymichael.reactdroid.model.AHOC
+import com.guymichael.reactdroid.core.model.AComponent
+import com.guymichael.reactdroid.core.model.AHOC
 import com.guymichael.kotlinreact.model.OwnProps
 import io.reactivex.rxjava3.disposables.Disposable
 

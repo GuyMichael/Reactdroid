@@ -1,14 +1,14 @@
 package com.guymichael.reactdroidflux.model
 
 import android.view.View
-import com.guymichael.reactdroid.Utils
-import com.guymichael.reactdroid.model.AHOC
-import com.guymichael.reactdroid.model.WithAComponentDataManager
+import com.guymichael.reactdroid.core.Utils
+import com.guymichael.reactdroid.core.model.AHOC
+import com.guymichael.reactdroid.core.model.WithAComponentDataManager
 import com.guymichael.kotlinflux.model.ConnectedComponentDataManager
 import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.kotlinreact.model.OwnState
 import com.guymichael.promise.Promise
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.model.AComponent
 
 abstract class AConnectedComponentDataManager<API_PROPS : OwnProps, DATA_PROPS : OwnState>
     : ConnectedComponentDataManager<API_PROPS, DATA_PROPS>() {

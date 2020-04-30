@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid
+package com.guymichael.reactdroid.core
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -42,7 +42,10 @@ open class Utils {
                 return null
             }
 
-            val d: Drawable? = if (isNewAPI(Build.VERSION_CODES.LOLLIPOP)) {
+            val d: Drawable? = if (isNewAPI(
+                    Build.VERSION_CODES.LOLLIPOP
+                )
+            ) {
                 context.getDrawable(resId)
             } else {
                 context.resources.getDrawable(resId)
@@ -71,7 +74,9 @@ open class Utils {
         }
 
         fun <T> getActivity(context: Context, ifOfClass: Class<T>) : T? {
-            return getActivity(context)?.takeIf { ifOfClass.isInstance(it) }?.let { it as? T }
+            return getActivity(
+                context
+            )?.takeIf { ifOfClass.isInstance(it) }?.let { it as? T }
         }
 
         fun getActivityView(activity: Activity): ViewGroup? {
@@ -81,11 +86,15 @@ open class Utils {
         }
 
         fun getActivityView(activityContext: Context): ViewGroup? {
-            return getActivity(activityContext)?.let(Companion::getActivityView)
+            return getActivity(
+                activityContext
+            )?.let(Companion::getActivityView)
         }
 
         fun getActivityView(childView: View): ViewGroup? {
-            return getActivity(childView)?.let(Companion::getActivityView)
+            return getActivity(
+                childView
+            )?.let(Companion::getActivityView)
         }
 
         @SuppressLint("NewApi")

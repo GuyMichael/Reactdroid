@@ -4,7 +4,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.annotation.IdRes
 import com.guymichael.kotlinreact.model.EmptyOwnState
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.model.AComponent
 
 class CText(v: TextView) : BaseTextComponent<TextProps, EmptyOwnState, TextView>(v) {
     override fun createInitialState(props: TextProps) = EmptyOwnState

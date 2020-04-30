@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.activity
+package com.guymichael.reactdroid.core.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,10 +6,9 @@ import android.os.PersistableBundle
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
-import com.guymichael.reactdroid.Utils
+import com.guymichael.reactdroid.core.Utils
 import com.guymichael.kotlinreact.BuildConfig
 import com.guymichael.kotlinreact.Logger
-import com.guymichael.reactdroid.activity.ComponentActivity.Companion.INTENT_KEY_API_PROPS
 import com.guymichael.kotlinreact.model.Component
 import com.guymichael.kotlinreact.model.EmptyOwnState
 import com.guymichael.kotlinreact.model.OwnProps

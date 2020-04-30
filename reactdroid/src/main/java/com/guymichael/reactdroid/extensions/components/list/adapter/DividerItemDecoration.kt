@@ -8,7 +8,7 @@ import androidx.annotation.DrawableRes
 import android.view.View
 import com.guymichael.kotlinreact.BuildConfig
 import com.guymichael.kotlinreact.Logger
-import com.guymichael.reactdroid.Utils
+import com.guymichael.reactdroid.core.Utils
 import java.util.*
 
 class DividerItemDecoration @JvmOverloads constructor(context: Context, protected var mOrientation: DECOR_ORIENTATION, divider: Drawable? = null) : androidx.recyclerview.widget.RecyclerView.ItemDecoration() {

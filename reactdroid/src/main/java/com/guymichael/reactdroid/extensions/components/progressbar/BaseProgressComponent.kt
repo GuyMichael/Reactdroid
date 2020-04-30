@@ -2,7 +2,7 @@ package com.guymichael.reactdroid.extensions.components.progressbar
 
 import android.os.Build
 import android.widget.ProgressBar
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.model.AComponent
 
 //NOCOMMIT incomplete untested
 abstract class BaseProgressComponent<P : BaseProgressProps, S : BaseProgressOwnState<S>, V : ProgressBar>(

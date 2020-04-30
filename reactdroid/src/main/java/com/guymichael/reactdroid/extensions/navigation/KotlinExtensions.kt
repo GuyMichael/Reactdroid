@@ -1,8 +1,6 @@
 package com.guymichael.reactdroid.extensions.navigation
 
-import com.guymichael.reactdroid.activity.ComponentActivity
-import com.guymichael.reactdroid.extensions.navigation.AppForegroundLogic
-import com.guymichael.reactdroid.extensions.navigation.ClientPageIntf
+import com.guymichael.reactdroid.core.activity.ComponentActivity
 
 /** Let this activity be handled (open/close) by a Store (NavigationReducer).
  *

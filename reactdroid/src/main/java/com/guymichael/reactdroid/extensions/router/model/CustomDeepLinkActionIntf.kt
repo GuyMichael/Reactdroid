@@ -1,7 +1,7 @@
 package com.guymichael.reactdroid.extensions.router.model
 
 import com.guymichael.apromise.APromise
-import com.guymichael.reactdroid.activity.ComponentActivity
+import com.guymichael.reactdroid.core.activity.ComponentActivity
 
 /** An custom, non-openPage action to be executed for deep links */
 interface CustomDeepLinkActionIntf {

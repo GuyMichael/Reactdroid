@@ -3,12 +3,14 @@ package com.guymichael.reactdroid.extensions.animation
 import android.view.View
 import androidx.annotation.StringRes
 import com.guymichael.kotlinreact.model.OwnProps
-import com.guymichael.reactdroid.*
+import com.guymichael.reactdroid.core.ViewUtils
+import com.guymichael.reactdroid.core.getText
 import com.guymichael.reactdroid.extensions.components.list.BaseListComponent
 import com.guymichael.reactdroid.extensions.components.list.BaseListProps
 import com.guymichael.reactdroid.extensions.components.text.TextProps
-import com.guymichael.reactdroid.model.AComponent
-import com.guymichael.reactdroid.shouldVisibilityUpdate
+import com.guymichael.reactdroid.core.model.AComponent
+import com.guymichael.reactdroid.core.shouldVisibilityUpdate
+import com.guymichael.reactdroid.core.viewVisibilityOf
 
 /**
  * Note: animation will not work if view is not attached to window
@@ -32,7 +34,10 @@ fun View.renderVisibility(targetVisibility: Int
         , vararg visibilityBoundViews: View
     ): Boolean {
 
-    return shouldVisibilityUpdate(this, targetVisibility).also { //THINK avoid this double call
+    return shouldVisibilityUpdate(
+        this,
+        targetVisibility
+    ).also { //THINK avoid this double call
         ViewUtils.applyVisibility(targetVisibility, this, *visibilityBoundViews
             , animate = animate
             , animDuration = animDuration ?: AnimUtils.defaultVisibilityAnimDuration
@@ -193,7 +198,10 @@ fun <P : BaseListProps, C : BaseListComponent<P, *, *>> C.renderOrGone(props: P?
             // be a data change. Can we?
             mView.post {
                 ViewUtils.applyVisibility(
-                    viewVisibilityOf(props != null, View.GONE)
+                    viewVisibilityOf(
+                        props != null,
+                        View.GONE
+                    )
                     , *visibilityBoundViews
                     , animate = animateVisibility
                     , animDuration = animDuration ?: AnimUtils.defaultVisibilityAnimDuration

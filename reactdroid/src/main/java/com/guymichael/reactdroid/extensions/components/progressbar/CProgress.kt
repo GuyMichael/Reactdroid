@@ -4,7 +4,7 @@ import android.app.Activity
 import android.view.View
 import android.widget.ProgressBar
 import androidx.annotation.IdRes
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.model.AComponent
 
 class CProgress(v: ProgressBar)
 : BaseProgressComponent<SimpleProgressProps, SimpleProgressOwnState, ProgressBar >(v) {

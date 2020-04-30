@@ -4,7 +4,7 @@ import android.view.View
 import com.guymichael.kotlinreact.BuildConfig
 import com.guymichael.kotlinreact.Logger
 import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.model.AComponent
 
 class RecyclerComponentViewHolder(itemView: View)
     : BaseRecyclerComponentViewHolder(itemView) {

@@ -5,8 +5,8 @@ import android.content.DialogInterface
 import androidx.annotation.StringRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.app.AlertDialog
-import com.guymichael.reactdroid.getText
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.getText
+import com.guymichael.reactdroid.core.model.AComponent
 
 object ModalDialog {
 

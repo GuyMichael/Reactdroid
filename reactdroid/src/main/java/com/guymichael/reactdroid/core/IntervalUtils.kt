@@ -1,9 +1,9 @@
-package com.guymichael.reactdroid
+package com.guymichael.reactdroid.core
 
 import android.os.Handler
 import android.os.Looper
 import android.util.LongSparseArray
-import com.guymichael.reactdroid.model.IntervalRunnable
+import com.guymichael.reactdroid.core.model.IntervalRunnable
 import java.util.concurrent.atomic.AtomicLong
 
 object IntervalUtils {
@@ -42,7 +42,11 @@ object IntervalUtils {
      * Convenience method. Calls [ with &#39;startNow&#39; = false][.setInterval]
      */
     fun setInterval(runnable: IntervalRunnable, intervalMs: Long): Long {
-        return setInterval(runnable, intervalMs, false)
+        return setInterval(
+            runnable,
+            intervalMs,
+            false
+        )
     }
 
     /**
@@ -50,7 +54,11 @@ object IntervalUtils {
      * If *true*, then *0*, else *intervalMs*
      */
     fun setInterval(runnable: IntervalRunnable, intervalMs: Long, startNow: Boolean): Long {
-        return setInterval(runnable, intervalMs, if (startNow) 0 else intervalMs)
+        return setInterval(
+            runnable,
+            intervalMs,
+            if (startNow) 0 else intervalMs
+        )
     }
 
     /**

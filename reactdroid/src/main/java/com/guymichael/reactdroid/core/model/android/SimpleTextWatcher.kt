@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.model.android
+package com.guymichael.reactdroid.core.model.android
 
 import android.text.Editable
 import android.text.TextWatcher

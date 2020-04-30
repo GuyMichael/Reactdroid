@@ -4,7 +4,7 @@ import android.os.Build
 import com.guymichael.kotlinflux.model.GlobalState
 import com.guymichael.kotlinflux.model.Store
 import com.guymichael.kotlinflux.model.reducers.Reducer
-import com.guymichael.reactdroid.Utils
+import com.guymichael.reactdroid.core.Utils
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.schedulers.Schedulers

@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.guymichael.reactdroid.extensions.components.list.adapter.RecyclerComponentViewHolder
 import com.guymichael.reactdroid.extensions.components.list.adapter.RecyclerComponentAdapter
 import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
-import com.guymichael.reactdroid.model.AComponent
+import com.guymichael.reactdroid.core.model.AComponent
 
 
 class CList(

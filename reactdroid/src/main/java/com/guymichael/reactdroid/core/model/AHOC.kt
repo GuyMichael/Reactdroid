@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.model
+package com.guymichael.reactdroid.core.model
 
 import android.view.View
 import com.guymichael.kotlinreact.model.EmptyOwnState

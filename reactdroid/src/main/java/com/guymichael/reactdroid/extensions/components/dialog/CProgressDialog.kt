@@ -6,11 +6,11 @@ import android.view.View
 import android.widget.ProgressBar
 import androidx.annotation.StyleRes
 import com.guymichael.kotlinreact.model.EmptyOwnState
-import com.guymichael.reactdroid.Utils
+import com.guymichael.reactdroid.core.Utils
 import com.guymichael.reactdroid.extensions.components.progressbar.CProgress
 import com.guymichael.reactdroid.extensions.components.progressbar.SimpleProgressProps
-import com.guymichael.reactdroid.model.AComponent
-import com.guymichael.reactdroid.model.AHOC
+import com.guymichael.reactdroid.core.model.AComponent
+import com.guymichael.reactdroid.core.model.AHOC
 import java.lang.ref.WeakReference
 
 /**
@@ -77,7 +77,8 @@ fun AComponent<*, *, *>.withProgress(
         , @StyleRes themeResId: Int? = null
     ) : CProgressDialog {
 
-    return CProgressDialog(Utils.getActivityView(mView) ?: mView
+    return CProgressDialog(
+        Utils.getActivityView(mView) ?: mView
         , onDismiss, onShow, customContent, themeResId
     )
 }
