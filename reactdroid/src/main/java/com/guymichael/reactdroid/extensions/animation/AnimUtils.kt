@@ -138,8 +138,8 @@ object AnimUtils {
         , interpolator: Interpolator = AccelerateInterpolator()
     ): ObjectAnimator {
 
-        return animateFloat(obj, "alpha", 0f, 0
-            , fadeOutDurationMs
+        return animateFloat(obj, "alpha", 0f, fadeOutDurationMs
+            , 0
             , interpolator
 
         ).apply {
@@ -275,7 +275,7 @@ object AnimUtils {
                 it.visibility = View.VISIBLE //we must start visible for animation (alpha) to show
 
                 promiseOfAnimator(AnimUtils.animateFloat(
-                    it, "alpha", 1f, startDelay, duration, interpolator, false)
+                    it, "alpha", 1f, duration, startDelay, interpolator, false)
                 ).thenViewOrCancel(it)
             }
     }
@@ -304,8 +304,8 @@ object AnimUtils {
                 it.alpha = startAlpha
                 it.visibility = startVisibility
 
-                promiseOfAnimator(AnimUtils.animateFloat(
-                    it, "alpha", 0f, startDelay, duration, interpolator, false
+                promiseOfAnimator(animateFloat(
+                    it, "alpha", 0f, duration, startDelay, interpolator, false
                 )).thenViewOrCancel(it)
             }
     }
@@ -356,7 +356,7 @@ object AnimUtils {
             AnimatorSet().apply {
                 playTogether(
                     animateTranslationY(v, 0F, startDelay, duration, interpolator, true)
-                    , animateFloat(v, "alpha", 1f, startDelay, duration, interpolator, true)
+                    , animateFloat(v, "alpha", 1f, duration, startDelay, interpolator, true)
                 )
             }
 

@@ -348,25 +348,20 @@ object ViewUtils {
      */
     fun smoothScrollToChild(parent: HorizontalScrollView, child: View, gravity: Int) {
         parent.smoothScrollTo(
-            getScrollChildInParentHorizontalOffsetIntl(
-                parent,
-                child,
-                gravity
-            ), 0)
+            getScrollChildInParentHorizontalOffsetIntl(parent, child, gravity)
+            , 0
+        )
     }
 
     /**
      * Should be called from the UI Thread.
      * @param parent
      * @param child doesn't have to be a direct child of 'parent'
-     * @param gravity to locate the child according to. Correlates to [Gravity.LEFT], [Gravity.RIGHT] or [Gravity.CENTER]/[Gravity.CENTER_HORIZONTAL]
      */
-    fun smoothScrollToChild(parent: androidx.recyclerview.widget.RecyclerView, child: View) {
-        findAnyParent(
-            child,
-            parent.children()
-        )?.let { recyclerItemParent ->
-        parent.getChildAdapterPosition(recyclerItemParent).takeIf { it != androidx.recyclerview.widget.RecyclerView.NO_POSITION }?.let {
+    fun smoothScrollToChild(parent: RecyclerView, child: View) {
+        findAnyParent(child, parent.children())?.let { recyclerItemParent ->
+        parent.getChildAdapterPosition(recyclerItemParent)
+            .takeIf { it != RecyclerView.NO_POSITION }?.let {
 
             parent.smoothScrollToPosition(it)
         }}
@@ -382,25 +377,10 @@ object ViewUtils {
     @JvmStatic
     fun smoothScrollToChild(parent: View, child: View, gravity: Int) {
         when (parent) {
-            is NestedScrollView     -> smoothScrollToChild(
-                parent,
-                child,
-                gravity
-            )
-            is ScrollView           -> smoothScrollToChild(
-                parent,
-                child,
-                gravity
-            )
-            is HorizontalScrollView -> smoothScrollToChild(
-                parent,
-                child,
-                gravity
-            )
-            is androidx.recyclerview.widget.RecyclerView -> smoothScrollToChild(
-                parent,
-                child
-            )
+            is NestedScrollView     -> smoothScrollToChild(parent, child, gravity)
+            is ScrollView           -> smoothScrollToChild(parent, child, gravity)
+            is HorizontalScrollView -> smoothScrollToChild(parent, child, gravity)
+            is RecyclerView -> smoothScrollToChild(parent, child)
             else -> Logger.w("ViewUtils","smoothScrollToChild() : parent of class " + parent.javaClass.simpleName + " is not supported")
         }
     }
@@ -442,34 +422,30 @@ object ViewUtils {
     }
 
     /**
-     * @param visibility one of [View.GONE], [View.VISIBLE] and [View.INVISIBLE]
+     * @param targetVisibility one of [View.GONE], [View.VISIBLE] and [View.INVISIBLE]
      * @param animStartVisibility is null by default to use the 'smart default', per given 'view'
      * @param animStartAlpha is null by default to use the 'smart default', per given 'view'
      */
-    fun applyVisibility(visibility: Int, vararg views: View
-        , animate: Boolean = false
-        , animDuration: Long = 0
-        , animStartDelay: Long = 0
-        , animStartVisibility: Int? = null
-        , animStartAlpha: Float? = null) {
+    fun applyVisibility(targetVisibility: Int, vararg views: View
+            , animate: Boolean = false
+            , animDuration: Long = 0
+            , animStartDelay: Long = 0
+            , animStartVisibility: Int? = null
+            , animStartAlpha: Float? = null
+        ) {
 
-        views.forEach { it.takeIf {
-            shouldVisibilityUpdate(
-                it,
-                visibility
-            )
-        }?.let { v ->
+        views.forEach { it.takeIf { shouldVisibilityUpdate(it, targetVisibility) }?.let { v ->
             when {
                 animate -> {
                     val startAlpha = animStartAlpha
                     //default: address all 3 method types' defaults (see method impl.)
-                        ?: if (visibility != View.VISIBLE || v.visibility == View.VISIBLE) v.alpha else 0F
+                        ?: if (targetVisibility != View.VISIBLE || v.visibility == View.VISIBLE) v.alpha else 0F
 
                     val startVisibility = animStartVisibility
                     //default: address all 2-relevant method types' defaults (see method impl.)
                         ?: v.visibility
 
-                    when (visibility) {
+                    when (targetVisibility) {
                         //THINK prevent re-animation if already animating to same destination? using View TAG?
                         View.VISIBLE -> AnimUtils.animateFadeIn(v, animDuration, startAlpha, animStartDelay).execute()
                         View.GONE -> AnimUtils.animateFadeOutAndGone(v, animDuration, startAlpha, animStartDelay, startVisibility).execute()
@@ -479,8 +455,8 @@ object ViewUtils {
 
                 }
 
-                v.visibility != visibility -> {
-                    v.visibility = visibility
+                v.visibility != targetVisibility -> {
+                    v.visibility = targetVisibility
 
                     //note: we don't force alpha here. This is done only when animating,
                     //      in which case it's obviously needed

@@ -9,7 +9,6 @@ import com.guymichael.reactdroid.extensions.components.list.BaseListComponent
 import com.guymichael.reactdroid.extensions.components.list.BaseListProps
 import com.guymichael.reactdroid.extensions.components.text.TextProps
 import com.guymichael.reactdroid.core.model.AComponent
-import com.guymichael.reactdroid.core.shouldVisibilityUpdate
 import com.guymichael.reactdroid.core.viewVisibilityOf
 
 /**
@@ -22,8 +21,6 @@ import com.guymichael.reactdroid.core.viewVisibilityOf
  *      note: not relevant for fade in (always start with INVISIBLE and alpha 0)
  *
  * @param animStartAlpha is null by default to use the 'smart default', per given 'view'
- *
- * @return true if 'this' view is changing its visibility
  */
 fun View.renderVisibility(targetVisibility: Int
         , animate: Boolean
@@ -32,19 +29,16 @@ fun View.renderVisibility(targetVisibility: Int
         , animStartVisibility: Int? = null
         , animStartAlpha: Float? = null
         , vararg visibilityBoundViews: View
-    ): Boolean {
+    ) {
 
-    return shouldVisibilityUpdate(
-        this,
-        targetVisibility
-    ).also { //THINK avoid this double call
-        ViewUtils.applyVisibility(targetVisibility, this, *visibilityBoundViews
-            , animate = animate
-            , animDuration = animDuration ?: AnimUtils.defaultVisibilityAnimDuration
-            , animStartDelay = animStartDelay ?: 0
-            , animStartVisibility = animStartVisibility
-            , animStartAlpha = animStartAlpha)
-    }
+    ViewUtils.applyVisibility(targetVisibility
+        , this, *visibilityBoundViews
+        , animate = animate
+        , animDuration = animDuration ?: AnimUtils.defaultVisibilityAnimDuration
+        , animStartDelay = animStartDelay ?: 0
+        , animStartVisibility = animStartVisibility
+        , animStartAlpha = animStartAlpha
+    )
 }
 
 /**
@@ -55,18 +49,16 @@ fun View.renderVisibility(targetVisibility: Int
  *      note: not relevant for fade in (always start with INVISIBLE and alpha 0)
  *
  * @param animStartAlpha is null by default to use the 'smart default', per given 'view'
- *
- * @return true if 'this' view is changing its visibility
- * */
+ */
 fun AComponent<*, *, *>.animateVisibilityWithViews(targetVisibility: Int
         , vararg visibilityBoundViews: View
         , animDuration: Long? = null
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float?= null
-    ): Boolean {
+    ) {
 
-    return mView.renderVisibility(
+    mView.renderVisibility(
         targetVisibility = targetVisibility
         , animate = true
         , animDuration = animDuration
@@ -86,19 +78,17 @@ fun AComponent<*, *, *>.animateVisibilityWithViews(targetVisibility: Int
  *
  * @param animStartAlpha is null by default to use the 'smart default', per given 'view'
  *
- * NOTICE: if you use this to hide, you should only use this method to show, as hiding changes alpha
- *
- * @return true if 'this' view is changing its visibility
- * */
+ * Note: if you use this to hide, you should later-on use this method again to show, as hiding changes alpha
+ */
 fun AComponent<*, *, *>.animateVisibility(targetVisibility: Int
         , vararg visibilityBoundComponents: AComponent<*, *, *>
         , animDuration: Long? = null
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float?= null
-    ): Boolean {
+    ) {
 
-    return mView.renderVisibility(
+    mView.renderVisibility(
         targetVisibility = targetVisibility
         , animate = true
         , animDuration = animDuration
@@ -109,12 +99,14 @@ fun AComponent<*, *, *>.animateVisibility(targetVisibility: Int
     )
 }
 
-/** if props are not null, consumer will be called and this View's visibility will be set to visible.
+/**
+ * if props are not null, consumer will be called and this View's visibility will be set to visible.
  * Otherwise - if props are null, View's visibility will be set to 'visibilityIfNull'
  *
  * @see [renderVisibility]
  *
- * @return true if 'this' visibility is changing to visible (View.VISIBLE) */
+ * @return true if 'this' visibility is changing to visible (View.VISIBLE)
+ */
 inline fun <V : View, T> V.applyOrVisibility(input: T?
         , visibilityIfNull: Int
         , crossinline consumer: V.(T) -> Unit
@@ -124,7 +116,7 @@ inline fun <V : View, T> V.applyOrVisibility(input: T?
         , animStartVisibility: Int? = null
         , animStartAlpha: Float?= null
         , vararg visibilityBoundViews: View
-    ): Boolean {
+    ) {
 
     input?.let {
         consumer.invoke(this, it)
@@ -132,17 +124,19 @@ inline fun <V : View, T> V.applyOrVisibility(input: T?
 
     val hasInput = input != null
 
-    return renderVisibility(
+    renderVisibility(
         if (hasInput) View.VISIBLE else visibilityIfNull
         , animateVisibility, animDuration, animStartDelay, animStartVisibility, animStartAlpha
         , *visibilityBoundViews
-    ) && hasInput
+    )
 }
 
-/** if input is not null, consumer will be called and this View's visibility will be set to visible.
+/**
+ * if input is not null, consumer will be called and this View's visibility will be set to visible.
  * Otherwise, View's visibility will be set to gone
  *
- * @see [applyOrVisibility] */
+ * @see [applyOrVisibility]
+ */
 inline fun <V : View, T> V.applyOrGone(input: T?
         , crossinline consumer: V.(T) -> Unit
         , animateVisibility: Boolean = false
@@ -151,9 +145,9 @@ inline fun <V : View, T> V.applyOrGone(input: T?
         , animStartVisibility: Int? = null
         , animStartAlpha: Float?= null
         , vararg visibilityBoundViews: View
-    ): Boolean {
+    ) {
 
-    return applyOrVisibility(input, View.GONE, consumer
+    applyOrVisibility(input, View.GONE, consumer
         , animateVisibility
         , animDuration
         , animStartDelay
@@ -163,10 +157,12 @@ inline fun <V : View, T> V.applyOrGone(input: T?
     )
 }
 
-/** if input is not null, consumer will be called and this View's visibility will be set to visible.
+/**
+ * if input is not null, consumer will be called and this View's visibility will be set to visible.
  * Otherwise, View's visibility will be set to gone
  *
- * @see [applyOrVisibility] */
+ * @see [applyOrVisibility]
+ */
 fun <P : BaseListProps, C : BaseListComponent<P, *, *>> C.renderOrGone(props: P?
         , vararg visibilityBoundViews: View
         , animateVisibility: Boolean = false
@@ -174,9 +170,9 @@ fun <P : BaseListProps, C : BaseListComponent<P, *, *>> C.renderOrGone(props: P?
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float?= null
-    ): Boolean {
+    ) {
 
-    return mView.applyOrVisibility(props, View.GONE, { onRender(it) }
+    mView.applyOrVisibility(props, View.GONE, { onRender(it) }
         , animateVisibility
         , animDuration
         , animStartDelay
