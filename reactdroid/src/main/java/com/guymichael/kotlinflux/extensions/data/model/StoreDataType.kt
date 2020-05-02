@@ -35,30 +35,37 @@ abstract class StoreDataType<DATA_MODEL : Any> : StoreKey {
     }}
 
     @Throws(Throwable::class)
-    fun UNSAFE_persistOrThrow(t: Any?, merge: Boolean) {
-        if (t == null) {
-            persistOrThrow(t, merge)
-        } else {
-            (t as? List<DATA_MODEL>)?.let {
-                persistOrThrow(it, merge)
+    fun UNSAFE_persistOrThrow(dataModelList: Any?, merge: Boolean) {
+        //if no-merge, start by clearing all current records
+        if( !merge) {
+            clearPersistOrThrow()
+        }
+
+        //cast value to list and persist
+        if ( dataModelList != null) {
+            (dataModelList as? List<DATA_MODEL>)?.also {
+                if (it.isNotEmpty()) {
+                    persistOrThrow(it)
+                }
+
                 //THINK log error if cast failed
-            } ?: throw RuntimeException("failed to persist - failed casting ${t.javaClass.simpleName} " +
-                    "to List<type of ${getName()}>")
+            } ?: throw RuntimeException("failed to persist - failed casting " +
+                "${dataModelList?.javaClass?.simpleName} to List<type of ${getName()}>")
         }
     }
 
     @Throws(Throwable::class)
-    fun UNSAFE_removeFromPersistOrThrow(t: Any?) {
-        if (t == null) {
-            //no op
-        } else {
-            (t as? List<DATA_MODEL>)?.also {
+    fun UNSAFE_removeFromPersistOrThrow(dataModelList: Any?) {
+        if ( dataModelList != null) {
+            (dataModelList as? List<DATA_MODEL>)?.also {
                 if (it.isNotEmpty()) {
                     removeFromPersistOrThrow(it)
                 }
+
                 //THINK log error if cast failed
-            } ?: throw RuntimeException("failed to remove from persist - failed casting ${t.javaClass.simpleName} " +
-                    "to List<type of ${getName()}>")
+            } ?: throw RuntimeException(
+                "failed to remove from persist - failed casting " +
+                "${dataModelList?.javaClass?.simpleName} to List<type of ${getName()}>")
         }
     }
 
@@ -129,22 +136,29 @@ abstract class StoreDataType<DATA_MODEL : Any> : StoreKey {
 
 
     abstract fun getStore(): Store
-    abstract fun shouldMergeWithCurrentData(): Boolean//THINK remove entirely and let the CustomDataAction decide alone
     abstract fun getPersistedData() : List<DATA_MODEL>?
     abstract fun getSchemaId(d: DATA_MODEL) : String
 
     /**
-     * @param data
-     * @param merge when true, `data` should be added to any previously persisted data.
-     * When false, the given `data` should be (looked up and) removed from persist.
-     * That also mean that when false and `data` is `null`, the entire value/collection should be removed
-     * from persist
-     * @throws Throwable if persist failed. Note that null `data` should be allowed and normally
-     * delete the (entire) persisted value (provided that `merge` is `false`
+     * @param data never empty. Should be added (replace on duplicate) to any previously persisted data
+     * @throws Throwable if persist failed.
      */
     @Throws(Throwable::class)
-    protected abstract fun persistOrThrow(data: List<DATA_MODEL>?, merge: Boolean)
+    protected abstract fun persistOrThrow(data: List<DATA_MODEL>)
 
+    /**
+     * Remove requested records from persist, if found.
+     *
+     * @param data never empty
+     * @throws Throwable if remove failed
+     */
     @Throws(Throwable::class)
     protected abstract fun removeFromPersistOrThrow(data: List<DATA_MODEL>)
+
+    /**
+     * Remove ALL records of this data from persist
+     * @throws Throwable if clear failed
+     */
+    @Throws(Throwable::class)
+    protected abstract fun clearPersistOrThrow()
 }

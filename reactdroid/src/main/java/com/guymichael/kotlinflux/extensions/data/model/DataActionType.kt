@@ -25,7 +25,8 @@ enum class DataActionType(
 
     , dataLoaded(::persistDataLoadedOrThrow, ::mapDataLoadedToState)
 
-    , reset(mapToNextState = { state, action ->
+    , /** Resets the relevant dataType in Store to its initial state (data taken from persist if exists)  */
+      reset(mapToNextState = { state, action ->
         state.cloneAndSetValues(//THINK don't reset counter and maybe others
             action.key.loadingStoreKey to false //reset loading state
             , action.key.loadingErrorStoreKey to null //reset error state
@@ -36,7 +37,8 @@ enum class DataActionType(
         )
     })
 
-    , deleteData(::persistDeleteOrThrow, ::mapDeleteDataToState)
+    , /** Deletes the data from the Store AND the persist */
+      deleteData(::persistDeleteOrThrow, ::mapDeleteDataToState)
 }
 
 
@@ -53,7 +55,7 @@ enum class DataActionType(
 private fun persistDataLoadedOrThrow(action: DataAction) {
     action.key.UNSAFE_persistOrThrow(
         action.value
-        , action.mergeWithCurrent ?: action.key.shouldMergeWithCurrentData()
+        , action.mergeWithCurrent
     )
 }
 
@@ -85,7 +87,7 @@ private fun mapDataLoadedToValue(state: GlobalState, action: DataAction): Map<St
     val nextValue = emptyDataStateMap()//empty
 
     //merge (start) with current data (?)
-    if (action.mergeWithCurrent ?: action.key.shouldMergeWithCurrentData()) {
+    if (action.mergeWithCurrent) {
         nextValue.putAllNotNull(state.get(action.key.getSchemaName()) as? Map<String, *>?)//THINK casting
     }
 

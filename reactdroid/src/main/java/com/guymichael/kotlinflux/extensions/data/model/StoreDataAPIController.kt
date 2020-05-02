@@ -23,8 +23,8 @@ abstract class StoreDataAPIController : StoreAPIController {
      *
      * @param call The API call presented as a [Promise]
      * @param dataTypes to process the response - dispatch and persist.
-     * Each pair is a [StoreDataType] and a mapper to extract the relevant data from the actual response
-     * Normally you will use only one pair.
+     * Each pair is a [StoreDataType] and a consumer to actually dispatch the relevant data-piece to Store,
+     * e.g.`type.getStore().dispatch(DataAction.setDataLoaded)
      * @param persistSideEffects with persisting the data (types) done for you,
      * here you can add any extra persist logic, such as some flag that came with the response
      * @param dispatchSideEffects with dispatching the data (types) done for you,
@@ -35,21 +35,28 @@ abstract class StoreDataAPIController : StoreAPIController {
      */
     fun <API_RESPONSE : Any?, P : Promise<API_RESPONSE>> prepare(
             call: P
-            , dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE) -> List<Any>?>>
+            , dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE) -> Unit>>
             , persistSideEffects: ((API_RESPONSE) -> Unit) = {}
             , dispatchSideEffects: ((API_RESPONSE) -> Unit) = {}
             , logErrors: Boolean = true
         ): P {
 
         return super.prepare(
-            //dispatch data loading
-            call.doOnExecution { dataTypes.forEach { (type, _) ->
-                type.getStore().dispatch(DataAction.setDataLoading(type))
-            }} as P
-            //dispatch the data and side effects
-            , {
-                dispatch(it, dataTypes)
-                dispatchSideEffects.invoke(it)
+            //on api execution - dispatch data loading state
+            call.doOnExecution {
+                dataTypes.forEach { (type, _) ->
+                    type.getStore().dispatch(DataAction.setDataLoading(type))
+                }
+            } as P
+            //on response - dispatch the data and side effects
+            , { response ->
+                //dispatch data to Store
+                dataTypes.forEach { (_, dispatcher) ->
+                    dispatcher.invoke(response)
+                }
+
+                //dispatch side-effects to Store
+                dispatchSideEffects.invoke(response)
             }
             , persistSideEffects
             , logErrors
@@ -60,13 +67,13 @@ abstract class StoreDataAPIController : StoreAPIController {
     fun <API_RESPONSE : Any?, P : Promise<API_RESPONSE>, D : Any> prepare(
         call: P
         , dataType: StoreDataType<D>
-        , mapResponseToData: (API_RESPONSE) -> List<D>?
+        , dispatchDataLoaded: (API_RESPONSE) -> Unit
         , persistSideEffects: ((API_RESPONSE) -> Unit) = {}
         , dispatchSideEffects: ((API_RESPONSE) -> Unit) = {}
         , logErrors: Boolean = true
     ): P {
         return prepare(call
-            , listOf(dataType to mapResponseToData)
+            , listOf(dataType to dispatchDataLoaded)
             , persistSideEffects, dispatchSideEffects, logErrors
         )
     }
@@ -84,16 +91,6 @@ abstract class StoreDataAPIController : StoreAPIController {
             , listOf(dataType to { r -> mapResponseToData(r)?.let(::listOf) })
             , persistSideEffects, dispatchSideEffects, logErrors
         )
-    }
-
-    private fun <API_RESPONSE: Any?> dispatch(response: API_RESPONSE
-            , dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE) -> List<Any>?>>
-        ) {
-
-        dataTypes.forEach { (type, mapResponseToData) ->
-            //THINK allow custom merge & persist (see UNSAFE_setDataLoaded arguments)
-            type.getStore().dispatch(DataAction.UNSAFE_setDataLoaded(type, mapResponseToData(response)))
-        }
     }
 
     private fun <API_RESPONSE: Any?> onApiError(e: Throwable

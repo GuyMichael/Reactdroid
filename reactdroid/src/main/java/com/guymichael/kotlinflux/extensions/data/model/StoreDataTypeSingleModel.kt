@@ -10,20 +10,23 @@ abstract class StoreDataTypeSingleModel<T : Any> : StoreDataType<T>() {
     final override fun getPersistedData(): List<T>? = getPersisted()?.let(::listOf)
 
     @Throws(Throwable::class)
-    final override fun persistOrThrow(data: List<T>?, merge: Boolean) {
-        persistOrThrow(data?.firstOrNull())
+    final override fun persistOrThrow(data: List<T>) {
+//        clearPersistOrThrow()//allows only 1 at a time
+        //THINK resume to guard.
+        // Shouldn't happen as DataType.setDataLoaded(StoreDataTypeSingleModel) is hardcoded
+        // with merge = false (see StoreDataType.UNSAFE_persistOrThrow())
+        // * we want to avoid redundant (double) access to the db
+
+        persistOrThrow(data.first())
     }
 
+
+
+    /**
+     * @param t value to persist
+     * @throws Throwable if persist failed.
+     */
     @Throws(Throwable::class)
-    override fun removeFromPersistOrThrow(data: List<T>) {
-        throw RuntimeException("${StoreDataTypeSingleModel::class.java.simpleName}.removeFromPersistOrThrow(data)" +
-                "should not be used. To remove current data, use DataAction.setDataLoaded(null)")
-    }
-
-
-    final override fun shouldMergeWithCurrentData(): Boolean = false//single model, always replace
-
+    abstract fun persistOrThrow(t: T)
     abstract fun getPersisted(): T?
-    @Throws(Throwable::class)
-    abstract fun persistOrThrow(t: T?)
 }
