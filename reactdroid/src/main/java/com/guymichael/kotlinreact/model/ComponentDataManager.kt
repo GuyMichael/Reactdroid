@@ -1,15 +1,16 @@
 package com.guymichael.kotlinreact.model
 
+import com.guymichael.apromise.APromise
 import com.guymichael.kotlinreact.Logger
 import com.guymichael.promise.Promise
+import io.reactivex.rxjava3.disposables.Disposable
 
 abstract class ComponentDataManager<P : OwnProps, DATA_PROPS : OwnState>
     : ComponentContextManager<P, DATA_PROPS> {
 
     var dataListener: (() -> Unit)? = null //THINK weak ref?
 
-    var isDataLoading: Boolean = false
-        private set
+    private var dataLoadingDisposable: Disposable? = null //not-null when data is loading
 
     /* to implement (or optional) */
 
@@ -77,15 +78,19 @@ abstract class ComponentDataManager<P : OwnProps, DATA_PROPS : OwnState>
     }
 
     private fun loadDataIntl(dataProps: DATA_PROPS, isFromPageViewOrContextChange: Boolean) {
-        isDataLoading = true
-        loadAndCacheData(dataProps, isFromPageViewOrContextChange)
-            .then {
-                isDataLoading = false
-                onDataLoadedIntl(isFromPageViewOrContextChange)
-
-            }.catch {error ->
-                onDataLoadingFailedIntl(isFromPageViewOrContextChange, error)
-            }.execute()
+        dataLoadingDisposable?.dispose()
+        //load at end of main thread execution queue (async), to let end-user's didMount work finish first,
+        // and let HOCs' didMount be called before data is starting to load
+        dataLoadingDisposable = APromise.postAtEndOfMainExecutionQueue {
+            loadAndCacheData(dataProps, isFromPageViewOrContextChange)
+                .then {
+                    dataLoadingDisposable = null
+                    onDataLoadedIntl(isFromPageViewOrContextChange)
+                }.catch { error ->
+                    dataLoadingDisposable = null
+                    onDataLoadingFailedIntl(isFromPageViewOrContextChange, error)
+                }.execute()
+        }
     }
 
     private fun onDataLoadedIntl(isFromPageViewOrContextChange: Boolean) {
@@ -98,8 +103,6 @@ abstract class ComponentDataManager<P : OwnProps, DATA_PROPS : OwnState>
 
     private fun onDataLoadingFailedIntl(isFromPageViewOrContextChange: Boolean, error: Throwable) {
         Logger.e(javaClass, "loadAndDispatchData() failed: $error")
-
-        this.isDataLoading = false
 
         onDataLoadingFailed(isFromPageViewOrContextChange, error)
     }
