@@ -281,10 +281,15 @@ interface Component<P : OwnProps, S : OwnState> {
         }
 
 //        Logger.e(getDisplayName(), "componentDidMount()")
-        componentDidMount()
+
+        //handle base components did mount
         UNSAFE_componentDidMountHint()
+
         //handle context management
         getContextManagerOrNull()?.onComponentDidMount(this.props, isRemount)
+
+        //finally, call end-user callback
+        componentDidMount()
     }
 
     private fun onFirstRenderRequest(nextProps: P) {
