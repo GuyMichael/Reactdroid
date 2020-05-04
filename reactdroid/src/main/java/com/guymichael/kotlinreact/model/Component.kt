@@ -5,7 +5,7 @@ import com.guymichael.kotlinreact.BuildConfig
 import com.guymichael.kotlinreact.Utils
 import com.guymichael.kotlinreact.letIfTrue
 
-//won't be rendered until the first call to onRender(nextProps) or update
+//won't be rendered until the first call to onRender(nextProps)
 interface Component<P : OwnProps, S : OwnState> {
     /** **CONTRACT:**
      * 1. DO NOT set yourself! Never!
@@ -48,13 +48,6 @@ interface Component<P : OwnProps, S : OwnState> {
     /** create the initial state. This is where 'ownState' will be first initialized.
      * You may use 'this.props' to derive your initial state */
     fun createInitialState(props: P): S
-
-    /**
-     * @return null, or a final, single, consistent, [ComponentContextManager] to utilize a
-     * callback of when the whole context of your props had changed. E.g. a restaurant page got
-     * a new restaurantId, which may affect inner state, API data fetching and more
-     */
-    fun getContextManagerOrNull(): ComponentContextManager<P, *>? = null
 
 
 
@@ -110,6 +103,7 @@ interface Component<P : OwnProps, S : OwnState> {
     fun onRenderOrThrow(nextProps: OwnProps) {
         //THINK casting
         try {
+            @Suppress("UNCHECKED_CAST")
             onRender(nextProps as P)
         } catch (e: ClassCastException) {
             throw IllegalArgumentException("onRenderOrThrow() : nextProps do not match this Component's props type")
@@ -212,7 +206,7 @@ interface Component<P : OwnProps, S : OwnState> {
     /** **CONTRACT:** DO NOT override or call yourself, consider private */
     fun isPropsInitialized(): Boolean {
         return try {
-            this.props != null
+            this.props.let { true }
         } catch (e: UninitializedPropertyAccessException) {
             false
         }
@@ -221,7 +215,7 @@ interface Component<P : OwnProps, S : OwnState> {
     /** **CONTRACT:** DO NOT override or call yourself, consider private */
     fun isStateInitialized(): Boolean {
         return try {
-            this.ownState != null
+            this.ownState.let { true }
         } catch (e: UninitializedPropertyAccessException) {
             false
         }
@@ -284,9 +278,6 @@ interface Component<P : OwnProps, S : OwnState> {
 
         //handle base components did mount
         UNSAFE_componentDidMountHint()
-
-        //handle context management
-        getContextManagerOrNull()?.onComponentDidMount(this.props, isRemount)
 
         //finally, call end-user callback
         componentDidMount()
@@ -383,7 +374,5 @@ interface Component<P : OwnProps, S : OwnState> {
 //        Logger.e(getDisplayName(), "componentDidUpdate()")
         componentDidUpdate(prevProps, prevState, snapshot)//THINK end of execution queue (extend in APromise) to let View update
         UNSAFE_componentDidUpdateHint(prevProps, prevState, snapshot)
-        //handle context management
-        getContextManagerOrNull()?.onComponentDidUpdate(this.props, prevProps)
     }
 }

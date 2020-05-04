@@ -50,6 +50,7 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
     /** @return apiProps from Intent, or null if Intent doesn't have enough information to create props.
      * If null is returned, the activity will not remain open, and close immediately */
     protected open fun mapIntentToProps(intent: Intent): P? {
+        @Suppress("UNCHECKED_CAST")
         return (intent.getSerializableExtra(INTENT_KEY_API_PROPS) as? P?)
     }
 

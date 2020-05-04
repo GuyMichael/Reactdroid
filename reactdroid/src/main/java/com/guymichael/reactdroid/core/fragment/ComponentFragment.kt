@@ -53,6 +53,7 @@ abstract class ComponentFragment<P : OwnProps> : Fragment(), Component<P, EmptyO
     /** @return apiProps from Intent, or null if Intent doesn't have enough information to create props.
      * If null is returned, the activity will not remain open, and close immediately */
     protected open fun mapArgumentsToProps(bundle: Bundle): P? {
+        @Suppress("UNCHECKED_CAST")
         return (bundle.getSerializable(ARGS_KEY_PROPS) as? P?)
     }
 
@@ -125,6 +126,7 @@ abstract class ComponentFragment<P : OwnProps> : Fragment(), Component<P, EmptyO
     final override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
     }
+    @Suppress("DEPRECATION")
     final override fun onAttach(activity: Activity) {
         super.onAttach(activity)
     }

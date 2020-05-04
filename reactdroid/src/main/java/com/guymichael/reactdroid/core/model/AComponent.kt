@@ -56,10 +56,12 @@ abstract class AComponent<P : OwnProps, S : OwnState, V : View>(
             debounceGuardMs?.takeIf { it > 0 }?.also { debounce ->
                 mView.setOnClickListener(object : DebouncedClickListener(debounce) {
                     override fun onClicked(v: View) {
+                        @Suppress("UNCHECKED_CAST")
                         listenerOrWrapper(v as V)
                     }
                 })
-            } ?: mView.setOnClickListener { listenerOrWrapper(it as V) }
+            } ?: @Suppress("UNCHECKED_CAST")
+                 mView.setOnClickListener { listenerOrWrapper(it as V) }
         }
     }
 
