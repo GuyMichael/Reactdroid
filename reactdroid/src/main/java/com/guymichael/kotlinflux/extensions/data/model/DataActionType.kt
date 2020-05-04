@@ -1,5 +1,7 @@
 package com.guymichael.kotlinflux.extensions.data.model
 
+import com.guymichael.kotlinflux.extensions.data.putAll
+import com.guymichael.kotlinflux.extensions.data.putAllNotNull
 import com.guymichael.kotlinflux.model.GlobalState
 import com.guymichael.kotlinflux.model.actions.DataAction
 import com.guymichael.kotlinreact.Logger

@@ -80,7 +80,8 @@ abstract class Reducer {
 
 
 
-
+    /** Called when initializing or resetting the global state
+     * @return the default state of your `Reducer` */
     abstract fun getSelfDefaultState() : GlobalState
 
     /**

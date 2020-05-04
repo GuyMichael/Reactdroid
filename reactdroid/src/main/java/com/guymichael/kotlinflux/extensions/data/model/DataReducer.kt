@@ -1,5 +1,7 @@
 package com.guymichael.kotlinflux.extensions.data.model
 
+import com.guymichael.kotlinflux.extensions.data.putAll
+import com.guymichael.kotlinflux.extensions.data.toImmutableMap
 import com.guymichael.kotlinflux.model.GlobalState
 import com.guymichael.kotlinflux.model.StoreKey
 import com.guymichael.kotlinflux.model.actions.Action
@@ -11,8 +13,18 @@ abstract class DataReducer(
     ) : SideEffectReducer(childReducers) {
 
 
-
-    abstract fun getAllTypes(): List<StoreDataType<*>>?
+    /**
+     * Provides a list of [dataTypes][StoreDataType] which are known to have persistence,
+     * to load persistence into the global state when app starts (or when state [resets][DataActionType.reset])
+     *
+     * @return dataTypes with persistence to be used when initializing (or resetting) the global state
+     *
+     * It is OK to omit certain types if you'd like the data to be loaded lazy, in which case
+     * you are in charge of doing so ([dispatch db data to store][DataAction.setDataLoaded])
+     *
+     * @see getSelfDefaultState
+     */
+    abstract fun getDefaultStatePersistenceTypes(): List<StoreDataType<*>>?
 
 
     final override fun shouldApplySideEffect(action: Action)
@@ -24,7 +36,7 @@ abstract class DataReducer(
     }
 
     final override fun getSelfDefaultState(): GlobalState {
-        val dataTypes = getAllTypes()
+        val dataTypes = getDefaultStatePersistenceTypes()
         val dataTypeValues = ArrayList<Pair<StoreKey, Any?>>()//actually key to Map<String, Any>
 
         dataTypes?.forEach {
@@ -61,5 +73,5 @@ internal fun emptyDataStateMap(): MutableMap<String, Any> {
 }
 
 internal fun asImmutableStateMapOrNull(map: MutableMap<String, Any>?): Map<String, Any>? {
-    return map?.takeIf { it.isNotEmpty() } //NOCOMMIT ?.toImmutableMap()
+    return map?.takeIf { it.isNotEmpty() }?.toImmutableMap()
 }
