@@ -188,11 +188,12 @@ open class DividerItemDecoration (
 
         if (dividerBefore != null) {
             canvasDrawable.setSize(dividerBefore.widthPx, dividerBefore.heightPx)
+            dividerBefore.argbColor?.also(canvasDrawable::setColor)
 
             for (bounds in calcChildDividerBoundsBefore(child, realIndex, itemCount, dividerBefore, parentBounds, orientation)) {
                 canvasDrawable.bounds = bounds
                 canvasDrawable.draw(c)
-                //TODO draw (color) not working
+                //TODO color not working
             }
         }
 
@@ -200,11 +201,12 @@ open class DividerItemDecoration (
         val dividerAfter = getDividerAfterIntl(child, realIndex, parent)
         if (dividerAfter != null) {
             canvasDrawable.setSize(dividerAfter.widthPx, dividerAfter.heightPx)
+            dividerAfter.argbColor?.also(canvasDrawable::setColor)
 
             for (bounds in calcChildDividerBoundsAfter(child, realIndex, itemCount, dividerAfter, parentBounds, orientation)) {
                 canvasDrawable.bounds = bounds
                 canvasDrawable.draw(c)
-                //TODO draw (color) not working
+                //TODO color not working
             }
         }
     }
