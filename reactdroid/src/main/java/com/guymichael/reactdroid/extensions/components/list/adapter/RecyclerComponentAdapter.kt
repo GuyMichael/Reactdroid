@@ -23,6 +23,7 @@ import com.guymichael.reactdroid.extensions.components.list.adapter.model.Simple
 import com.guymichael.reactdroid.extensions.components.list.dividers.ListDivider
 import com.guymichael.reactdroid.extensions.components.list.dividers.ListDividerOrientation
 import com.guymichael.reactdroid.extensions.components.list.dividers.DividerItemDecoration
+import com.guymichael.reactdroid.extensions.components.list.model.DataItemProps
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.math.max
@@ -54,7 +55,9 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         ((parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps, position: Int) -> Boolean)? = null
     private var customLongClickListener:
         ((parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps, position: Int) -> Boolean)? = null
-    private var customPerClassClickListeners: HashMap<Class<*>, ((ListItemProps, position: Int) -> Boolean)?>? = null
+    private val customPerClassClickListeners by lazy {
+        HashMap<Class<*>, ((ListItemProps, position: Int) -> Boolean)>()
+    }
     private var emptyView: View? = null
     @LayoutRes private var customItemLayoutResId = 0
     private var customItemWidthFactor = -1f
@@ -936,23 +939,27 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
      * @param listener return true if click handled
      */
     fun <T : ListItemProps> onItemClick(cls: Class<T>, listener: (T, position: Int) -> Boolean) : RecyclerComponentAdapter {
-        this.customPerClassClickListeners = this.customPerClassClickListeners ?: HashMap()
-
-        this.customPerClassClickListeners?.run {
-            this.put(cls) { item, position ->
-                //invoke  this listener fit the class
-                @Suppress("UNCHECKED_CAST")
-                (item as? T?)?.let { listener(it, position) } ?: false
-            }
+        this.customPerClassClickListeners[cls] = { item, position ->
+            @Suppress("UNCHECKED_CAST")
+            (item as? T?)?.let { t -> listener(t, position) } ?: false
         }
 
         return this
     }
 
     /**
-     * Use this method when this adapter's [RecyclerView] is located inside a [SwipeRefreshLayout].<br></br>
-     * **Note** that is method sets a [OnScrollListener] on the listView
+     * @param listener return true if click handled
      */
+    fun <T : Any> onDataItemClick(cls: Class<T>, listener: (T, position: Int) -> Boolean) : RecyclerComponentAdapter {
+        this.customPerClassClickListeners[cls] = { item, position ->
+            @Suppress("UNCHECKED_CAST")
+            (item as? DataItemProps<T>?)?.let { t -> listener(t.data, position) } ?: false
+        }
+
+        return this
+    }
+
+    /** Use this method when this adapter's [RecyclerView] is located inside a [SwipeRefreshLayout] */
     /*fun bindSwipeRefreshLayout(swipeLayout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout) {
         mScrollListener.bindSwipeRefreshLayout(swipeLayout)
     }*/

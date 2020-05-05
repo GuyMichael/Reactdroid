@@ -8,7 +8,8 @@ import com.guymichael.reactdroid.extensions.components.list.adapter.model.Recycl
 import com.guymichael.reactdroid.extensions.components.list.adapter.RecyclerComponentAdapter
 import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 import com.guymichael.reactdroid.core.model.AComponent
-
+import com.guymichael.reactdroid.extensions.components.list.model.ListProps
+import com.guymichael.reactdroid.extensions.components.list.model.ListState
 
 class CList(
         v: RecyclerView

@@ -1,5 +1,6 @@
-package com.guymichael.reactdroid.extensions.components.list
+package com.guymichael.reactdroid.extensions.components.list.model
 
+import com.guymichael.reactdroid.extensions.components.list.model.BaseListProps
 import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 
 data class ListProps(

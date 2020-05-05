@@ -6,7 +6,7 @@ import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.reactdroid.core.ViewUtils
 import com.guymichael.reactdroid.core.getText
 import com.guymichael.reactdroid.extensions.components.list.BaseListComponent
-import com.guymichael.reactdroid.extensions.components.list.BaseListProps
+import com.guymichael.reactdroid.extensions.components.list.model.BaseListProps
 import com.guymichael.reactdroid.extensions.components.text.TextProps
 import com.guymichael.reactdroid.core.model.AComponent
 import com.guymichael.reactdroid.core.viewVisibilityOf

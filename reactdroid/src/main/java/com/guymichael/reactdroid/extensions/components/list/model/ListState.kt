@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.extensions.components.list
+package com.guymichael.reactdroid.extensions.components.list.model
 
 import com.guymichael.kotlinreact.model.OwnState
 
