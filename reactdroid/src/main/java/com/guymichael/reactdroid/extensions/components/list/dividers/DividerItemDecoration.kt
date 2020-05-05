@@ -193,7 +193,6 @@ open class DividerItemDecoration (
             for (bounds in calcChildDividerBoundsBefore(child, realIndex, itemCount, dividerBefore, parentBounds, orientation)) {
                 canvasDrawable.bounds = bounds
                 canvasDrawable.draw(c)
-                //TODO color not working
             }
         }
 
@@ -206,7 +205,6 @@ open class DividerItemDecoration (
             for (bounds in calcChildDividerBoundsAfter(child, realIndex, itemCount, dividerAfter, parentBounds, orientation)) {
                 canvasDrawable.bounds = bounds
                 canvasDrawable.draw(c)
-                //TODO color not working
             }
         }
     }
