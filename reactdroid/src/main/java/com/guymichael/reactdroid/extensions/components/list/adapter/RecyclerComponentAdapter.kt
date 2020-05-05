@@ -481,13 +481,17 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         ): RecyclerComponentAdapter {
 
         val divider = ListDivider(recyclerView.getDimenPx(dividerSizeRes))
+        val topDivider = if (topDividerSizeRes == dividerSizeRes) divider
+            else topDividerSizeRes?.let { ListDivider(recyclerView.getDimenPx(it)) }
 
         setDividers(
             divider
-            , if (topDividerSizeRes == dividerSizeRes) divider
-              else topDividerSizeRes?.let(::ListDivider)
-            , if (bottomDividerSizeRes == dividerSizeRes) divider
-              else bottomDividerSizeRes?.let(::ListDivider)
+            , topDivider
+            , when (bottomDividerSizeRes) {
+                topDividerSizeRes -> topDivider
+                dividerSizeRes -> divider
+                else -> bottomDividerSizeRes?.let { ListDivider(recyclerView.getDimenPx(it)) }
+            }
         )
 
         return this
