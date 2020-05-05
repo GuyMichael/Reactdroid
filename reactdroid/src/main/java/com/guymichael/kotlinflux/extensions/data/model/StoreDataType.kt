@@ -1,8 +1,10 @@
 package com.guymichael.kotlinflux.extensions.data.model
 
+import com.guymichael.apromise.APromise
 import com.guymichael.kotlinflux.model.GlobalState
 import com.guymichael.kotlinflux.model.Store
 import com.guymichael.kotlinflux.model.StoreKey
+import com.guymichael.kotlinflux.model.actions.DataAction
 
 abstract class StoreDataType<DATA_MODEL : Any> : StoreKey {
 
@@ -138,6 +140,11 @@ abstract class StoreDataType<DATA_MODEL : Any> : StoreKey {
     abstract fun getStore(): Store
     abstract fun getPersistedData() : List<DATA_MODEL>?
     abstract fun getSchemaId(d: DATA_MODEL) : String
+
+    /** A convenience method. Uses [getStore] to dispatch [DataAction.setDataLoaded]*/
+    open fun dispatchLoaded(data: List<DATA_MODEL>, merge: Boolean, shouldPersist: Boolean = true) {
+        getStore().dispatch(DataAction.setDataLoaded(this, data, merge, shouldPersist))
+    }
 
     /**
      * @param data never empty. Should be added (replace on duplicate) to any previously persisted data

@@ -1,6 +1,8 @@
 package com.guymichael.kotlinflux.extensions.data.model
 
+import com.guymichael.apromise.APromise
 import com.guymichael.kotlinflux.extensions.network.model.StoreAPIController
+import com.guymichael.kotlinflux.model.GlobalState
 import com.guymichael.kotlinflux.model.actions.DataAction
 import com.guymichael.promise.Promise
 
@@ -33,14 +35,15 @@ abstract class StoreDataAPIController : StoreAPIController {
      *
      * Also see the simpler single-dataType method
      */
-    fun <API_RESPONSE : Any?, P : Promise<API_RESPONSE>> prepare(
+    fun <API_RESPONSE : Any, P : Promise<API_RESPONSE>> prepare(
             call: P
-            , dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE) -> Unit>>
+            , dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE, StoreDataType<*>) -> Unit>>
             , persistSideEffects: ((API_RESPONSE) -> Unit) = {}
             , dispatchSideEffects: ((API_RESPONSE) -> Unit) = {}
             , logErrors: Boolean = true
         ): P {
 
+        @Suppress("UNCHECKED_CAST")
         return super.prepare(
             //on api execution - dispatch data loading state
             call.doOnExecution {
@@ -51,8 +54,8 @@ abstract class StoreDataAPIController : StoreAPIController {
             //on response - dispatch the data and side effects
             , { response ->
                 //dispatch data to Store
-                dataTypes.forEach { (_, dispatcher) ->
-                    dispatcher.invoke(response)
+                dataTypes.forEach { (type, dispatcher) ->
+                    dispatcher.invoke(response, type)
                 }
 
                 //dispatch side-effects to Store
@@ -60,41 +63,90 @@ abstract class StoreDataAPIController : StoreAPIController {
             }
             , persistSideEffects
             , logErrors
-        )
+
+        ).catch {
+            onApiError(it, dataTypes)
+        } as P
     }
 
     /** see multi-dataTypes method for docs */
-    fun <API_RESPONSE : Any?, P : Promise<API_RESPONSE>, D : Any> prepare(
+    fun <API_RESPONSE : Any, P : Promise<API_RESPONSE>, D : Any, TYPE : StoreDataType<D>>
+    prepare(
         call: P
-        , dataType: StoreDataType<D>
-        , dispatchDataLoaded: (API_RESPONSE) -> Unit
+        , dataType: TYPE
+        , dispatchDataLoaded: (API_RESPONSE, TYPE) -> Unit
         , persistSideEffects: ((API_RESPONSE) -> Unit) = {}
         , dispatchSideEffects: ((API_RESPONSE) -> Unit) = {}
         , logErrors: Boolean = true
     ): P {
         return prepare(call
-            , listOf(dataType to dispatchDataLoaded)
+            , listOf(dataType to { res, _ -> dispatchDataLoaded.invoke(res, dataType) })
             , persistSideEffects, dispatchSideEffects, logErrors
         )
     }
 
     /** see multi-dataTypes method for docs */
-    fun <API_RESPONSE : Any?, P : Promise<API_RESPONSE>, D : Any> prepare(
+    fun <API_RESPONSE : Any, P : Promise<API_RESPONSE>, D : Any, TYPE : StoreDataTypeSingleModel<D>>
+    prepare(
         call: P
-        , dataType: StoreDataTypeSingleModel<D>
-        , mapResponseToData: (API_RESPONSE) -> D?
+        , dataType: TYPE
+        , mapResponseToData: (API_RESPONSE, TYPE) -> D?
         , persistSideEffects: ((API_RESPONSE) -> Unit) = {}
         , dispatchSideEffects: ((API_RESPONSE) -> Unit) = {}
         , logErrors: Boolean = true
     ): P {
         return prepare(call
-            , listOf(dataType to { r -> mapResponseToData(r)?.let(::listOf) })
+            , listOf(dataType to { res, _ -> mapResponseToData(res, dataType)?.let(::listOf) })
             , persistSideEffects, dispatchSideEffects, logErrors
         )
     }
+
+
+
+
+
+    /**
+     * A convenience method. Loads relevant records from db if missing in Store (cache).
+     * If db table is null as well, it uses a provided API: `fetch`
+     *
+     * @param fetch APromise that fetches relevant data
+     */
+    fun <DATA_MODEL : Any> loadOrFetch(
+            dataType: StoreDataType<DATA_MODEL>
+            , fetch: () -> APromise<List<DATA_MODEL>>
+            , state: GlobalState = dataType.getStore().state)
+        : APromise<Unit> {
+
+        return if (dataType.exists(state)) {
+            //already in cache
+            APromise.of()
+        } else {
+            //no records in cache (state), load them now
+
+            //try from (local) db first
+            dataType.getPersistedData()?.let { data ->
+                APromise.of().then {
+                    dataType.dispatchLoaded(data, merge = false, shouldPersist = false) //already persisted..
+                }
+            }
+
+            //or from the API
+            ?: fetch.invoke().thenMap { data ->
+                //dispatch data loaded
+                dataType.dispatchLoaded(data, merge = false, shouldPersist = true) //persist fresh response
+
+                Unit
+            }
+        }
+    }
+
+
+
+
+
 
     private fun <API_RESPONSE: Any?> onApiError(e: Throwable
-            , dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE) -> List<Any>?>>) {
+            , dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE, StoreDataType<*>) -> Unit>>) {
 
         dataTypes.forEach { (type, _) ->
             type.getStore().dispatch(DataAction.setDataLoadingError(type, e))
