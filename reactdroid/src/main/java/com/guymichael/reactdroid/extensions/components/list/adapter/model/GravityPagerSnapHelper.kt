@@ -1,11 +1,16 @@
-package com.guymichael.reactdroid.extensions.components.list.adapter
+package com.guymichael.reactdroid.extensions.components.list.adapter.model
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
 class GravityPagerSnapHelper @JvmOverloads constructor(gravity: Int, enableSnapLastItem: Boolean = false,
                                                        snapListener: GravitySnapHelper.SnapListener? = null) : androidx.recyclerview.widget.PagerSnapHelper() {
-    private val delegate: GravityDelegate = GravityDelegate(gravity, enableSnapLastItem, snapListener)
+    private val delegate: GravityDelegate =
+        GravityDelegate(
+            gravity,
+            enableSnapLastItem,
+            snapListener
+        )
 
     @Throws(IllegalStateException::class)
     override fun attachToRecyclerView(recyclerView: RecyclerView?) {

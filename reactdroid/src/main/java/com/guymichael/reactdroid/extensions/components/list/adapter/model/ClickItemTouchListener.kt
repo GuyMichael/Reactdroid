@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.extensions.components.list.adapter
+package com.guymichael.reactdroid.extensions.components.list.adapter.model
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -143,8 +143,13 @@ abstract class ClickItemTouchListener(hostView: androidx.recyclerview.widget.Rec
         private fun findBestViewToClickAndPerform(recycler: androidx.recyclerview.widget.RecyclerView, itemView: View
                                                   , position: Int, id: Long, event: MotionEvent): Boolean {
 
-            return tryToClickOnInnerView(itemView, event)                   //some item inner view (e.g. some button)
-                    || tryToClickOnRowItemView(itemView)                    //custom on-view item click
+            return tryToClickOnInnerView(
+                itemView,
+                event
+            )                   //some item inner view (e.g. some button)
+                    || tryToClickOnRowItemView(
+                itemView
+            )                    //custom on-view item click
                     || performItemClick(recycler, itemView, position, id)   //or standard using the adapter click listener
         }
 
@@ -182,7 +187,10 @@ private fun findChild(parent: ViewGroup, predicate: (child: View) -> Boolean): V
             if (ViewGroup::class.java.isInstance(child)) {
                 (child as? ViewGroup)?.let {viewGroupChild ->
                     //try to find a child of this viewGroup child
-                    findChild(viewGroupChild, predicate)?.let {
+                    findChild(
+                        viewGroupChild,
+                        predicate
+                    )?.let {
                         return it
                     }
                 }
@@ -202,8 +210,14 @@ private fun findChild(parent: ViewGroup, predicate: (child: View) -> Boolean): V
 
 private fun tryToClickOnInnerView(itemView: View, event: MotionEvent): Boolean {
     return (itemView as? ViewGroup)?.let {
-        findChild(it) { child ->
-            isClickOnView(child, event.rawX, event.rawY)
+        findChild(
+            it
+        ) { child ->
+            isClickOnView(
+                child,
+                event.rawX,
+                event.rawY
+            )
         }
     }
     ?.let { it.hasOnClickListeners() && (it.performClick() || true) }

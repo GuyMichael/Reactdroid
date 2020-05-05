@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.extensions.components.list.adapter;
+package com.guymichael.reactdroid.extensions.components.list.adapter.model;
 
 import android.view.Gravity;
 import android.view.View;
@@ -8,6 +8,8 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.OrientationHelper;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.guymichael.reactdroid.extensions.components.list.adapter.model.GravitySnapHelper;
 
 public class GravityDelegate {
     private OrientationHelper verticalHelper;

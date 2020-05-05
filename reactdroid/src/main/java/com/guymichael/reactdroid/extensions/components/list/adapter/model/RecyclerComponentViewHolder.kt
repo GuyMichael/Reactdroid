@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.extensions.components.list.adapter
+package com.guymichael.reactdroid.extensions.components.list.adapter.model
 
 import android.view.View
 import com.guymichael.kotlinreact.BuildConfig
@@ -20,7 +20,8 @@ class RecyclerComponentViewHolder(itemView: View)
             if (BuildConfig.DEBUG) {
                 throw e//rethrow
             } else {
-                Logger.e(RecyclerComponentViewHolder::class, "bind failed: give props (${props.javaClass.simpleName}) " +
+                Logger.e(
+                    RecyclerComponentViewHolder::class, "bind failed: give props (${props.javaClass.simpleName}) " +
                         "differs from ${component.javaClass.simpleName}'s props")
             }
         }

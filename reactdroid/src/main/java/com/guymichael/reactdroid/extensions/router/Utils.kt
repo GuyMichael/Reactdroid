@@ -110,7 +110,7 @@ object Utils {
 
     @Throws(UnsupportedEncodingException::class)
     fun encodeUrl(url: String?, vararg params: Pair<String, Any?>, encoding: String = "UTF-8"): String? {
-        return encodeUrl(url, mapOf(*params))
+        return encodeUrl(url, mapOf(*params), encoding)
     }
 
     @Throws(UnsupportedEncodingException::class)

@@ -3,6 +3,7 @@ package com.guymichael.reactdroid.extensions.components.list.adapter
 import android.os.Handler
 import android.text.TextUtils
 import android.view.*
+import androidx.annotation.DimenRes
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -10,13 +11,18 @@ import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
 //import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.guymichael.reactdroid.core.IntervalUtils
-import com.guymichael.reactdroid.core.Utils
 import com.guymichael.reactdroid.core.ViewUtils
+import com.guymichael.reactdroid.core.getDimenPx
 import com.guymichael.reactdroid.extensions.components.list.ComponentListUtils
 import com.guymichael.reactdroid.extensions.components.list.layouts.ListIndicatorLayout
 import com.guymichael.reactdroid.extensions.components.list.layouts.recycler.SnappingRecyclerView
 import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 import com.guymichael.reactdroid.core.model.IntervalRunnable
+import com.guymichael.reactdroid.extensions.components.list.adapter.model.*
+import com.guymichael.reactdroid.extensions.components.list.adapter.model.SimpleAdapterDataObserver
+import com.guymichael.reactdroid.extensions.components.list.dividers.ListDivider
+import com.guymichael.reactdroid.extensions.components.list.dividers.ListDividerOrientation
+import com.guymichael.reactdroid.extensions.components.list.dividers.NewDividerItemDecoration
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.math.max
@@ -29,10 +35,10 @@ import kotlin.math.max
  * <br></br>**NOTE:** Please use [RecyclerView.setHasFixedSize] if all items are same size,
  * for performance.
  */
-open class RecyclerComponentAdapter @JvmOverloads constructor( //THINK make Component
+open class RecyclerComponentAdapter @JvmOverloads constructor(
         val recyclerView: RecyclerView
         , items: List<ListItemProps> = emptyList()
-        , orientation: Int = RecyclerView.VERTICAL
+        , @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL
         , val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(recyclerView.context, orientation, false)
         , val viewHolderSupplier: (View) -> BaseRecyclerComponentViewHolder
     ) : RecyclerView.Adapter<BaseRecyclerComponentViewHolder>() {
@@ -50,8 +56,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor( //THINK make Comp
         ((parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps, position: Int) -> Boolean)? = null
     private var customPerClassClickListeners: HashMap<Class<*>, ((ListItemProps, position: Int) -> Boolean)?>? = null
     private var emptyView: View? = null
-    @LayoutRes
-    private var customItemLayoutResId = 0
+    @LayoutRes private var customItemLayoutResId = 0
     private var customItemWidthFactor = -1f
     private var itemDecoration: RecyclerView.ItemDecoration? = null
     private var mEmptyStateObserver: EmptyStateDataObserver? = null
@@ -59,6 +64,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor( //THINK make Comp
     private var onEmptyViewStateChangeListener: OnEmptyViewStateChangeListener? = null
     private var isHorizontalRelativeItemWidthEnabled = true
     private var autoscrollRunnableKey: Long? = null
+
     var isItemsClickable: Boolean
         get() = this.onItemTouchListener != null
         set(clickable) {
@@ -75,7 +81,8 @@ open class RecyclerComponentAdapter @JvmOverloads constructor( //THINK make Comp
             field = cyclic
             updateCyclicMiddleIndex()
         }
-    var MIDDLE: Int = 0
+
+    protected var cyclicMiddleIndex: Int = 0
 
     /*Listeners*/
     private var onItemTouchListener: RecyclerView.OnItemTouchListener? = null
@@ -205,23 +212,23 @@ open class RecyclerComponentAdapter @JvmOverloads constructor( //THINK make Comp
     }
 
     fun addItem(item: ListItemProps, position: Int) {
-        var position = position
+        var realPosition = position
         val currentSize = this.items.size
-        if (position > currentSize) {
-            position = currentSize
+        if (realPosition > currentSize) {
+            realPosition = currentSize
         }
-        if (position < 0) {
-            position = 0
+        if (realPosition < 0) {
+            realPosition = 0
         }
 
-        this.items.add(position, item)
+        this.items.add(realPosition, item)
 
         if (isCyclic) {
             updateCyclicMiddleIndex()
         }
 
 //        updateViewTypes()
-        super.notifyItemInserted(position)
+        super.notifyItemInserted(realPosition)
     }
 
     fun isEmptyViewShowing(): Boolean {
@@ -344,8 +351,8 @@ open class RecyclerComponentAdapter @JvmOverloads constructor( //THINK make Comp
     }
 
     private fun updateCyclicMiddleIndex() {
-        MIDDLE = if (this.items.size == 0) 0 else HALF_MAX_VALUE - HALF_MAX_VALUE % this.items.size
-        Handler().postDelayed({ scrollImmediately(MIDDLE) }, 2000)//TODO change this ugly thing to listen to when the RecyclerView finished inflating the Views
+        cyclicMiddleIndex = if (this.items.size == 0) 0 else HALF_MAX_VALUE - HALF_MAX_VALUE % this.items.size
+        Handler().postDelayed({ scrollImmediately(cyclicMiddleIndex) }, 2000)//TODO change this ugly thing to listen to when the RecyclerView finished inflating the Views
     }
 
     /**
@@ -445,24 +452,6 @@ open class RecyclerComponentAdapter @JvmOverloads constructor( //THINK make Comp
         layout?.setup(this, tabViewResId, areIndicatorsClickable)
     }
 
-    /**
-     * Uses a default [DividerItemDecoration]
-     * @param drawableResId
-     * @param orientation
-     */
-    fun setDividers(drawableResId: Int, orientation: DividerItemDecoration.DECOR_ORIENTATION): RecyclerComponentAdapter {
-        if (drawableResId != 0) {
-            setDividers(
-                    DividerItemDecoration(this.recyclerView.context
-                            , orientation
-                            , Utils.getDrawable(this.recyclerView.context, drawableResId)
-                    )
-            )
-        }
-
-        return this
-    }
-
     fun setDividers(decor: RecyclerView.ItemDecoration): RecyclerComponentAdapter {
         this.itemDecoration = decor
 
@@ -471,7 +460,38 @@ open class RecyclerComponentAdapter @JvmOverloads constructor( //THINK make Comp
         return this
     }
 
-    //TODO setDividers with width
+    fun setDividers(divider: ListDivider
+        , topDivider: ListDivider? = divider
+        , bottomDivider: ListDivider? = topDivider
+        , orientation: @ListDividerOrientation Int = ComponentListUtils.getDividerOrientation(layoutManager)
+    ): RecyclerComponentAdapter {
+
+        setDividers(NewDividerItemDecoration(
+            orientation
+            , divider, topDivider, bottomDivider
+        ))
+
+        return this
+    }
+
+    fun setDividers(
+            @DimenRes dividerSizeRes: Int
+            , @DimenRes topDividerSizeRes: Int? = dividerSizeRes
+            , @DimenRes bottomDividerSizeRes: Int? = topDividerSizeRes
+        ): RecyclerComponentAdapter {
+
+        val divider = ListDivider(recyclerView.getDimenPx(dividerSizeRes))
+
+        setDividers(
+            divider
+            , if (topDividerSizeRes == dividerSizeRes) divider
+              else topDividerSizeRes?.let(::ListDivider)
+            , if (bottomDividerSizeRes == dividerSizeRes) divider
+              else bottomDividerSizeRes?.let(::ListDivider)
+        )
+
+        return this
+    }
 
     /**
      * Use when the data hasn't change, but when the dividers should update. e.g. **when an item changes it's size**.<br></br>
@@ -526,15 +546,14 @@ open class RecyclerComponentAdapter @JvmOverloads constructor( //THINK make Comp
      * @param snapOneAtAtime
      */
     fun setSnapEnabled(enabled: Boolean, snapOneAtAtime: Boolean = enabled) {
-        if (recyclerView == null) {
-            return
-        }
-
         if (recyclerView is SnappingRecyclerView) {
             recyclerView.setSnappingEnabled(enabled, snapOneAtAtime)
         } else {
             //TODO set disabled!
-            val snapHelper = GravityPagerSnapHelper(Gravity.START)
+            val snapHelper =
+                GravityPagerSnapHelper(
+                    Gravity.START
+                )
             snapHelper.attachToRecyclerView(recyclerView)
         }
     }
@@ -918,6 +937,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor( //THINK make Comp
         this.customPerClassClickListeners?.run {
             this.put(cls) { item, position ->
                 //invoke  this listener fit the class
+                @Suppress("UNCHECKED_CAST")
                 (item as? T?)?.let { listener(it, position) } ?: false
             }
         }
