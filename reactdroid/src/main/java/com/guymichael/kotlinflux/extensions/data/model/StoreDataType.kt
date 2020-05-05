@@ -1,6 +1,5 @@
 package com.guymichael.kotlinflux.extensions.data.model
 
-import com.guymichael.apromise.APromise
 import com.guymichael.kotlinflux.model.GlobalState
 import com.guymichael.kotlinflux.model.Store
 import com.guymichael.kotlinflux.model.StoreKey
@@ -45,6 +44,7 @@ abstract class StoreDataType<DATA_MODEL : Any> : StoreKey {
 
         //cast value to list and persist
         if ( dataModelList != null) {
+            @Suppress("UNCHECKED_CAST")
             (dataModelList as? List<DATA_MODEL>)?.also {
                 if (it.isNotEmpty()) {
                     persistOrThrow(it)
@@ -52,13 +52,15 @@ abstract class StoreDataType<DATA_MODEL : Any> : StoreKey {
 
                 //THINK log error if cast failed
             } ?: throw RuntimeException("failed to persist - failed casting " +
-                "${dataModelList?.javaClass?.simpleName} to List<type of ${getName()}>")
+                    "${dataModelList.javaClass.simpleName} to List<type of ${getName()}>"
+                )
         }
     }
 
     @Throws(Throwable::class)
     fun UNSAFE_removeFromPersistOrThrow(dataModelList: Any?) {
         if ( dataModelList != null) {
+            @Suppress("UNCHECKED_CAST")
             (dataModelList as? List<DATA_MODEL>)?.also {
                 if (it.isNotEmpty()) {
                     removeFromPersistOrThrow(it)
@@ -67,7 +69,7 @@ abstract class StoreDataType<DATA_MODEL : Any> : StoreKey {
                 //THINK log error if cast failed
             } ?: throw RuntimeException(
                 "failed to remove from persist - failed casting " +
-                "${dataModelList?.javaClass?.simpleName} to List<type of ${getName()}>")
+                "${dataModelList.javaClass.simpleName} to List<type of ${getName()}>")
         }
     }
 
@@ -75,12 +77,14 @@ abstract class StoreDataType<DATA_MODEL : Any> : StoreKey {
         return if (t == null) {
             null
         } else {
+            @Suppress("UNCHECKED_CAST")
             (t as? List<DATA_MODEL>)//THINK casting
             //THINK log error if cast failed
         }
     }
 
     fun getDataModelSchemaIdIfMatches(d: Any) : String? {
+        @Suppress("UNCHECKED_CAST")
         return (d as? DATA_MODEL)?.let {//THINK casting
             getSchemaId(it)
         }
@@ -89,6 +93,7 @@ abstract class StoreDataType<DATA_MODEL : Any> : StoreKey {
 
 
     fun getValueAsModelMap(state: GlobalState = getStore().state): Map<String, DATA_MODEL>? {
+        @Suppress("UNCHECKED_CAST")
         return getCurrentValue(state) as? Map<String, DATA_MODEL>? // THINK casting
     }
 

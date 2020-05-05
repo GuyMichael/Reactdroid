@@ -107,8 +107,11 @@ abstract class StoreDataAPIController : StoreAPIController {
 
     /**
      * A convenience method. Loads relevant records from db if missing in Store (cache).
-     * If db table is null as well, it uses a provided API: `fetch`
+     * If db table is null as well, it uses a provided API: `fetch` and then
+     * dispatches[StoreDataType.dispatchLoaded] to store using given `dataType`
      *
+     * @param dataType used for the 3 steps: check if exists in Store (cache), load from db
+     * and dispatch to store (whether from db or from `fetch`)
      * @param fetch APromise that fetches relevant data
      */
     fun <DATA_MODEL : Any> loadOrFetch(
@@ -145,7 +148,7 @@ abstract class StoreDataAPIController : StoreAPIController {
 
 
 
-    private fun <API_RESPONSE: Any?> onApiError(e: Throwable
+    protected open fun <API_RESPONSE: Any?> onApiError(e: Throwable
             , dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE, StoreDataType<*>) -> Unit>>) {
 
         dataTypes.forEach { (type, _) ->

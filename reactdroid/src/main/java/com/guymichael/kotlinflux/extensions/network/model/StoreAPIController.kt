@@ -16,6 +16,7 @@ interface StoreAPIController {
             , logErrors: Boolean = true
         ): P {
 
+        @Suppress("UNCHECKED_CAST")
         return call
             .then(persistSideEffects)
             .then(dispatch) //dispatch after persisting so that the persist will reflect the changes

@@ -9,6 +9,7 @@ import com.guymichael.reactdroid.core.Utils
 import java.io.UnsupportedEncodingException
 import java.net.URI
 import java.net.URLDecoder
+import java.net.URLEncoder
 import java.util.*
 
 object Utils {
@@ -61,6 +62,57 @@ object Utils {
         return queryParams
     }
 
+    /** @return encoded query params, no "?" */
+    @Throws(UnsupportedEncodingException::class)
+    fun encodeQueryString(params: Map<String, Any?>, paramsEncoding: String): String {
+        return StringBuilder().also {
+            for ((key, value) in params) {
+                it.append(URLEncoder.encode(key, paramsEncoding))
+                it.append('=')
+                it.append(URLEncoder.encode(value.toString(), paramsEncoding))
+                it.append('&')
+            }
+            val length = it.length
+            if (length > 0 && it.lastIndexOf("&") == length - 1) {
+                it.delete(length - 1, length) //THINK efficiency - don't append last one instead of delete
+            }
+        }.toString()
+    }
+
+    /**
+     * Encodes the url and query parameters using [URLEncoder].
+     * If `url` is null (and `params` is not), a valid query string starting with "?" will be returned.
+     * If `url` already contains a query string, `params` will be added to it, duplicate keys allowed.
+     * If both are `null`, an empty String will be returned
+     *
+     * @return an [encoded url][URLEncoder.encode] with given query-params (also encoded)
+     */
+    @Throws(UnsupportedEncodingException::class)
+    fun encodeUrl(url: String?, params: Map<String, Any?>? = null, encoding: String = "UTF-8"): String {
+        val encodedUrl = url?.let {
+            StringBuilder(URLEncoder.encode(it, encoding))
+        } ?: StringBuilder()
+
+        if (params?.isNotEmpty() == true) {
+            encodeQueryString(params, encoding).takeIf { it.isNotBlank() }?.also { query ->
+                if (encodedUrl.indexOf("?") < 0) {
+                    encodedUrl.append("?")
+                } else {
+                    encodedUrl.append("&")
+                }
+
+                encodedUrl.append(query)
+            }
+        }
+
+        return encodedUrl.toString()
+    }
+
+    @Throws(UnsupportedEncodingException::class)
+    fun encodeUrl(url: String?, vararg params: Pair<String, Any?>, encoding: String = "UTF-8"): String? {
+        return encodeUrl(url, mapOf(*params))
+    }
+
     @Throws(UnsupportedEncodingException::class)
     @JvmStatic
     fun parseUrlQueryParams(url: URI): Map<String, List<String>> {
@@ -76,8 +128,14 @@ object Utils {
 }
 
 
+
+
+
+
+
+
 /** NOT pure - may affect `intent` */
-fun startExternalActivity_notPure(context: Context, intent: Intent) {
+private fun startExternalActivity_notPure(context: Context, intent: Intent) {
     val callingActivity: Activity? = Utils.getActivity(context)
 
     if (callingActivity == null) {

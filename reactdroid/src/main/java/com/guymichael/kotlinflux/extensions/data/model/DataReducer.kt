@@ -20,9 +20,13 @@ abstract class DataReducer(
      * @return dataTypes with persistence to be used when initializing (or resetting) the global state
      *
      * It is OK to omit certain types if you'd like the data to be loaded lazy, in which case
-     * you are in charge of doing so ([dispatch db data to store][DataAction.setDataLoaded])
+     * you are in charge of doing so ([dispatch db data to store][DataAction.setDataLoaded]).
+     * Just be aware that if the data isn't loaded to Store at startup, some components which rely
+     * on the data-in-state might not work properly - so be sure to load the data into state
+     * before the first component which needs it is shown (e.g. some drawer Fragment)
      *
      * @see getSelfDefaultState
+     * @see StoreDataAPIController.loadOrFetch
      */
     abstract fun getDefaultStatePersistenceTypes(): List<StoreDataType<*>>?
 
