@@ -107,7 +107,7 @@ abstract class StoreDataAPIController : StoreAPIController {
 
     /**
      * A convenience method. Loads relevant records from db if missing in Store (cache).
-     * If db table is null as well, it uses a provided API: `fetch` and then
+     * If db table is empty as well, it uses a provided API: `fetch` and then
      * dispatches[StoreDataType.dispatchLoaded] to store using given `dataType`
      *
      * @param dataType used for the 3 steps: check if exists in Store (cache), load from db
@@ -127,7 +127,7 @@ abstract class StoreDataAPIController : StoreAPIController {
             //no records in cache (state), load them now
 
             //try from (local) db first
-            dataType.getPersistedData()?.let { data ->
+            dataType.getPersistedData()?.takeIf { it.isNotEmpty() }?.let { data ->
                 APromise.of().then {
                     dataType.dispatchLoaded(data, merge = false, shouldPersist = false) //already persisted..
                 }
