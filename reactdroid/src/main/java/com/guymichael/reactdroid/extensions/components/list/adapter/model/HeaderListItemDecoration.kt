@@ -4,7 +4,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.guymichael.reactdroid.extensions.components.list.dividers.ListDivider
 import com.guymichael.reactdroid.extensions.components.list.dividers.ListDividerOrientation
-import com.guymichael.reactdroid.extensions.components.list.dividers.NewDividerItemDecoration
+import com.guymichael.reactdroid.extensions.components.list.dividers.DividerItemDecoration
 
 /**
  * Supports vertical lists only.
@@ -15,7 +15,7 @@ class HeaderListItemDecoration(
         , headerToPrevItemDivider: ListDivider
         , itemToPrevHeaderDivider: ListDivider
         , private val mHeaderClass: Class<out View?>
-    ) : NewDividerItemDecoration(ListDividerOrientation.VERTICAL, divider
+    ) : DividerItemDecoration(ListDividerOrientation.VERTICAL, divider
         , headerToPrevItemDivider, itemToPrevHeaderDivider
     ) {
 

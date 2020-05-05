@@ -22,7 +22,7 @@ import com.guymichael.reactdroid.extensions.components.list.adapter.model.*
 import com.guymichael.reactdroid.extensions.components.list.adapter.model.SimpleAdapterDataObserver
 import com.guymichael.reactdroid.extensions.components.list.dividers.ListDivider
 import com.guymichael.reactdroid.extensions.components.list.dividers.ListDividerOrientation
-import com.guymichael.reactdroid.extensions.components.list.dividers.NewDividerItemDecoration
+import com.guymichael.reactdroid.extensions.components.list.dividers.DividerItemDecoration
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.math.max
@@ -466,7 +466,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         , orientation: @ListDividerOrientation Int = ComponentListUtils.getDividerOrientation(layoutManager)
     ): RecyclerComponentAdapter {
 
-        setDividers(NewDividerItemDecoration(
+        setDividers(DividerItemDecoration(
             orientation
             , divider, topDivider, bottomDivider
         ))

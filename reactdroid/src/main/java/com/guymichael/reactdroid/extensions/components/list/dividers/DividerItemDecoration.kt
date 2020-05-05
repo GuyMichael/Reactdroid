@@ -10,9 +10,9 @@ import com.guymichael.kotlinreact.BuildConfig
 import com.guymichael.kotlinreact.Logger
 import com.guymichael.reactdroid.extensions.components.list.adapter.model.SimpleAdapterDataObserver
 
-open class NewDividerItemDecoration (
-        protected val mOrientation: @ListDividerOrientation Int
-        , protected val mDivider: ListDivider
+open class DividerItemDecoration (
+        private val mOrientation: @ListDividerOrientation Int
+        , private val mDivider: ListDivider
         , private val mTopDivider: ListDivider? = mDivider
         , private val mBottomDivider: ListDivider? = mTopDivider
     ) : RecyclerView.ItemDecoration() {
@@ -187,6 +187,8 @@ open class NewDividerItemDecoration (
         val canvasDrawable = GradientDrawable()
 
         if (dividerBefore != null) {
+            canvasDrawable.setSize(dividerBefore.widthPx, dividerBefore.heightPx)
+
             for (bounds in calcChildDividerBoundsBefore(child, realIndex, itemCount, dividerBefore, parentBounds, orientation)) {
                 canvasDrawable.bounds = bounds
                 canvasDrawable.draw(c)
@@ -197,6 +199,8 @@ open class NewDividerItemDecoration (
         //draw after child
         val dividerAfter = getDividerAfterIntl(child, realIndex, parent)
         if (dividerAfter != null) {
+            canvasDrawable.setSize(dividerAfter.widthPx, dividerAfter.heightPx)
+
             for (bounds in calcChildDividerBoundsAfter(child, realIndex, itemCount, dividerAfter, parentBounds, orientation)) {
                 canvasDrawable.bounds = bounds
                 canvasDrawable.draw(c)
@@ -248,7 +252,7 @@ open class NewDividerItemDecoration (
                         }
                     } else {
                         if (BuildConfig.DEBUG) {
-                            Logger.w(NewDividerItemDecoration::class
+                            Logger.w(DividerItemDecoration::class
                                 , "getTopRowItemCount(): unsupported Grid LayoutManager of class: ${layoutManager?.javaClass?.simpleName}"
                             )
                         }
@@ -286,7 +290,7 @@ open class NewDividerItemDecoration (
                         realColumnCount = layoutManager.spanSizeLookup.getSpanIndex(totalItemCount - 1, layoutManager.spanCount) + 1
                     } else {
                         if (BuildConfig.DEBUG) {
-                            Logger.w(NewDividerItemDecoration::class, "getBottomRowItemCount(): unsupported Grid LayoutManager of class: " + layoutManager?.javaClass?.simpleName)
+                            Logger.w(DividerItemDecoration::class, "getBottomRowItemCount(): unsupported Grid LayoutManager of class: " + layoutManager?.javaClass?.simpleName)
                         }
                     }
                 }
