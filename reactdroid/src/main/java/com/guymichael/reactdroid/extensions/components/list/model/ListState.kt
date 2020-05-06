@@ -4,10 +4,8 @@ import com.guymichael.kotlinreact.model.OwnState
 
 
 data class ListState(
-        val uncontrolledIndex: Int
+        val uncontrolledScrollIndex: Int? = null //doesn't cause re-renders
     ) : OwnState() {
 
-    override fun getAllMembers() = listOf(
-        uncontrolledIndex
-    )
+    override fun getAllMembers() = emptyList<Any?>()
 }

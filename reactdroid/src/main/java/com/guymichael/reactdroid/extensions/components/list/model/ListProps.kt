@@ -4,7 +4,7 @@ data class ListProps(
         override val items: List<ListItemProps>
         , val constraint: String? = null
         , val controlledScroll: Pair<Int, (Int) -> Unit>? = null
-        , val uncontrolled_initialScrollIndex: Int = 0
+        , val uncontrolled_initialScrollIndex: Int? = null //doesn't affect re-renders
     ) : BaseListProps(items) {
 
     override fun getAllMembers() = listOf(

@@ -20,36 +20,38 @@ class CList(
     constructor(v: RecyclerView, orientation: Int = RecyclerView.VERTICAL)
         : this(v, createAdapter(v, orientation))
 
-    init {
-        //THINK only if props have uncontrolled_initialScrollIndex (but we can't use props now!)
-        adapter.addOnListScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    onListScrollIndexChanged(adapter.getActualFirstVisiblePosition())
-                }
-            }
-        })
-
-        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-            override fun onChanged() {
-                renderScrollPosition(getScrollIndex())
-            }
-        })
-    }
-
     override fun createInitialState(props: ListProps) = ListState(props.uncontrolled_initialScrollIndex)
 
-    private fun getScrollIndex(): Int {
+    override fun componentDidMount() {
+        //if we received scroll position through props (initial or controlled),
+        if (getScrollIndex() != null) {
+            // listen on scroll state changes to update state's scrollIndex
+            adapter.addOnListScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        onListScrollIndexChanged(adapter.getActualFirstVisiblePosition())
+                    }
+                }
+            })
+        }
+    }
+
+
+
+
+
+
+    private fun getScrollIndex(): Int? {
         //controlled scroll mode
         return this.props.controlledScroll?.first
 
         //or uncontrolled
-        ?: this.ownState.uncontrolledIndex
+        ?: this.ownState.uncontrolledScrollIndex
     }
 
 
 
-
+    //called only when props provide scroll index (controlled or not)
     fun onListScrollIndexChanged(newIndex: Int) {
         //controlled scroll mode
         this.props.controlledScroll?.second?.also {
@@ -71,17 +73,14 @@ class CList(
 
     private var didFirstRenderScrollPosition = false
     private fun renderScrollPosition(scrollIndex: Int) {
-        val actualScrollIndex = adapter.getActualFirstVisiblePosition()
-
-        if (actualScrollIndex >= 0 && actualScrollIndex != scrollIndex) {
+        if (adapter.itemCount > 0 && adapter.getActualFirstVisiblePosition() != scrollIndex) {
             if (didFirstRenderScrollPosition) {
                 adapter.smoothScroll(scrollIndex)
             } else {
                 adapter.scrollImmediately(scrollIndex)
             }
 
-            //actualScrollIndex >= 0 also means that itemCount > 0,
-            // so this is considered the first scrollIndex render with non-empty list
+            //this is considered the first scroll-render with non-empty list
             didFirstRenderScrollPosition = true
         }
     }
@@ -91,6 +90,8 @@ class CList(
         if( !didFirstRender || adapter.getAllItems() != props.items) { //THINK efficiency
             super.render()
         }
+
+        getScrollIndex()?.let(::renderScrollPosition)
 
         didFirstRender = true
     }
