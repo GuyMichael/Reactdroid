@@ -289,6 +289,25 @@ fun AComponent<TextProps, *, *>.renderTextOrGone(text: CharSequence?
     )
 }
 
+fun AComponent<TextProps, *, *>.renderTextOrInvisible(text: CharSequence?
+        , vararg visibilityBoundComponents: AComponent<*, *, *>
+        , animateVisibility: Boolean = false
+        , animDuration: Long? = null
+        , animStartDelay: Long? = null
+        , animStartVisibility: Int? = null
+        , animStartAlpha: Float? = null
+    ) {
+
+    renderTextOrVisibility(text, View.INVISIBLE
+        , animateVisibility
+        , animDuration
+        , animStartDelay
+        , animStartVisibility
+        , animStartAlpha
+        , *visibilityBoundComponents
+    )
+}
+
 fun AComponent<TextProps, *, *>.renderTextOrGone(@StringRes res: Int?
         , vararg visibilityBoundComponents: AComponent<*, *, *>
         , animateVisibility: Boolean = false
@@ -298,6 +317,24 @@ fun AComponent<TextProps, *, *>.renderTextOrGone(@StringRes res: Int?
         , animStartAlpha: Float? = null) {
 
     renderTextOrVisibility(res?.let(mView::getText), View.GONE
+        , animateVisibility
+        , animDuration
+        , animStartDelay
+        , animStartVisibility
+        , animStartAlpha
+        , *visibilityBoundComponents
+    )
+}
+
+fun AComponent<TextProps, *, *>.renderTextOrInvisible(@StringRes res: Int?
+        , vararg visibilityBoundComponents: AComponent<*, *, *>
+        , animateVisibility: Boolean = false
+        , animDuration: Long? = null
+        , animStartDelay: Long? = null
+        , animStartVisibility: Int? = null
+        , animStartAlpha: Float? = null) {
+
+    renderTextOrVisibility(res?.let(mView::getText), View.INVISIBLE
         , animateVisibility
         , animDuration
         , animStartDelay
