@@ -8,7 +8,6 @@ import android.view.View
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.guymichael.reactdroid.extensions.components.list.dividers.ListDividerOrientation
-import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 import java.util.*
 
 object ComponentListUtils {
@@ -162,11 +161,11 @@ object ComponentListUtils {
      * @param selector maps an item to some text representation to filter on
      * @return a filtered list, containing only items with any word that starts with `constraint`
      */
-    fun filterAnyWordStartsWith(list: List<ListItemProps>, constraint: CharSequence?
-                   , selector: (ListItemProps) -> String
-    ): List<ListItemProps> {
+    fun <T> filterAnyWordStartsWith(list: List<T>, constraint: CharSequence?
+            , selector: (T) -> String
+        ): List<T> {
 
-        val filteredArray = ArrayList<ListItemProps>()
+        val filteredArray = ArrayList<T>()
 
         if (constraint.isNullOrBlank()) {
             //return all items
