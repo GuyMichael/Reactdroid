@@ -80,6 +80,8 @@ class CList(
                 adapter.scrollImmediately(scrollIndex)
             }
 
+            //actualScrollIndex >= 0 also means that itemCount > 0,
+            // so this is considered the first scrollIndex render with non-empty list
             didFirstRenderScrollPosition = true
         }
     }
