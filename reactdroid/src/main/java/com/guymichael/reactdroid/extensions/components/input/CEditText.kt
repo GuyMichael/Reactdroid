@@ -32,14 +32,24 @@ fun View.withStringInput(@IdRes editText: Int, onChange: (String?) -> Unit) : CE
 fun View.withLongInput(@IdRes editText: Int, onChange: (Long?) -> Unit
         , parseValueOrThrow: (String) -> Long
         , formatter: (Long?, forUserInput: String?) -> CharSequence?
-        , valueValidator: (Long) -> Boolean = { true }) : CEditText<Long> {
-
+        , valueValidator: (Long) -> Boolean = { true }
+    ) : CEditText<Long> {
 
     return CEditText(findViewById(editText), onChange, {
         parseOrThrow(it, parseValueOrThrow, valueValidator)
     }, formatter)
 }
 
+fun View.withDoubleInput(@IdRes editText: Int, onChange: (Double?) -> Unit
+        , parseValueOrThrow: (String) -> Double
+        , formatter: (Double?, forUserInput: String?) -> CharSequence?
+        , valueValidator: (Double) -> Boolean = { true }
+    ) : CEditText<Double> {
+
+    return CEditText(findViewById(editText), onChange, {
+        parseOrThrow(it, parseValueOrThrow, valueValidator)
+    }, formatter)
+}
 
 
 

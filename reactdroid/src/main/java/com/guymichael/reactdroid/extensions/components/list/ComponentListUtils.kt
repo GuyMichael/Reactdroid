@@ -8,6 +8,8 @@ import android.view.View
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.guymichael.reactdroid.extensions.components.list.dividers.ListDividerOrientation
+import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
+import java.util.*
 
 object ComponentListUtils {
     /**
@@ -152,5 +154,45 @@ object ComponentListUtils {
         } else {
             null
         }
+    }
+
+    /**
+     * @param list to filter
+     * @param constraint
+     * @param selector maps an item to some text representation to filter on
+     * @return a filtered list, containing only items with any word that starts with `constraint`
+     */
+    fun filterAnyWordStartsWith(list: List<ListItemProps>, constraint: CharSequence?
+                   , selector: (ListItemProps) -> String
+    ): List<ListItemProps> {
+
+        val filteredArray = ArrayList<ListItemProps>()
+
+        if (constraint.isNullOrBlank()) {
+            //return all items
+            filteredArray.addAll(list)
+        } else {
+            val constraintText = constraint.toString().toLowerCase(Locale.US).trim { it <= ' ' }
+            for (item in list) {
+                val itemName = selector(item)
+
+                //check by full name
+                if (itemName.toLowerCase(Locale.US).startsWith(constraintText)) {
+                    filteredArray.add(item)
+                    continue
+                }
+
+                //check each word
+                val fullName: List<String> = itemName.split(" ") //get all searchable data
+                for (word in fullName) {
+                    if (word.toLowerCase(Locale.US).startsWith(constraintText)) {
+                        filteredArray.add(item)
+                        break
+                    }
+                }
+            }
+        }
+
+        return filteredArray
     }
 }

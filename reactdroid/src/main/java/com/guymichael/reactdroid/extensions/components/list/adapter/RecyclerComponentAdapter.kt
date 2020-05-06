@@ -41,7 +41,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         , items: List<ListItemProps> = emptyList()
         , @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL
         , val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(recyclerView.context, orientation, false)
-        , val viewHolderSupplier: (View) -> BaseRecyclerComponentViewHolder
+        , val viewHolderSupplier: (View) -> BaseRecyclerComponentViewHolder = ::RecyclerComponentViewHolder
     ) : RecyclerView.Adapter<BaseRecyclerComponentViewHolder>() {
 
     private val items: MutableList<ListItemProps> = ArrayList()
@@ -185,7 +185,6 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         return if (this.isCyclic) {
             Integer.MAX_VALUE
         } else this.items.size
-
     }
 
     //Note: onSingleTapUp() can sometimes ask for position -1 (!). Check also onLongPress()?
@@ -210,11 +209,11 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
     //************ All other methods are just utility methods ***************
 
 
-    fun addItem(item: ListItemProps) {
+    /*internal open fun addItem(item: ListItemProps) {
         addItem(item, this.items.size)
     }
 
-    fun addItem(item: ListItemProps, position: Int) {
+    internal open fun addItem(item: ListItemProps, position: Int) {
         var realPosition = position
         val currentSize = this.items.size
         if (realPosition > currentSize) {
@@ -230,9 +229,8 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
             updateCyclicMiddleIndex()
         }
 
-//        updateViewTypes()
         super.notifyItemInserted(realPosition)
-    }
+    }*/
 
     fun isEmptyViewShowing(): Boolean {
         return emptyView != null && emptyView!!.visibility == View.VISIBLE
@@ -248,7 +246,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
 
     fun isSnappingEnabled(): Boolean {
         return (recyclerView is SnappingRecyclerView
-                && recyclerView.isSnappingEnabled)
+            && recyclerView.isSnappingEnabled)
     }
 
     /**
@@ -259,13 +257,13 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         return this.items.size
     }
 
-    internal fun getAllItems(): List<ListItemProps> {
+    internal open fun getAllItems(): List<ListItemProps> {
         return ArrayList(this.items)
     }
 
     protected fun getFirstVisibleItem(): ListItemProps? {
         return getItem(
-                ComponentListUtils.getFirstVisiblePosition(layoutManager)
+            ComponentListUtils.getFirstVisiblePosition(layoutManager)
         )
     }
 
@@ -657,7 +655,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
      * @param newList copied to a new [List] (not deep copy!), so you can do whatever you want
      * with *newList*
      */
-    fun notifyDataSetChanged(newList: List<ListItemProps>) {
+    open fun notifyDataSetChanged(newList: List<ListItemProps>) {
         this.items.clear()
         this.items.addAll(newList)
         if (this.isCyclic) {
@@ -700,7 +698,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         return -1
     }
 
-    protected fun getItem(index: Int): ListItemProps? {
+    protected open fun getItem(index: Int): ListItemProps? {
         var position = index
         position = getActualPosition(position)
 
@@ -710,7 +708,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
 
     }
 
-    protected fun getItem(id: String): ListItemProps? {
+    protected open fun getItem(id: String): ListItemProps? {
         for (item in items) {
             if (id == item.id) {
                 return item
@@ -1020,11 +1018,9 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
                 } ?: false
 
                 //per-class listener(s)
-                handled || customPerClassClickListeners?.mapNotNull { (_, listener) ->
-                    listener?.invoke(propsItem, position)
-                }?.any { it }//handled response
-                ?: false
-
+                handled || customPerClassClickListeners.mapNotNull { (_, listener) ->
+                    listener.invoke(propsItem, position)
+                }.any { it }//handled response
 
             } else { false }
         }
