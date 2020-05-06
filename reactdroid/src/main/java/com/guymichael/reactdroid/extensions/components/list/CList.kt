@@ -25,8 +25,14 @@ class CList(
         adapter.addOnListScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    onListScrollIndexChanged(adapter.getActualLastVisiblePosition())
+                    onListScrollIndexChanged(adapter.getActualFirstVisiblePosition())
                 }
+            }
+        })
+
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onChanged() {
+                renderScrollPosition(getScrollIndex())
             }
         })
     }
@@ -62,27 +68,26 @@ class CList(
 
 
 
+
+    private var didFirstRenderScrollPosition = false
     private fun renderScrollPosition(scrollIndex: Int) {
-        if (adapter.getActualLastVisiblePosition() != scrollIndex) {
-            if (didFirstRender) {
+        val actualScrollIndex = adapter.getActualFirstVisiblePosition()
+
+        if (actualScrollIndex >= 0 && actualScrollIndex != scrollIndex) {
+            if (didFirstRenderScrollPosition) {
                 adapter.smoothScroll(scrollIndex)
             } else {
                 adapter.scrollImmediately(scrollIndex)
             }
+
+            didFirstRenderScrollPosition = true
         }
     }
 
     private var didFirstRender = false
     override fun render() {
-        var didUpdateList = false
-
         if( !didFirstRender || adapter.getAllItems() != props.items) { //THINK efficiency
             super.render()
-            didUpdateList = true
-        }
-
-        if( !didFirstRender || !didUpdateList) {
-            renderScrollPosition(getScrollIndex())
         }
 
         didFirstRender = true
