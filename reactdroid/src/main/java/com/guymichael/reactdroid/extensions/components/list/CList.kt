@@ -62,20 +62,27 @@ class CList(
 
 
 
-
-    private var didFirstRender = false
-    override fun render() {
-        if( !didFirstRender || adapter.getAllItems() != props.items) { //THINK efficiency
-            super.render()
-        }
-
-        val scrollIndex = getScrollIndex()
+    private fun renderScrollPosition(scrollIndex: Int) {
         if (adapter.getActualLastVisiblePosition() != scrollIndex) {
             if (didFirstRender) {
                 adapter.smoothScroll(scrollIndex)
             } else {
                 adapter.scrollImmediately(scrollIndex)
             }
+        }
+    }
+
+    private var didFirstRender = false
+    override fun render() {
+        var didUpdateList = false
+
+        if( !didFirstRender || adapter.getAllItems() != props.items) { //THINK efficiency
+            super.render()
+            didUpdateList = true
+        }
+
+        if( !didFirstRender || !didUpdateList) {
+            renderScrollPosition(getScrollIndex())
         }
 
         didFirstRender = true
