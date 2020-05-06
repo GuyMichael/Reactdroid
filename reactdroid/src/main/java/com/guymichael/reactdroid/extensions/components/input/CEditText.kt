@@ -4,6 +4,7 @@ import android.view.View
 import android.widget.EditText
 import androidx.annotation.IdRes
 import com.guymichael.kotlinreact.model.EmptyOwnState
+import com.guymichael.reactdroid.core.model.AComponent
 import java.text.ParseException
 
 class CEditText<I : Any>(
@@ -49,6 +50,28 @@ fun View.withDoubleInput(@IdRes editText: Int, onChange: (Double?) -> Unit
     return CEditText(findViewById(editText), onChange, {
         parseOrThrow(it, parseValueOrThrow, valueValidator)
     }, formatter)
+}
+
+fun AComponent<*, *, *>.withStringInput(@IdRes editText: Int, onChange: (String?) -> Unit) : CEditText<String> {
+    return mView.withStringInput(editText, onChange)
+}
+
+fun AComponent<*, *, *>.withLongInput(@IdRes editText: Int, onChange: (Long?) -> Unit
+        , parseValueOrThrow: (String) -> Long
+        , formatter: (Long?, forUserInput: String?) -> CharSequence?
+        , valueValidator: (Long) -> Boolean = { true }
+    ) : CEditText<Long> {
+
+    return mView.withLongInput(editText, onChange, parseValueOrThrow, formatter, valueValidator)
+}
+
+fun AComponent<*, *, *>.withDoubleInput(@IdRes editText: Int, onChange: (Double?) -> Unit
+        , parseValueOrThrow: (String) -> Double
+        , formatter: (Double?, forUserInput: String?) -> CharSequence?
+        , valueValidator: (Double) -> Boolean = { true }
+    ) : CEditText<Double> {
+
+    return mView.withDoubleInput(editText, onChange, parseValueOrThrow, formatter, valueValidator)
 }
 
 

@@ -289,13 +289,32 @@ fun AComponent<TextProps, *, *>.renderTextOrGone(text: CharSequence?
     )
 }
 
-fun AComponent<TextProps, *, *>.renderTextRes(@StringRes res: Int
+fun AComponent<TextProps, *, *>.renderTextOrGone(@StringRes res: Int?
         , vararg visibilityBoundComponents: AComponent<*, *, *>
         , animateVisibility: Boolean = false
         , animDuration: Long? = null
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float? = null) {
+
+    renderTextOrVisibility(res?.let(mView::getText), View.GONE
+        , animateVisibility
+        , animDuration
+        , animStartDelay
+        , animStartVisibility
+        , animStartAlpha
+        , *visibilityBoundComponents
+    )
+}
+
+fun AComponent<TextProps, *, *>.renderTextRes(@StringRes res: Int
+        , vararg visibilityBoundComponents: AComponent<*, *, *>
+        , animateVisibility: Boolean = false
+        , animDuration: Long? = null
+        , animStartDelay: Long? = null
+        , animStartVisibility: Int? = null
+        , animStartAlpha: Float? = null
+    ) {
 
     renderTextOrVisibility(mView.getText(res), mView.visibility
         , animateVisibility
