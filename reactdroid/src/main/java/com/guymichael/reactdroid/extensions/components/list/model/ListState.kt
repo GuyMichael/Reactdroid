@@ -4,7 +4,7 @@ import com.guymichael.kotlinreact.model.OwnState
 
 
 data class ListState(
-        val uncontrolledScrollIndex: Int? = null //doesn't cause re-renders
+        val uncontrolledScrollIndex: Int? = null
     ) : OwnState() {
 
     fun cloneWithNewScroll(uncontrolledScrollIndex: Int): ListState {
@@ -13,5 +13,5 @@ data class ListState(
         )
     }
 
-    override fun getAllMembers() = emptyList<Any?>()
+    override fun getAllMembers() = listOf(uncontrolledScrollIndex)
 }
