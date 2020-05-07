@@ -32,9 +32,11 @@ class CList(
             listenOnScrollStateChanges()
         }
 
-        props.initialScrollIndex?.takeIf { it > 0 }?.also {
-            scrollAdapter(it, false)
-        }
+        initialScrollIfNeeded()
+    }
+
+    override fun componentDidUpdate(prevProps: ListProps, prevState: EmptyOwnState, snapshot: Any?) {
+        initialScrollIfNeeded()
     }
 
 
@@ -49,6 +51,13 @@ class CList(
 
 
     /* privates */
+
+    private fun initialScrollIfNeeded() {
+        props.initialScrollIndex
+            ?.takeIf { it > 0 && !didFirstScrollAdapter && props.items.isNotEmpty() }?.also {
+                scrollAdapter(it, false)
+            }
+    }
 
     private fun getScrollIndex(props: ListProps = this.props): Int? {
         //controlled scroll mode
@@ -71,12 +80,14 @@ class CList(
 
     /* render */
 
+    private var didFirstScrollAdapter = false
     private fun scrollAdapter(index: Int, smoothScroll: Boolean) {
         if (smoothScroll) {
             adapter.smoothScroll(index)
         } else {
             adapter.scrollImmediately(index)
         }
+        didFirstScrollAdapter = true
     }
 
     private fun renderScrollPosition(scrollIndex: Int) {
