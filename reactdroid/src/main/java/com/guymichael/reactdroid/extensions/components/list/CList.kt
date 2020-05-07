@@ -124,17 +124,40 @@ class CList(
 
     private var didFirstRender = false
     override fun render() {
+        var dataSizeChanged = false
+
         if( !didFirstRender || adapter.getAllItems() != props.items) { //THINK efficiency
+            dataSizeChanged = didFirstRender && adapter.itemCount != props.items.size
             //notify data set changed
             super.render()
         }
 
         //update adapter's scroll position
-        getScrollIndex()?.also(::renderScrollPosition)
+        if( !dataSizeChanged) {
+            getScrollIndex()?.also(::renderScrollPosition)
+        } //if data sized did change, componentDidUpdate will setState again to align scrollIndex,
+          // which calls re-render (if needed) in which case dataSizeChanged will be false..
+          // Note: we do it like this because scrolling while the data is changing is a bad idea:
+          // The actual views doesn't update immediately and we don't currently know a good way to
+          // listen to actual 'child view changes in recycler'.
+          // There are two flows in mind:
+          // 1. If the scroll comes from ownState (uncontrolled), didUpdate will reset it to adapter's pos
+          //    in which case the re-render will be a no op (instead of scrolling the adapter will data changes)
+          // 2. If the scroll comes from the props, didUpdate will reset the ownState,
+          //    then re-render (--> renderScrollPosition) will see that getScrollIndex() != actual
+          //    (because getScrollIndex gives props' index precedence!) and scroll the adapter
 
         didFirstRender = true
     }
 }
+
+
+
+
+
+
+
+
 
 
 
