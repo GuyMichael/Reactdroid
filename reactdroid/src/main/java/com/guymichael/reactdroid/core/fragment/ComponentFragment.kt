@@ -97,7 +97,13 @@ abstract class ComponentFragment<P : OwnProps> : Fragment(), Component<P, EmptyO
 
         //first render. As Fragments don't have component parents, we have to force the first render ourselves
         (arguments?.let(::mapArgumentsToProps) ?: createDefaultProps()).also {
-            onRender(it)
+            UNSAFE_forceRender(it) //we use force because fragments can outlive their views!
+                                   // For example a fragment in a drawer has its view recreated
+                                   // when resuming, but the props (which are owned by the fragment, not the view)
+                                   // are already initialized. And in most cases (e.g. props are EmptyOwnProps)
+                                   // they won't get changed in-between fragment switches, so the fragment
+                                   // might not re-render, even though the inner components has never been
+                                   // rendered yet! (view just created)
         }
     }
 

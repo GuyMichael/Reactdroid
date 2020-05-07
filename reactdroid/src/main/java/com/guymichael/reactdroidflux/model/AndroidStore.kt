@@ -12,7 +12,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 /**
  * should be inherited with 'object' (Kotlin's singleton) declaration
  */
-abstract class AndroidStore(reducer : Reducer, preloadedState: GlobalState?)
+abstract class AndroidStore(reducer : Reducer, preloadedState: GlobalState? = null)
     : Store(reducer, preloadedState, AndroidSchedulers.mainThread(), getComputationScheduler()) {
 
     override fun isOnUiThread() = Utils.isOnUiThread()

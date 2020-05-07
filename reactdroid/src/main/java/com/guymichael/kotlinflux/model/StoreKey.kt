@@ -64,6 +64,12 @@ interface StoreKey {
         return getValue(state, Long::class)
     }
 
+    /** [getValue] as `Boolean` */
+    @JvmSynthetic
+    fun getBoolean(state: GlobalState): Boolean? {
+        return getValue(state, Boolean::class)
+    }
+
     /**
      * @return a sorted list, representing the current state (actual state holds `Map<Long, T>`, used by
      * `Action.putList()`
