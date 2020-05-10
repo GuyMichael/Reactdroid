@@ -19,10 +19,16 @@ internal class ActivitiesMonitor(internal var logLifecycle: Boolean = false)
     private val activitiesStateSubject = PublishSubject.create<Pair<Activity, @ActivityForegroundState Int>>()
 
 
-    private val tmp = observeAppForegroundState().subscribe {
-        if (logLifecycle) {
-            Logger.w("ActivitiesMonitor Subject", "app is now ${(if (it) "foreground" else "background")}")
+    private val loggerDisposable = if (logLifecycle) {
+        observeAppForegroundState().subscribe {
+            Logger.d("${ActivitiesMonitor::class}",
+                "app is now ${(if (it) "foreground" else "background")}"
+            )
         }
+    } else null
+
+    override fun onActivityPreCreated(activity: Activity, savedInstanceState: Bundle?) {
+        addActivityRecord(activity, ActivityForegroundState.CREATED)
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
@@ -86,11 +92,11 @@ internal class ActivitiesMonitor(internal var logLifecycle: Boolean = false)
     }
 
     fun observeAppForegroundState(): Observable<Boolean> {
-        return appForegroundStateSubject.share()
+        return appForegroundStateSubject
     }
 
     fun observeActivitiesState(): Observable<Pair<Activity, @ActivityForegroundState Int>> {
-        return activitiesStateSubject.share()
+        return activitiesStateSubject
     }
 
     fun waitForAppForeground(): APromise<Unit> {

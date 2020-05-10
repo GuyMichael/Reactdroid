@@ -17,12 +17,13 @@ import androidx.annotation.IntDef
 )
 annotation class ActivityForegroundState {
     companion object {
-        const val CREATED = 0
-        const val STARTED = 1
-        const val RESUMED = 2
-        const val PAUSED = 3
-        const val STOPPED = 4
-        const val DESTROYED = 5
+        const val INITIALIZED = 0
+        const val CREATED = 1
+        const val STARTED = 2
+        const val RESUMED = 3
+        const val PAUSED = 4
+        const val STOPPED = 5
+        const val DESTROYED = 6
 
         const val NEVER_CREATED = -1
     }
@@ -30,6 +31,7 @@ annotation class ActivityForegroundState {
 
 fun nameFor(state: @ActivityForegroundState Int): String {
     return when(state) {
+        ActivityForegroundState.INITIALIZED -> "INITIALIZED"
         ActivityForegroundState.CREATED -> "CREATED"
         ActivityForegroundState.STARTED -> "STARTED"
         ActivityForegroundState.RESUMED -> "RESUMED"

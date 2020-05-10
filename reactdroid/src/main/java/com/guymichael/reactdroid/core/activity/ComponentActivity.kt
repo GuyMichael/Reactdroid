@@ -12,6 +12,13 @@ import com.guymichael.kotlinreact.Logger
 import com.guymichael.kotlinreact.model.Component
 import com.guymichael.kotlinreact.model.EmptyOwnState
 import com.guymichael.kotlinreact.model.OwnProps
+import com.guymichael.reactdroid.core.activity.model.ActivityResult
+import com.guymichael.reactdroid.core.activity.model.PermissionsDeniedException
+import com.guymichael.reactdroid.core.activity.model.PermissionsResult
+import com.guymichael.reactdroid.core.permissions.PermissionsLogic
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.subjects.PublishSubject
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * A reactdroid base-class for an `Activity` ([AppCompatActivity]), serving as a [Component].
@@ -43,6 +50,17 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
 //        private set THINK
 
 
+    /* permissions */
+    private val permissionRequestSubject = lazy {
+        PublishSubject.create<PermissionsResult>()
+    }
+
+    /* activity result */
+    private val activityResultSubject = lazy {
+        PublishSubject.create<ActivityResult>()
+    }
+
+
 
 
     /* API */
@@ -68,6 +86,14 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
     protected abstract fun onBindViews(activityView: ViewGroup)
     protected abstract fun onBindViewListeners()
 
+
+    fun observeOnPermissionResults(): Observable<PermissionsResult> {
+        return permissionRequestSubject.value
+    }
+
+    fun observeOnActivityResults(): Observable<ActivityResult> {
+        return activityResultSubject.value
+    }
 
 
 
@@ -138,6 +164,42 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
         super.onDestroy()
     }
 
+    final override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        //notify listeners if exist
+        if (activityResultSubject.isInitialized()) {
+            activityResultSubject.value.onNext(ActivityResult(requestCode, resultCode, data))
+        }
+    }
+
+    final override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>
+        , grantResults: IntArray
+    ) {
+
+        val deniedPermissions = PermissionsLogic.filterDeniedPermissions(permissions, grantResults)
+        val isSuccess = deniedPermissions.isEmpty()
+
+        //log
+        if( !isSuccess) {
+            Logger.w(this::class, "Permissions not granted by the user - $deniedPermissions")
+        }
+
+        //notify listeners if exist
+        if (permissionRequestSubject.isInitialized()) {
+            if (isSuccess) {
+                permissionRequestSubject.value.onNext(PermissionsResult(requestCode, permissions.toList()))
+            } else {
+                permissionRequestSubject.value.onError(
+                    PermissionsDeniedException(permissions.toList(), deniedPermissions)
+                )
+            }
+        }
+
+        //update permission 'first deny'||'always deny' states
+        PermissionsLogic.onPermissionResult(this, permissions, grantResults)
+    }
+
 
 
 
@@ -162,10 +224,6 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
 
     final override fun onStop() {
         super.onStop()
-    }
-
-    final override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
     }
 
 
@@ -230,7 +288,16 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
 
 
 
+
     companion object {
         const val INTENT_KEY_API_PROPS = "apiProps"
+
+        private val requestCodeGenerator = AtomicInteger(13076)
+        val REQUEST_CODE_PERMISSIONS = generateUniqueRequestCode()
+        val REQUEST_CODE_SETTINGS_PERMISSIONS = generateUniqueRequestCode()
+
+        fun generateUniqueRequestCode(): Int {
+            return requestCodeGenerator.getAndAdd(1)
+        }
     }
 }

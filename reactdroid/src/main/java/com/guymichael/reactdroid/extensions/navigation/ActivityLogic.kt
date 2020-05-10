@@ -100,6 +100,7 @@ private fun <T : Activity> prepareActivityResumePromise(
     ) : APromise<T> {
 
     //decide how/when to notify promise
+    @Suppress("UNCHECKED_CAST")
     return if (currentlyOpenedActivity.javaClass == cls) {
         APromise.post(currentlyOpenedActivity as T)
     } else {

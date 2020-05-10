@@ -13,7 +13,6 @@ import com.guymichael.reactdroid.extensions.navigation.model.ActivityStateRecord
 import java.lang.ref.WeakReference
 import kotlin.reflect.KClass
 
-
 object AppForegroundLogic {
 
     private lateinit var monitor: ActivitiesMonitor
