@@ -54,10 +54,16 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
     private val permissionRequestSubject = lazy {
         PublishSubject.create<PermissionsResult>()
     }
+    private val permissionRequestObservable by lazy {
+        permissionRequestSubject.value.share()
+    }
 
     /* activity result */
     private val activityResultSubject = lazy {
         PublishSubject.create<ActivityResult>()
+    }
+    private val activityResultObservable by lazy {
+        activityResultSubject.value.share()
     }
 
 
@@ -88,11 +94,11 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
 
 
     fun observeOnPermissionResults(): Observable<PermissionsResult> {
-        return permissionRequestSubject.value
+        return permissionRequestObservable
     }
 
     fun observeOnActivityResults(): Observable<ActivityResult> {
-        return activityResultSubject.value
+        return activityResultObservable
     }
 
 
