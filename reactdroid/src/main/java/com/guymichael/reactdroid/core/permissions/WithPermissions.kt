@@ -25,7 +25,7 @@ class WithPermissions<COMPONENT_PROPS : OwnProps, V : View, C : AComponent<COMPO
             PermissionsLogic.requestPermissions(
                     Utils.getActivity(mView.context, ComponentActivity::class.java)!!
                     , props.permissions
-                    , requestThroughSettingsIfAlwaysDeny = true
+                    , props.initial_goToAppSettingsIfAlwaysDeny
                 )
                 .then {
                     setState(BooleanState(true))
