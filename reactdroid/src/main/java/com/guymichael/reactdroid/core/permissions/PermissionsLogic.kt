@@ -128,9 +128,50 @@ object PermissionsLogic {
             && !context.shouldShowRequestPermissionRationale(permission) //what is this method?? See here: https://stackoverflow.com/questions/30719047/android-m-check-runtime-permission-how-to-determine-if-the-user-checked-nev#comment-53800740
     }
 
+    fun requestPermissions(context: ComponentActivity<*>, permissions: List<String>
+            , requestThroughSettingsIfAlwaysDeny: Boolean = false
+        ): APromise<Unit> {
+
+        val permissionsArr = permissions.toTypedArray()
+
+        return requestPermissionsImpl(context, permissionsArr)
+            .catchResumeWithContext(context) { (c, e) ->
+                val deniedPermissions = if (requestThroughSettingsIfAlwaysDeny) {
+                    getDeniedPermissions(c, permissionsArr)
+                } else null
+
+                if( !deniedPermissions.isNullOrEmpty()) {
+                    requestPermissionsThroughPhoneSettings(c, deniedPermissions.toTypedArray())
+                } else throw e
+            }
+    }
+
+    fun requestPermissions(context: ComponentActivity<*>, vararg permissions: String
+            , requestThroughSettingsIfAlwaysDeny: Boolean = false
+        ): APromise<Unit> {
+
+        return requestPermissions(context, permissions.toList(), requestThroughSettingsIfAlwaysDeny)
+    }
+
+
+
+
+
+
+
+    internal fun onPermissionResult(context: Activity, permissions: Array<String>, grantResults: IntArray) {
+        for (i in permissions.indices) {
+            setRequestPermissionShouldNotShowRationale(
+                permissions[i]
+                ,grantResults.getOrNull(i) != PackageManager.PERMISSION_GRANTED
+                        && !ActivityCompat.shouldShowRequestPermissionRationale(context, permissions[i]) //THINK can remove?
+            ) //(false) happens when:  1. First perm. request.   2. 'always denied' checked (just now or previously)   3. device policy (irrelevant)
+        }
+    }
+
     /** @return a promise that resolves if ALL requested permissions are granted,
      * or rejects with a [PermissionsDeniedException] */
-    fun requestPermissions(context: ComponentActivity<*>, vararg permissions: String): APromise<Unit> {
+    private fun requestPermissionsImpl(context: ComponentActivity<*>, permissions: Array<String>): APromise<Unit> {
         val contextRef = WeakReference(context)
 
         return APromise.ofCallback<Unit, Disposable?>({ promiseCallback ->
@@ -158,7 +199,7 @@ object PermissionsLogic {
 
     /** @return a promise that resolves if ALL requested permissions are granted,
      * or rejects with a [PermissionsDeniedException] */
-    fun requestPermissionsThroughPhoneSettings(context: ComponentActivity<*>
+    private fun requestPermissionsThroughPhoneSettings(context: ComponentActivity<*>
         , permissions: Array<String>
     ): APromise<Unit> {
 
@@ -200,22 +241,6 @@ object PermissionsLogic {
                 Logger.w(this::class, "Permissions not granted by the user through settings - $deniedPermissions")
                 throw PermissionsDeniedException(permissions.toList(), deniedPermissions)
             }
-        }
-    }
-
-
-
-
-
-
-
-    internal fun onPermissionResult(context: Activity, permissions: Array<String>, grantResults: IntArray) {
-        for (i in permissions.indices) {
-            setRequestPermissionShouldNotShowRationale(
-                permissions[i]
-                ,grantResults.getOrNull(i) != PackageManager.PERMISSION_GRANTED
-                        && !ActivityCompat.shouldShowRequestPermissionRationale(context, permissions[i]) //THINK can remove?
-            ) //(false) happens when:  1. First perm. request.   2. 'always denied' checked (just now or previously)   3. device policy (irrelevant)
         }
     }
 
