@@ -5,6 +5,7 @@ import com.guymichael.reactdroid.core.Utils
 import com.guymichael.reactdroid.core.model.AHOC
 import com.guymichael.reactdroid.core.model.WithAComponentDataManager
 import com.guymichael.kotlinflux.model.ConnectedComponentDataManager
+import com.guymichael.kotlinreact.model.EmptyOwnState
 import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.kotlinreact.model.OwnState
 import com.guymichael.promise.Promise
@@ -60,7 +61,7 @@ withDataManager(
     , shouldLoadDataOnMount: (P) -> Boolean = { true }
     , shouldReloadData: ((prevProps: P, nextProps: P) -> Boolean)? = null
     , listener: (() -> Unit)? = null
-    ) : AHOC<P, *, V, *> {
+    ) : AHOC<P, *, V, *, EmptyOwnState> {
 
     return object : AConnectedComponentDataManager<P, P>() {
         override fun mapPropsToDataProps(ownProps: P): P = ownProps
@@ -94,7 +95,7 @@ withSimpleDataManager(
     component: AComponent<P, *, V>
     , loader: (P) -> Promise<*>
     , existsInCache: (P) -> Boolean?
-) : AHOC<P, *, V, *> {
+) : AHOC<P, *, V, *, EmptyOwnState> {
 
     return withDataManager(
         component

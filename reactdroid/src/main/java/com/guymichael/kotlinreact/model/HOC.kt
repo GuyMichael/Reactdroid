@@ -4,12 +4,13 @@ package com.guymichael.kotlinreact.model
 // the responsibility of 'inner' component implementation (see notifyComponentWillMount())
 // and we have no way to hook into it
 //Note: componentDidMount is called right after component.componentDidMount (because of render calls order)
-interface HOC<HOC_PROPS : OwnProps, COMPONENT_PROPS : OwnProps, C : Component<COMPONENT_PROPS, *>>
-    : Component<HOC_PROPS, EmptyOwnState> {
+interface
+HOC<HOC_PROPS : OwnProps, COMPONENT_PROPS : OwnProps, C : Component<COMPONENT_PROPS, *>, S : OwnState>
+    : Component<HOC_PROPS, S> {
 
     val mComponent: C
 
-    override fun createInitialState(props: HOC_PROPS) = EmptyOwnState
+    override fun createInitialState(props: HOC_PROPS): S
     override fun getDisplayName() = "${javaClass.simpleName}(${mComponent.getDisplayName()})"
     override fun onHardwareBackPressed() = mComponent.onHardwareBackPressed()
 

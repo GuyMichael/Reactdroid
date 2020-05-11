@@ -2,7 +2,7 @@ package com.guymichael.kotlinreact.model
 
 interface WithComponentDataManager<P : OwnProps, DATA_PROPS : OwnProps
         , C : Component<P, *>, D : ComponentDataManager<P, DATA_PROPS>>
-    : HOC<P, P, C> {
+    : HOC<P, P, C, EmptyOwnState> {
 
     val dataManager: D
 

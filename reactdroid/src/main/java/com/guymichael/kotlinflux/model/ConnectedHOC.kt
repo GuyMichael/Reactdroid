@@ -1,6 +1,7 @@
 package com.guymichael.kotlinflux.model
 
 import com.guymichael.kotlinreact.model.Component
+import com.guymichael.kotlinreact.model.EmptyOwnState
 import com.guymichael.kotlinreact.model.HOC
 import com.guymichael.kotlinreact.model.OwnProps
 import io.reactivex.rxjava3.disposables.Disposable
@@ -17,7 +18,7 @@ import io.reactivex.rxjava3.disposables.Disposable
  */
 //TODO try to implement StoreObserver
 interface ConnectedHOC<API_PROPS: OwnProps, COMPONENT_PROPS: OwnProps, C : Component<COMPONENT_PROPS, *>>
-    : HOC<API_PROPS, COMPONENT_PROPS, C> {
+    : HOC<API_PROPS, COMPONENT_PROPS, C, EmptyOwnState> {
 
     /** **CONTRACT:**
      * 1. DO NOT set yourself! Never!

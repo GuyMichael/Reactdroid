@@ -4,13 +4,14 @@ import android.view.View
 import com.guymichael.kotlinreact.model.EmptyOwnState
 import com.guymichael.kotlinreact.model.HOC
 import com.guymichael.kotlinreact.model.OwnProps
+import com.guymichael.kotlinreact.model.OwnState
 
-abstract class AHOC<HOC_PROPS : OwnProps, COMPONENT_PROPS : OwnProps, V : View, C : AComponent<COMPONENT_PROPS, *, V>>(
+abstract class
+AHOC<HOC_PROPS : OwnProps, COMPONENT_PROPS : OwnProps, V : View, C : AComponent<COMPONENT_PROPS, *, V>, S : OwnState>(
         override val mComponent: C
         , reRenderOnRemount: Boolean = false
-    ) : HOC<HOC_PROPS, COMPONENT_PROPS, C>
-    , AComponent<HOC_PROPS, EmptyOwnState, V>(mComponent.mView, reRenderOnRemount) {
-
+    ) : HOC<HOC_PROPS, COMPONENT_PROPS, C, S>
+    , AComponent<HOC_PROPS, S, V>(mComponent.mView, reRenderOnRemount) {
 
     companion object {
         @JvmStatic
@@ -19,8 +20,11 @@ abstract class AHOC<HOC_PROPS : OwnProps, COMPONENT_PROPS : OwnProps, V : View, 
             , mapToInnerProps: (HOC_PROPS) -> COMPONENT_PROPS
         ): AComponent<HOC_PROPS, *, *> {
 
-            return object : AHOC<HOC_PROPS, COMPONENT_PROPS, V, AComponent<COMPONENT_PROPS, *, V>>
-                (component) {
+            return object
+                : AHOC<HOC_PROPS, COMPONENT_PROPS, V, AComponent<COMPONENT_PROPS, *, V>, EmptyOwnState>(
+                    component
+                ) {
+                override fun createInitialState(props: HOC_PROPS) = EmptyOwnState
                 override fun mapToComponentProps(hocProps: HOC_PROPS) = mapToInnerProps.invoke(hocProps)
             }
         }
