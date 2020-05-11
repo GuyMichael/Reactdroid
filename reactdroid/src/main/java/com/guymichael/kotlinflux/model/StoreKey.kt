@@ -49,6 +49,7 @@ interface StoreKey {
 
     @JvmSynthetic
     fun <T : Any> getValue(state: GlobalState, cls: KClass<T>): T? {
+        @Suppress("UNCHECKED_CAST")
         return getCurrentValue(state) as? T? //THINK cast
     }
 
@@ -76,6 +77,7 @@ interface StoreKey {
      */
     @JvmSynthetic
     fun <T : Any> getValueAsTimedList(state: GlobalState, itemCls: KClass<T>): List<Timed<T>>? {
+        @Suppress("UNCHECKED_CAST")
         return (getCurrentValue(state) as? Map<Long, T>?)?.fromTimedReducerMap() //THINK cast
     }
 }

@@ -90,6 +90,7 @@ private fun mapDataLoadedToValue(state: GlobalState, action: DataAction): Map<St
 
     //merge (start) with current data (?)
     if (action.mergeWithCurrent) {
+        @Suppress("UNCHECKED_CAST")
         nextValue.putAllNotNull(state.get(action.key.getSchemaName()) as? Map<String, *>?)//THINK casting
     }
 
@@ -101,7 +102,8 @@ private fun mapDataLoadedToValue(state: GlobalState, action: DataAction): Map<St
 
 private fun mapDeleteDataToState(state: GlobalState, action: DataAction): GlobalState {
     return try {
-        (action.value as List<String>).let { dataToRemove ->
+        @Suppress("UNCHECKED_CAST")
+        (action.value as List<String>).let { dataToRemove -> //THINK casting
             val nextValue = emptyDataStateMap()
 
             //merge with current data - add all data, except if its id is contained in the given list

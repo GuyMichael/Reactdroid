@@ -64,7 +64,7 @@ class TextUtils { companion object {
         return if (text.isNullOrBlank()) { text } else {
 
             staticLayoutFrom(view, text, maxLines = maxLineCount)
-                .getEllipsizedText(view, forViewHeightPx, endText)
+                .getEllipsizedText(forViewHeightPx, endText)
         }
     }
 
@@ -188,7 +188,7 @@ fun StaticLayout.getVisibleCharCount(forViewHeightPx: Int): Long {
 }
 
 @RequiresApi(Build.VERSION_CODES.M)
-fun StaticLayout.getEllipsizedText(view: TextView, forViewHeightPx: Int, endText: CharSequence?): CharSequence? {
+fun StaticLayout.getEllipsizedText(forViewHeightPx: Int, endText: CharSequence?): CharSequence? {
     return if (text.isNullOrBlank()) { return text } else {
         getVisibleCharCount(forViewHeightPx)
         //replace last chars with endText

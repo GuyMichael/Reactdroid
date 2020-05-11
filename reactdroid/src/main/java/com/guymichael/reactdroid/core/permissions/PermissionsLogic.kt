@@ -93,7 +93,7 @@ object PermissionsLogic {
      * @return true if all granted, false otherwise
      */
     fun filterGrantedPermissions(permissions: Array<String>, grantResults: IntArray): List<String> {
-        return permissions.filterIndexed { i, p ->
+        return permissions.filterIndexed { i, _ ->
             grantResults.getOrNull(i) == PackageManager.PERMISSION_GRANTED
         }
     }
@@ -104,7 +104,7 @@ object PermissionsLogic {
      * @return true if all granted, false otherwise
      */
     fun filterDeniedPermissions(permissions: Array<String>, grantResults: IntArray): List<String> {
-        return permissions.filterIndexed { i, p ->
+        return permissions.filterIndexed { i, _ ->
             grantResults.getOrNull(i) != PackageManager.PERMISSION_GRANTED
         }
     }
@@ -150,6 +150,8 @@ object PermissionsLogic {
                 .letIf({ alwaysDenyPermissions.size < permissionsArr.size }) { promise ->
                     //some permissions were not 'alwaysDeny', we should now check for them as well
                     promise.thenAwaitWithContextOrCancel(context) { (c, _) ->
+                        //all 'always denied' permissions granted!
+                        // check if there are other, non-always-deny permissions pending
                         requestPermissionsImpl(c
                             , permissions.filter { !alwaysDenyPermissions.contains(it) }.toTypedArray()
                         )

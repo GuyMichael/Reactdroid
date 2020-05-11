@@ -100,6 +100,7 @@ object ViewUtils {
 
                     override fun onViewAttachedToWindow(v: View) {
                         v.removeOnAttachStateChangeListener(this)
+                        @Suppress("UNCHECKED_CAST")
                         promiseCallback.onSuccess(v as V)
                     }//note: isLaidOut() may still return 'false' at this point, specifically for recycled items
                 })
@@ -257,6 +258,7 @@ object ViewUtils {
             currentParent = currentParent.parent as View
         } while (!cls.isInstance(currentParent))
 
+        @Suppress("UNCHECKED_CAST")
         return currentParent as T
     }
 

@@ -71,6 +71,7 @@ open class Action(open val key: StoreKey, open val value: Any?) {
 private fun <T> mergeWithCurrentState(value: Collection<Timed<T>>, key: StoreKey, state: GlobalState)
         : Map<Long, T>? {
     return value.toTimedReducerMap().let {
+        @Suppress("UNCHECKED_CAST")
         (key.getCurrentValue(state) as? Map<Long, T>?)?.plus(it) ?: it //THINK cast
     }
 }

@@ -49,7 +49,8 @@ private abstract class OnActivityResumedListener<A: Activity>(private val cls: C
     final override fun onActivityPaused(activity: Activity?) {}
     final override fun onActivityResumed(activity: Activity?) {
         if (activity?.javaClass == cls) {
-            onResumed(activity as A) //THINK
+            @Suppress("UNCHECKED_CAST")
+            onResumed(activity as A)
         }
     }
     final override fun onActivityStarted(activity: Activity?) {}

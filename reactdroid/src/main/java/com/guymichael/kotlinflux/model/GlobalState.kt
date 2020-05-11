@@ -37,12 +37,10 @@ class GlobalState {//TODO make immutable
         return map[key]
     }
 
-    @Deprecated("deprecated usage of javaClass", ReplaceWith("get(String, KClass)"), DeprecationLevel.WARNING)
     fun <T> get(key: String, cls: Class<T>) : T? {
         return castOrNull(map[key], cls)
     }
 
-    @Deprecated("deprecated usage of javaClass", ReplaceWith("get(StoreKey, KClass)"), DeprecationLevel.WARNING)
     fun <T> get(key: StoreKey, cls: Class<T>) : T? {
         return get(key.getName(), cls)
     }
@@ -61,6 +59,7 @@ class GlobalState {//TODO make immutable
      * @see getTimedList
      */
     fun <T : Any> getTimedListRawMap(key: StoreKey, cls: KClass<T>) : Map<Long, T>? {
+        @Suppress("UNCHECKED_CAST")
         return get(key, Map::class) as? Map<Long, T>? //THINK cast
     }
 
@@ -121,7 +120,8 @@ class GlobalState {//TODO make immutable
     private fun <T> castOrNull(value: Any?, cls: Class<T>) : T? {
         return value?.let {
             try {
-                it as T //THINK
+                @Suppress("UNCHECKED_CAST")
+                it as T //THINK cast
             } catch (e: ClassCastException) {
                 e.printStackTrace()
                 if(BuildConfig.DEBUG) {
@@ -136,7 +136,8 @@ class GlobalState {//TODO make immutable
     private fun <T : Any> castOrNull(value: Any?, cls: KClass<T>) : T? {
         return value?.let {
             try {
-                it as T //THINK
+                @Suppress("UNCHECKED_CAST")
+                it as T //THINK cast
             } catch (e: ClassCastException) {
                 e.printStackTrace()
                 if(BuildConfig.DEBUG) {

@@ -247,12 +247,13 @@ internal class ActivitiesMonitor(internal var logLifecycle: Boolean = false)
 
     /** To be run on the ui thread */
     internal fun getActivityRecords(page: ClientPageIntf
-                , predicate: ((ActivityStateRecord) -> Boolean)? = null
-            ): List<ActivityStateRecord> { //THINK sync
+            , predicate: ((ActivityStateRecord) -> Boolean)? = null
+        ): List<ActivityStateRecord> { //THINK sync
+
+        @Suppress("UNCHECKED_CAST")
         return activityStateRecords.values.filter {record ->
             record?.page == page && predicate?.invoke(record) != false
-        }
-        as List<ActivityStateRecord> //already checked for null but the compiler doesn't know
+        } as List<ActivityStateRecord> //already checked for null but the compiler doesn't know
     }
 
     /**

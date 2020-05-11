@@ -30,14 +30,6 @@ object AppForegroundLogic {
 
     internal fun isInitialized(): Boolean = this::monitor.isInitialized
 
-    internal fun getTopActivityFromSystemService(context: Context): Activity? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getTopActivityApi23(context)
-        } else {
-            getTopActivityCompat(context)
-        }
-    }
-
 
 
     @JvmStatic
@@ -81,6 +73,7 @@ object AppForegroundLogic {
 
     @JvmStatic
     fun <T: Activity> getForegroundActivity(ifOfClass: Class<T>): T? {
+        @Suppress("UNCHECKED_CAST")
         return getForegroundActivity()?.takeIf { ifOfClass.isInstance(it) }?.let { it as? T }
     }
 
@@ -140,19 +133,4 @@ object AppForegroundLogic {
             Logger.w(AppForegroundLogic::class, "startMonitoringActivities() was called more than once")
         }
     }
-}
-
-@RequiresApi(Build.VERSION_CODES.M)
-private fun getTopActivityApi23(context: Context): Activity? {
-    (context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager?)
-        ?.appTasks?.firstOrNull()?.taskInfo?.topActivity
-
-    return null
-}
-
-private fun getTopActivityCompat(context: Context): Activity? {
-    (context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager?)
-        ?.getRunningTasks(1)?.firstOrNull()?.topActivity //NOCOMMIT QA on LOLLIPOP
-
-    return null
 }

@@ -1,7 +1,9 @@
 package com.guymichael.kotlinreact.model.props
 
 import com.guymichael.kotlinreact.model.OwnProps
+import java.io.Serializable
 
-data class CharSequenceProps(val value: CharSequence) : OwnProps() {
+/** Simple [CharSequence] props for simple components or component wrappers (HOCs of any kind) */
+data class CharSequenceProps(val value: CharSequence?) : OwnProps(), Serializable {
     override fun getAllMembers() = listOf(value)
 }

@@ -21,6 +21,7 @@ object AndroidUtils {
         val d: Drawable? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             context.getDrawable(resId)
         } else {
+            @Suppress("DEPRECATION")
             context.resources.getDrawable(resId)
         }
 

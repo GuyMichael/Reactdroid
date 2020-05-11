@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Rect
 import android.os.Build
-import androidx.core.view.MotionEventCompat
 import android.view.*
 
 abstract class ClickItemTouchListener(hostView: androidx.recyclerview.widget.RecyclerView) : androidx.recyclerview.widget.RecyclerView.OnItemTouchListener {
@@ -51,7 +50,7 @@ abstract class ClickItemTouchListener(hostView: androidx.recyclerview.widget.Rec
         override fun onTouchEvent(event: MotionEvent): Boolean {
             val handled = super.onTouchEvent(event)
 
-            val action = event.action and MotionEventCompat.ACTION_MASK
+            val action = event.action and MotionEvent.ACTION_MASK
             if (action == MotionEvent.ACTION_UP) {
                 mGestureListener.dispatchSingleTapUpIfNeeded(event)
             }
@@ -129,7 +128,7 @@ abstract class ClickItemTouchListener(hostView: androidx.recyclerview.widget.Rec
                 //changed by @Guy from deprecated getChildPosition()
                 val position = mHostView.getChildAdapterPosition(it)
                 mHostView.adapter?.getItemId(position)?.let {id ->
-                    val handled = findBestViewToLongClickAndPerform(mHostView, it, position, id, event)
+                    val handled = findBestViewToLongClickAndPerform(mHostView, it, position, id)
 
                     if (handled) {
                         it.isPressed = false
@@ -154,7 +153,7 @@ abstract class ClickItemTouchListener(hostView: androidx.recyclerview.widget.Rec
         }
 
         private fun findBestViewToLongClickAndPerform(recycler: androidx.recyclerview.widget.RecyclerView, itemView: View
-                                                      , position: Int, id: Long, event: MotionEvent): Boolean {
+                                                      , position: Int, id: Long): Boolean {
             //currently we don't want to support inner view long clicks, part because 'why?' and part because
             //View doesn't have a hasOnLongClickListeners() method which help us understand if a (long) click should be initiated
             return performItemLongClick(recycler, itemView, position, id)
