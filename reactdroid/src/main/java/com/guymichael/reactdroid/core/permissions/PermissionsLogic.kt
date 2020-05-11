@@ -55,6 +55,10 @@ object PermissionsLogic {
         }
     }
 
+    fun getAlwaysDenyPermissions(context: Activity, permissions: Array<String>): List<String> {
+        return permissions.filter { isPermissionOnAlwaysDeny(context, it) }
+    }
+
     /**
      * @param permission
      * @return true if the **previous** time *permission* was asked from the user,
@@ -136,12 +140,12 @@ object PermissionsLogic {
 
         return requestPermissionsImpl(context, permissionsArr)
             .catchResumeWithContext(context) { (c, e) ->
-                val deniedPermissions = if (requestThroughSettingsIfAlwaysDeny) {
-                    getDeniedPermissions(c, permissionsArr)
+                val alwaysDenyPermissions = if (requestThroughSettingsIfAlwaysDeny) {
+                    getAlwaysDenyPermissions(c, permissionsArr)
                 } else null
 
-                if( !deniedPermissions.isNullOrEmpty()) {
-                    requestPermissionsThroughPhoneSettings(c, deniedPermissions.toTypedArray())
+                if( !alwaysDenyPermissions.isNullOrEmpty()) {
+                    requestPermissionsThroughPhoneSettings(c, alwaysDenyPermissions.toTypedArray())
                 } else throw e
             }
     }
