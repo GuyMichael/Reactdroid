@@ -14,6 +14,7 @@ import com.guymichael.apromise.APromise
 import com.guymichael.kotlinreact.Logger
 import com.guymichael.reactdroid.core.activity.ComponentActivity
 import com.guymichael.reactdroid.core.activity.model.PermissionsDeniedException
+import com.guymichael.reactdroid.core.letIf
 import io.reactivex.rxjava3.disposables.Disposable
 import java.lang.ref.WeakReference
 
@@ -138,16 +139,23 @@ object PermissionsLogic {
 
         val permissionsArr = permissions.toTypedArray()
 
-        return requestPermissionsImpl(context, permissionsArr)
-            .catchResumeWithContext(context) { (c, e) ->
-                val alwaysDenyPermissions = if (requestThroughSettingsIfAlwaysDeny) {
-                    getAlwaysDenyPermissions(c, permissionsArr)
-                } else null
+        val alwaysDenyPermissions = if (requestThroughSettingsIfAlwaysDeny) {
+            getAlwaysDenyPermissions(context, permissionsArr).toTypedArray()
+        } else null
 
-                if( !alwaysDenyPermissions.isNullOrEmpty()) {
-                    requestPermissionsThroughPhoneSettings(c, alwaysDenyPermissions.toTypedArray())
-                } else throw e
-            }
+        return if (alwaysDenyPermissions.isNullOrEmpty()) {
+            requestPermissionsImpl(context, permissionsArr)
+        } else {
+            requestPermissionsThroughPhoneSettings(context, alwaysDenyPermissions)
+                .letIf({ alwaysDenyPermissions.size < permissionsArr.size }) { promise ->
+                    //some permissions were not 'alwaysDeny', we should now check for them as well
+                    promise.thenAwaitWithContextOrCancel(context) { (c, _) ->
+                        requestPermissionsImpl(c
+                            , permissions.filter { !alwaysDenyPermissions.contains(it) }.toTypedArray()
+                        )
+                    }
+                }
+        }
     }
 
     fun requestPermissions(context: ComponentActivity<*>, vararg permissions: String
