@@ -15,7 +15,7 @@ import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.reactdroid.core.activity.model.ActivityResult
 import com.guymichael.reactdroid.core.activity.model.PermissionsDeniedException
 import com.guymichael.reactdroid.core.activity.model.PermissionsResult
-import com.guymichael.reactdroid.core.permissions.PermissionsLogic
+import com.guymichael.reactdroid.extensions.components.permissions.PermissionsLogic
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.concurrent.atomic.AtomicInteger

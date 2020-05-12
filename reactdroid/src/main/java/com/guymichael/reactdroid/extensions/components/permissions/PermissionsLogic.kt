@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.core.permissions
+package com.guymichael.reactdroid.extensions.components.permissions
 
 import android.annotation.TargetApi
 import android.app.Activity
