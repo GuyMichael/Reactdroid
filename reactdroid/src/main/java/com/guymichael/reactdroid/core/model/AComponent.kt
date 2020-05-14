@@ -1,6 +1,7 @@
 package com.guymichael.reactdroid.core.model
 
 import android.view.View
+import androidx.annotation.MainThread
 import com.guymichael.reactdroid.core.ViewUtils
 import com.guymichael.reactdroid.core.model.android.DebouncedClickListener
 import com.guymichael.kotlinreact.BuildConfig
@@ -102,6 +103,7 @@ abstract class AComponent<P : OwnProps, S : OwnState, V : View>(
     }
 
     //make final and better logic
+    @MainThread
     final override fun notifyComponentWillMount() {
         if (isPassedOrDuringRender()) {
             //remount call from Component. Will be removed once Component handles the first willMount as well
@@ -120,12 +122,15 @@ abstract class AComponent<P : OwnProps, S : OwnState, V : View>(
     }
 
     //make final
+    @MainThread
     final override fun onRender(nextProps: P) {
         super.onRender(nextProps)
     }
+    @MainThread
     final override fun onRenderOrThrow(nextProps: OwnProps) {
         super.onRenderOrThrow(nextProps)
     }
+    @MainThread
     final override fun UNSAFE_forceRender(nextProps: P) {
         super.UNSAFE_forceRender(nextProps)
     }
