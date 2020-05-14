@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.extensions.components.input
+package com.guymichael.reactdroid.extensions.components.edittext
 
 import android.view.View
 import android.widget.EditText
@@ -12,16 +12,16 @@ class CEditText<I : Any>(
         , private val onChange: (I?) -> Unit
         , private val parseValueOrThrow: (String) -> I
         , private val formatter: (I?, forUserInput: String?) -> CharSequence?
-    ) : BaseEditTextComponent<I, InputProps<I>, EmptyOwnState, EditText>(v) {
+    ) : BaseEditTextComponent<I, EditTextProps<I>, EmptyOwnState, EditText>(v) {
 
-    override fun createInitialState(props: InputProps<I>) = EmptyOwnState
-    override fun getValue(props: InputProps<I>) = props.value
+    override fun createInitialState(props: EditTextProps<I>) = EmptyOwnState
+    override fun getValue(props: EditTextProps<I>) = props.value
     override fun onChanged(value: I?) = onChange.invoke(value)
     override fun parseOrThrow(rawValue: String) = parseValueOrThrow.invoke(rawValue)
     override fun formatValue(value: I?, forUserInput: String?) = formatter.invoke(value, forUserInput)
 
     fun onRender(value: I?) {
-        onRender(InputProps(value))
+        onRender(EditTextProps(value))
     }
 }
 

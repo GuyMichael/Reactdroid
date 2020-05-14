@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.extensions.components.input
+package com.guymichael.reactdroid.extensions.components.edittext
 
 import android.widget.EditText
 import com.guymichael.reactdroid.core.model.AComponent

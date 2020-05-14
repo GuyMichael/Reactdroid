@@ -309,6 +309,10 @@ interface Component<P : OwnProps, S : OwnState> {
             } else {                            //may be called multiple times during lifecycle
                 if (isPassedFirstRender) {
                     performUnmountChain()       //THINK how to call BEFORE actual detachment?
+                                                //THINK 2 - should we even?? This way
+                                                // users can dispatch (Store) changes
+                                                // without the component being re-rendered (already unmounted),
+                                                // which is awesome
                 }
             }
         }
