@@ -65,6 +65,12 @@ interface StoreKey {
         return getValue(state, Long::class)
     }
 
+    /** [getValue] as `Long` */
+    @JvmSynthetic
+    fun getInt(state: GlobalState): Int? {
+        return getValue(state, Int::class)
+    }
+
     /** [getValue] as `Boolean` */
     @JvmSynthetic
     fun getBoolean(state: GlobalState): Boolean? {

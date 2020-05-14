@@ -177,7 +177,7 @@ interface Component<P : OwnProps, S : OwnState> {
             //      as the latter is true only after the first actual render - we could
             //      be calling onFirstRenderRequest() multiple times
 
-            //normal render THINK synchronization (lock) when during first render
+            //normal render THINK synchronization (lock) when during a render
             isMounted() && isPassedOrDuringRender() -> onStandardRender(nextProps, forceUpdate)
 
             //not mounted OR state not init., skip this render
