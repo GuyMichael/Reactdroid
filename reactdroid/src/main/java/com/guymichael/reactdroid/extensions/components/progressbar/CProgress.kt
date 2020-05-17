@@ -8,11 +8,10 @@ import com.guymichael.kotlinreact.model.EmptyOwnState
 import com.guymichael.reactdroid.core.model.AComponent
 
 class CProgress(v: ProgressBar)
-: BaseProgressComponent<SimpleProgressProps, EmptyOwnState, ProgressBar >(v) {
+: BaseProgressComponent<SimpleProgressProps, EmptyOwnState, ProgressBar>(v) {
     override fun createInitialState(props: SimpleProgressProps) = EmptyOwnState
 }
 
-fun withProgress(v: ProgressBar) = CProgress(v)
 fun AComponent<*, *, *>.withProgress(@IdRes id: Int) = CProgress(mView.findViewById(id))
 fun View.withProgress(@IdRes id: Int) = CProgress(findViewById(id))
 fun Activity.withProgress(@IdRes id: Int) = CProgress(findViewById(id))

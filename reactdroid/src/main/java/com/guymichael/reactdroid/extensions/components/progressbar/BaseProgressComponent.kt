@@ -5,32 +5,11 @@ import android.widget.ProgressBar
 import com.guymichael.kotlinreact.model.OwnState
 import com.guymichael.reactdroid.core.model.AComponent
 
-/** A component which can be both controlled and uncontrolled -
- * Depending on the nullability of its props' `progress` argument,
- * which represents `current progress` and on-user-change `callback` */
+/** A controlled component which can be both controlled and uncontrolled -
+ * Depending on the nullability of its props' `progress` argument */
 abstract class BaseProgressComponent<P : BaseProgressProps, S : OwnState, V : ProgressBar>(
         v: V
     ) : AComponent<P, S, V>(v) {
-
-    private val mProgressHandler by lazy {
-        ReactdroidProgressBarWatcher.create(mView) { progress ->
-            props.progress?.second?.invoke(progress)
-        }
-    }
-
-    override fun componentDidMount() {
-        if (this.props.progress != null) {
-            //we're controlled
-            mProgressHandler//invoke lazy which sets (touch) listener on the bar
-        }
-    }
-
-    override fun componentDidUpdate(prevProps: P, prevState: S, snapshot: Any?) {
-        if (prevProps.progress == null && this.props.progress != null) {
-            //we've suddenly turned to be controlled! THINK disallow
-            mProgressHandler//invoke lazy (if was't invoked before), which sets (touch) listener on the bar
-        }
-    }
 
     override fun render() {
         //update min/max
@@ -47,7 +26,7 @@ abstract class BaseProgressComponent<P : BaseProgressProps, S : OwnState, V : Pr
 
         //update progress.
         // note: both methods below check for actual value change
-        props.progress?.first?.also {
+        props.progress?.also {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 mView.setProgress(it, props.animateChanges)
             } else {

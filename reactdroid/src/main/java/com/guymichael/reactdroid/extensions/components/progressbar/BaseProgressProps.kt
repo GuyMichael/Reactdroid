@@ -10,7 +10,7 @@ import com.guymichael.kotlinreact.model.OwnProps
  * reflect that change (and cause re-render for this progress component)
  */
 abstract class BaseProgressProps(
-        open val progress: (Pair<Int, (newProgress: Int) -> Unit>)? = null
+        open val progress: Int? = null
         , @RequiresApi(Build.VERSION_CODES.O) open val min: Int?
         , @RequiresApi(Build.VERSION_CODES.O) open val max: Int?
         , @RequiresApi(Build.VERSION_CODES.N) open val animateChanges: Boolean = false
@@ -23,7 +23,7 @@ abstract class BaseProgressProps(
 }
 
 data class SimpleProgressProps(
-    override val progress: (Pair<Int, (newProgress: Int) -> Unit>)? = null
+    override val progress: Int? = null
     , @RequiresApi(Build.VERSION_CODES.O) override val min: Int? = null
     , @RequiresApi(Build.VERSION_CODES.O) override val max: Int? = null
     , @RequiresApi(Build.VERSION_CODES.N) override val animateChanges: Boolean = false
