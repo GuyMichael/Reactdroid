@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.extensions.components.radiobtn
+package com.guymichael.reactdroid.extensions.components.compoundbtn.radiobtn
 
 import androidx.annotation.IdRes
 import com.guymichael.kotlinreact.model.OwnProps

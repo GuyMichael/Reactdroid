@@ -61,7 +61,10 @@ object ViewUtils {
                     }//note: isMounted() may still return 'true' at this point on some occasions
                 })
             }
-            .catch { Logger.e("ViewUtils", "waitForOnFinishInflate error: $it") }
+            .catch {
+                Logger.e("ViewUtils", "waitForOnFinishInflate error: $it")
+                it.printStackTrace()
+            }
             .execute()
     }
 

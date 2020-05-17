@@ -1,11 +1,10 @@
-package com.guymichael.lib.reactdroid.components.compoundbtn
+package com.guymichael.reactdroid.extensions.components.compoundbtn
 
 import android.view.View
 import android.widget.CompoundButton
 import com.guymichael.kotlinreact.model.OwnState
 import com.guymichael.reactdroid.core.model.AComponent
 import com.guymichael.reactdroid.core.model.android.DebouncedClickListener
-import com.guymichael.reactdroid.extensions.components.compoundbtn.BaseCompoundBtnProps
 
 /** Fully controlled component - must receive props for `current state` and user-change `callback` */
 abstract class BaseCompoundBtnComponent<P : BaseCompoundBtnProps, S : OwnState, V : CompoundButton>(
@@ -14,6 +13,7 @@ abstract class BaseCompoundBtnComponent<P : BaseCompoundBtnProps, S : OwnState, 
 
     init {
         //connect view clicks to new-state (isChecked) dispatcher
+        //THINK setOnCheckedChangeListener instead (same origin - CompoundButton.performClick() )
         mView.setOnClickListener(object : DebouncedClickListener(150) {
             override fun onClicked(v: View) {
                 //notify props callback, which in return should change the first (Boolean) props param

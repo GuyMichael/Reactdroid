@@ -1,4 +1,4 @@
-package com.guymichael.reactdroid.extensions.components.radiobtn
+package com.guymichael.reactdroid.extensions.components.compoundbtn.radiobtn
 
 import android.widget.RadioGroup
 import androidx.annotation.IdRes
