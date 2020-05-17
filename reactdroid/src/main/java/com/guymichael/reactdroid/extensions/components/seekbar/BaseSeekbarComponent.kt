@@ -19,17 +19,32 @@ abstract class BaseSeekbarComponent<P : BaseSeekbarProps, S : OwnState, V : Seek
     init {
         mView.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                callbackDebounceDisposable?.dispose()
+                //notify progress callback
+                when (val debounce = props.initial_progressCallbackDebounceMs?.takeIf { it > 0 }) {
+                    // no debounce
+                    null -> props.progress.second.invoke(progress) //call back now
 
-                props.initial_progressCallbackDebounceMs?.also {
-                    callbackDebounceDisposable = APromise.delay(it) {
-                        props.progress.second.invoke(progress)
+                    //debounce set to 'touch stop'
+                    Long.MAX_VALUE -> {} //no op, see onStopTrackingTouch
+
+                    //normal debounce
+                    else -> {
+                        callbackDebounceDisposable?.dispose()
+                        callbackDebounceDisposable = APromise.delayWhileAlive(mView, debounce) {
+                            props.progress.second.invoke(progress)
+                        }
                     }
-
-                } ?: props.progress.second.invoke(progress) //if no debounce
+                }
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                //notify progress callback if debounce set to 'on touch up'
+                props.initial_progressCallbackDebounceMs?.takeIf { it == Long.MAX_VALUE}?.also {
+                    props.progress.second.invoke(mView.progress)
+                }
+            }
         })
     }
 
