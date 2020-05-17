@@ -2,32 +2,39 @@ package com.guymichael.reactdroid.extensions.components.progressbar
 
 import android.os.Build
 import android.widget.ProgressBar
+import com.guymichael.kotlinreact.model.OwnState
 import com.guymichael.reactdroid.core.model.AComponent
 
-//NOCOMMIT incomplete untested
-abstract class BaseProgressComponent<P : BaseProgressProps, S : BaseProgressOwnState<S>, V : ProgressBar>(
-    v: V) : AComponent<P, S, V>(v) {
+/** A component which can be both controlled and uncontrolled -
+ * Depending on the nullability of its props' `progress` argument,
+ * which represents `current progress` and on-user-change `callback` */
+abstract class BaseProgressComponent<P : BaseProgressProps, S : OwnState, V : ProgressBar>(
+        v: V
+    ) : AComponent<P, S, V>(v) {
 
     private val mProgressHandler by lazy {
         ReactdroidProgressBarWatcher.create(mView) { progress ->
-            //assume state already exists
-            setState(this.ownState.cloneWithNewProgress(progress))
+            props.progress?.second?.invoke(progress)
         }
     }
 
-    final override fun UNSAFE_componentDidUpdateHint(prevProps: P, prevState: S, snapshot: Any?) {
-        super.UNSAFE_componentDidUpdateHint(prevProps, prevState, snapshot)
+    override fun componentDidMount() {
+        if (this.props.progress != null) {
+            //we're controlled
+            mProgressHandler//invoke lazy which sets (touch) listener on the bar
+        }
+    }
 
-        //props may have changed, if so, we update our state for a re-render that will actually affect
-        // the view
-        if (this.props.progress != prevProps.progress) {
-            setState(this.ownState.cloneWithNewProgress(this.props.progress))
+    override fun componentDidUpdate(prevProps: P, prevState: S, snapshot: Any?) {
+        if (prevProps.progress == null && this.props.progress != null) {
+            //we've suddenly turned to be controlled! THINK disallow
+            mProgressHandler//invoke lazy (if was't invoked before), which sets (touch) listener on the bar
         }
     }
 
     override fun render() {
-
         //update min/max
+        // note: both methods below check for actual value change
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             props.min?.let {
                 mView.min = it
@@ -39,13 +46,13 @@ abstract class BaseProgressComponent<P : BaseProgressProps, S : BaseProgressOwnS
         }
 
         //update progress.
-        // If change came from props, this will do nothing as we use state value.
-        // But didUpdate callback will setState and we will re-render again.
-        // Both methods below check for actual value change so it's safe
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            mView.setProgress(ownState.progress, props.animateChanges)
-        } else {
-            mView.progress = ownState.progress
+        // note: both methods below check for actual value change
+        props.progress?.first?.also {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mView.setProgress(it, props.animateChanges)
+            } else {
+                mView.progress = it
+            }
         }
     }
 }

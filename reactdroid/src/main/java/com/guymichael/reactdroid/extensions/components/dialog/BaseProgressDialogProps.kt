@@ -28,12 +28,12 @@ data class ProgressDialogProps(
     companion object {
         @JvmStatic
         fun open() = ProgressDialogProps(
-            true, progressProps = SimpleProgressProps(0)
+            true, progressProps = SimpleProgressProps(null)
         )
 
         @JvmStatic
         fun hidden() = ProgressDialogProps(
-            false, progressProps = SimpleProgressProps(0)
+            false, progressProps = SimpleProgressProps(null)
         )
     }
 }

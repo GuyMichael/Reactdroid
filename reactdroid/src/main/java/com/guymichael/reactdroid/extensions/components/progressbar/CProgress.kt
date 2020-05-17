@@ -4,14 +4,12 @@ import android.app.Activity
 import android.view.View
 import android.widget.ProgressBar
 import androidx.annotation.IdRes
+import com.guymichael.kotlinreact.model.EmptyOwnState
 import com.guymichael.reactdroid.core.model.AComponent
 
 class CProgress(v: ProgressBar)
-: BaseProgressComponent<SimpleProgressProps, SimpleProgressOwnState, ProgressBar >(v) {
-
-    override fun createInitialState(props: SimpleProgressProps): SimpleProgressOwnState {
-        return SimpleProgressOwnState(props.progress)
-    }
+: BaseProgressComponent<SimpleProgressProps, EmptyOwnState, ProgressBar >(v) {
+    override fun createInitialState(props: SimpleProgressProps) = EmptyOwnState
 }
 
 fun withProgress(v: ProgressBar) = CProgress(v)
