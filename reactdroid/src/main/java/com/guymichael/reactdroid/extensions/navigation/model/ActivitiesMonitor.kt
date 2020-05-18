@@ -27,9 +27,7 @@ internal class ActivitiesMonitor(internal var logLifecycle: Boolean = false)
         }
     } else null
 
-    override fun onActivityPreCreated(activity: Activity, savedInstanceState: Bundle?) {
-        addActivityRecord(activity, ActivityForegroundState.INITIALIZED)
-    }
+
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         addActivityRecord(activity, ActivityForegroundState.CREATED)
