@@ -4,6 +4,7 @@ import android.app.Activity
 import android.view.View
 import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
+import com.guymichael.kotlinreact.model.EmptyOwnProps
 import com.guymichael.kotlinreact.model.EmptyOwnState
 import com.guymichael.reactdroid.extensions.components.list.adapter.model.RecyclerComponentViewHolder
 import com.guymichael.reactdroid.extensions.components.list.adapter.RecyclerComponentAdapter
@@ -43,9 +44,25 @@ class CList(
 
 
     /* API */
+
     fun onRender(items: List<ListItemProps<*>>) {
         onRender(ListProps(items))
     }
+
+    /**
+     * Renders components (list items) with [empty props][EmptyOwnProps] for given layout id
+     * @param items `Pair` of `@LayoutRes id: Int` to `AComponent`
+     *
+     * Note: To render components with custom props, use the default `onRender` method -
+     * the one that accepts [ListProps] or `List<ListItemProps>` */
+    fun onRender(vararg items: Pair<Int, (View) -> AComponent<EmptyOwnProps, *, *>>) {
+        onRender(ListProps(
+            items.map { (layoutRes, componentCreator) ->
+                ListItemProps("$layoutRes", layoutRes, EmptyOwnProps, componentCreator)
+            }
+        ))
+    }
+
 
 
 

@@ -3,10 +3,12 @@ package com.guymichael.reactdroid.extensions.components.list.adapter
 import android.os.Handler
 import android.view.*
 import androidx.annotation.DimenRes
+import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.guymichael.kotlinreact.R
 import com.guymichael.kotlinreact.model.OwnProps
 //import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.guymichael.reactdroid.core.IntervalUtils
@@ -317,11 +319,17 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
 
     /**
      * @param layout
-     * @param tabViewResId with a drawable background with a selected and normal states
-     * @param areIndicatorsClickable
+     * @param itemLayoutRes for every indicator item. Normally with a selector drawable background,
+     * with a 'selected' state (and default state)
+     * @param areIndicatorsClickable if `true`, clicks on every item will scroll (smooth) the list
+     * to the relevant position
      */
-    fun setPageIndicator(layout: ListIndicatorLayout?, tabViewResId: Int, areIndicatorsClickable: Boolean) {
-        layout?.setup(this, tabViewResId, areIndicatorsClickable)
+    fun setPageIndicator(layout: ListIndicatorLayout
+            , @LayoutRes itemLayoutRes: Int = R.layout.list_indicator_item_default
+            , areIndicatorsClickable: Boolean = false
+        ) {
+
+        layout.setup(this, itemLayoutRes, areIndicatorsClickable)
     }
 
     fun setDividers(decor: RecyclerView.ItemDecoration): RecyclerComponentAdapter {
