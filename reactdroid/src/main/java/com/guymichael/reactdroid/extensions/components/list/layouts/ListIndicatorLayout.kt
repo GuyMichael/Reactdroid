@@ -11,8 +11,7 @@ import com.guymichael.reactdroid.extensions.components.list.ComponentListUtils
 import com.guymichael.reactdroid.extensions.components.list.adapter.RecyclerComponentAdapter
 
 class ListIndicatorLayout : LinearLayout {
-    var adapter: RecyclerComponentAdapter? = null
-        internal set
+    private var adapter: RecyclerComponentAdapter? = null
     private var tabViewResId = 0
     private var isIndicatorsClickable = false
 
@@ -30,9 +29,7 @@ class ListIndicatorLayout : LinearLayout {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
 
     override fun onDetachedFromWindow() {
-        if (this.adapter != null) {
-            this.adapter!!.unregisterAdapterDataObserver(dataObserver)
-        }
+        this.adapter?.unregisterAdapterDataObserver(dataObserver)
         super.onDetachedFromWindow()
     }
 
@@ -57,7 +54,7 @@ class ListIndicatorLayout : LinearLayout {
         layoutIndexTabs()
 
         //set currently selected tab
-        this.adapter?.let {
+        this.adapter?.also {
             if (it.getActualItemCount() > 0) {
                 postDelayed({
                     var firstVisible = ComponentListUtils.getFirstVisiblePosition(it.layoutManager)
