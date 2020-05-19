@@ -1,14 +1,13 @@
 package com.guymichael.reactdroid.extensions.components.list.adapter
 
 import android.os.Handler
-import android.text.TextUtils
 import android.view.*
 import androidx.annotation.DimenRes
-import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.guymichael.kotlinreact.model.OwnProps
 //import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.guymichael.reactdroid.core.IntervalUtils
 import com.guymichael.reactdroid.core.ViewUtils
@@ -23,7 +22,6 @@ import com.guymichael.reactdroid.extensions.components.list.adapter.model.Simple
 import com.guymichael.reactdroid.extensions.components.list.dividers.ListDivider
 import com.guymichael.reactdroid.extensions.components.list.dividers.ListDividerOrientation
 import com.guymichael.reactdroid.extensions.components.list.dividers.DividerItemDecoration
-import com.guymichael.reactdroid.extensions.components.list.model.DataItemProps
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.math.max
@@ -38,17 +36,23 @@ import kotlin.math.max
  */
 open class RecyclerComponentAdapter @JvmOverloads constructor(
         val recyclerView: RecyclerView
-        , items: List<ListItemProps> = emptyList()
-        , @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL
-        , val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(recyclerView.context, orientation, false)
-        , val viewHolderSupplier: (View) -> BaseRecyclerComponentViewHolder = ::RecyclerComponentViewHolder
-    ) : RecyclerView.Adapter<BaseRecyclerComponentViewHolder>() {
+        , val layoutManager: RecyclerView.LayoutManager
+        , override val viewHolderSupplier: (View) -> RecyclerComponentViewHolder = ::RecyclerComponentViewHolder
+    ) : BaseComponentAdapter<ListItemProps>(viewHolderSupplier) {
 
-    private val items: MutableList<ListItemProps> = ArrayList()
-    /**Holds the layout id's of the different views this adapter is currently holding */
-    private val viewTypes = ArrayList<Int>()
+
+    constructor(
+        recyclerView: RecyclerView
+        , @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL
+        , viewHolderSupplier: (View) -> RecyclerComponentViewHolder = ::RecyclerComponentViewHolder
+    ): this(recyclerView, LinearLayoutManager(recyclerView.context, orientation, false), viewHolderSupplier)
+
+
+
     /**True if [.layoutManager] is a [LinearLayoutManager] and orientation is Horizontal */
-    private val isLinearLayoutOrientationHorizontal: Boolean
+    private val isLinearLayoutOrientationHorizontal = layoutManager is LinearLayoutManager
+            && layoutManager.orientation == LinearLayoutManager.HORIZONTAL
+
     private val mScrollListener = RecyclerComponentAdapterScrollListener(this)//THINK leaking 'this' in constructor
 
     private var customShortClickListener:
@@ -59,14 +63,14 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         HashMap<Class<*>, ((ListItemProps, position: Int) -> Boolean)>()
     }
     private var emptyView: View? = null
-    @LayoutRes private var customItemLayoutResId = 0
-    private var customItemWidthFactor = -1f
     private var itemDecoration: RecyclerView.ItemDecoration? = null
     private var mEmptyStateObserver: EmptyStateDataObserver? = null
     private var emptyStateChangedListeners: MutableSet<OnListEmptyStateChangedListener>? = null
     private var onEmptyViewStateChangeListener: OnEmptyViewStateChangeListener? = null
     private var isHorizontalRelativeItemWidthEnabled = true
     private var autoscrollRunnableKey: Long? = null
+
+    var customItemWidthFactor = -1f
 
     var isItemsClickable: Boolean
         get() = this.onItemTouchListener != null
@@ -78,26 +82,11 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
             }
         }
 
-    /*cyclic mode*/
-    var isCyclic = false
-        set(cyclic) {
-            field = cyclic
-            updateCyclicMiddleIndex()
-        }
-
-    protected var cyclicMiddleIndex: Int = 0
-
     /*Listeners*/
     private var onItemTouchListener: RecyclerView.OnItemTouchListener? = null
     private var autoScrollCancelledListener: OnListAutoScrollCancelledListener? = null
 
     init {
-        this.items.addAll(items)
-        this.isLinearLayoutOrientationHorizontal = layoutManager is LinearLayoutManager
-            && layoutManager.orientation == LinearLayoutManager.HORIZONTAL
-
-        this.setHasStableIds(onSetHasStableIds())
-
         recyclerView.layoutManager = layoutManager
 
         // Setting the adapter.
@@ -111,95 +100,36 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         }
     }
 
-    override fun onCreateViewHolder(viewGroup: ViewGroup, viewTypeIndex: Int): BaseRecyclerComponentViewHolder {
-        //        Log.e(getClass().getSimpleName(), "onCreateViewHolder: viewTypeIndex: " + viewTypeIndex);
-        @LayoutRes val layoutRes = this.customItemLayoutResId.takeIf { it != 0 }
-            ?: getViewRes(viewTypeIndex)//viewTypeIndex is an index/id to the actual layout resId
 
-        /*inflate View*/
-        val itemView = LayoutInflater.from(viewGroup.context).inflate(layoutRes, viewGroup, false)
 
+
+
+
+
+    override fun onItemViewCreated(itemView: View) {
         /*listener to size changes?*/
         if (this.itemDecoration != null && !hasFixedSize()) {
             itemView.addOnLayoutChangeListener(OnItemChangedSizeListener())
         }
-
-        /*create ViewHolder*/
-        return viewHolderSupplier(itemView)
     }
 
-    override fun onBindViewHolder(viewHolder: BaseRecyclerComponentViewHolder, position: Int) {
-        //        Log.e(getClass().getSimpleName(), "onBindViewHolder(position: " + position + ", viewTypeIndex: " + getItemViewType(position) + ", viewHolder.getItemViewType: " + viewHolder.getItemViewType() + ", item.getLayoutRes(): " + getItem(position).getLayoutRes() + ")");
-        getItem(position)?.let {
-
-            viewHolder.bind(it)
-
-            /*calculate horizontal width*/
-            if (isHorizontalRelativeItemWidthEnabled && isLinearLayoutOrientationHorizontal) {
-                val widthFactor = if (customItemWidthFactor > 0f) customItemWidthFactor else it.getHorizontalWidthFactor()
-                setRelativeCustomWidth(widthFactor, viewHolder.itemView)
-            }
+    override fun onItemViewBound(props: ListItemProps, itemView: View) {
+        /*calculate horizontal width*/
+        if (isHorizontalRelativeItemWidthEnabled && isLinearLayoutOrientationHorizontal) {
+            setRelativeCustomWidth(
+                customItemWidthFactor.takeIf { it > 0f } ?: props.horizontalWidthFactor
+                , itemView
+            )
         }
     }
 
-    override fun getItemViewType(position: Int): Int {
-        var layoutRes = 0
-        val item = getItem(position) ?: return -1
-
-        if (isLinearLayoutOrientationHorizontal) {
-            layoutRes = item.getHorizontalLayoutRes()
-        }
-        if (layoutRes == 0) {
-            layoutRes = item.getLayoutRes()
-        } //default getHorizontalLayoutId now does exactly this
-
-        return getAndAddItemViewTypeIfMissing(layoutRes)
+    override fun getItemLayoutRes(item: ListItemProps): Int {
+        return item.horizontalLayoutRes.takeIf { isLinearLayoutOrientationHorizontal && it != 0 }
+            ?: super.getItemLayoutRes(item)
     }
 
-    private fun getAndAddItemViewTypeIfMissing(layoutRes: Int): Int {
-        var index = viewTypes.indexOf(layoutRes)
-        if (index == -1) {
-            //not yet saved, lock types and get/add
-            synchronized(viewTypes) {
-                index = viewTypes.indexOf(layoutRes)
-                if (index == -1) {
-                    viewTypes.add(layoutRes)
-                    index = viewTypes.size - 1
-                }
-            }
-        }
-
-        return index
-    }
-
-    @LayoutRes
-    fun getViewRes(viewTypeIndex: Int): Int {
-        return viewTypes.getOrNull(viewTypeIndex)
-            //if null, getAndAddItemViewTypeIfMissing() is currently running
-            ?: synchronized(viewTypes) {
-                viewTypes[viewTypeIndex]
-            }
-    }
-
-    override fun getItemCount(): Int {
-        return if (this.isCyclic) {
-            Integer.MAX_VALUE
-        } else this.items.size
-    }
-
-    //Note: onSingleTapUp() can sometimes ask for position -1 (!). Check also onLongPress()?
-    override fun getItemId(position: Int): Long {
-        if (this.isCyclic) {
-            return position.toLong()
-        }
-
-        if (position < 0 || position >= this.items.size || getItem(position) == null) {
-            return -1
-        }
-
-        //better to use permanent id, if possible.
-        //THINK is it better? Is it worth the exception overhead?
-        return getItem(position)?.id?.toLongOrNull() ?: position.toLong()
+    override fun onCyclicMiddleIndexUpdated(cyclicMiddleIndex: Int) {
+        Handler().postDelayed({ scrollImmediately(cyclicMiddleIndex) }, 2000)//TODO change this ugly thing to listen to when the RecyclerView finished inflating the Views
     }
 
 
@@ -249,22 +179,8 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
             && recyclerView.isSnappingEnabled)
     }
 
-    /**
-     * @return actual items count, for cases where cyclic is set
-     * @see {@link .setCyclic
-     */
-    fun getActualItemCount(): Int {
-        return this.items.size
-    }
-
-    internal open fun getAllItems(): List<ListItemProps> {
-        return ArrayList(this.items)
-    }
-
     protected fun getFirstVisibleItem(): ListItemProps? {
-        return getItem(
-            ComponentListUtils.getFirstVisiblePosition(layoutManager)
-        )
+        return getItem( ComponentListUtils.getFirstVisiblePosition(layoutManager) )
     }
 
     fun getActualFirstFullyVisiblePosition(): Int {
@@ -351,31 +267,6 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         }
     }
 
-    private fun updateCyclicMiddleIndex() {
-        cyclicMiddleIndex = if (this.items.size == 0) 0 else HALF_MAX_VALUE - HALF_MAX_VALUE % this.items.size
-        Handler().postDelayed({ scrollImmediately(cyclicMiddleIndex) }, 2000)//TODO change this ugly thing to listen to when the RecyclerView finished inflating the Views
-    }
-
-    /**
-     * Override to return the value for [.setHasStableIds]. Default returns true.
-     */
-    protected fun onSetHasStableIds(): Boolean {
-        return true
-    }
-
-    /**
-     *
-     * @param cyclicPosition
-     * @return actual position, for cases where the list is cyclic
-     * @see {@link .setCyclic
-     */
-    fun getActualPosition(cyclicPosition: Int): Int {
-        return if (this.isCyclic) {
-            cyclicPosition % getActualItemCount()
-        } else cyclicPosition
-
-    }
-
     /**
      * Rechecks the emptyView state and updates.
      */
@@ -403,26 +294,6 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
             //update state
             emptyView!!.visibility = if (shouldShow) View.VISIBLE else View.GONE
         }
-    }
-
-    override fun toString(): String {
-        val info = HashMap<String, Any?>()
-
-        info["itemCount"] = itemCount
-        info["viewTypeCount"] = viewTypes.size
-        info["recycler"] = recyclerView.toString()
-        val manager = recyclerView.layoutManager
-        if (manager != null) {
-            info["layoutManager"] = manager.javaClass.simpleName
-            info["layoutDirection"] = if (manager.layoutDirection == OrientationHelper.VERTICAL)
-                "vertical"
-            else
-                "horizontal"
-        } else {
-            info["layoutManager"] = null
-        }
-
-        return info.toString()
     }
 
     /**
@@ -533,19 +404,6 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         recyclerView.itemAnimator = itemAnimator
     }
 
-    fun setItemLayout(layoutResId: Int) {
-        this.customItemLayoutResId = layoutResId
-    }
-
-    /**
-     * Set item width to *factor* of total Recycler width
-     * <br></br>**Relevant for [LinearLayoutManager] with horizontal layout**
-     * @param factor
-     */
-    fun setCustomItemWidthFactor(factor: Float) {
-        this.customItemWidthFactor = factor
-    }
-
     /**
      * @param enabled
      * @param snapOneAtAtime
@@ -649,72 +507,6 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         //TODO consider including divider width...
         val lp = view.layoutParams
         lp.width = (widthFactor * recyclerView.width).toInt()
-    }
-
-    /**
-     * @param newList copied to a new [List] (not deep copy!), so you can do whatever you want
-     * with *newList*
-     */
-    open fun notifyDataSetChanged(newList: List<ListItemProps>) {
-        this.items.clear()
-        this.items.addAll(newList)
-        if (this.isCyclic) {
-            updateCyclicMiddleIndex()
-        }
-
-        super.notifyDataSetChanged()
-    }
-
-    fun notifyOnItemChanged(id: String) {
-        val pos = getItemPosition(id)
-        if (pos >= 0) {
-            super.notifyItemChanged(pos)
-        }
-    }
-
-    fun notifyOnItemChanged(id: String, payload: Any) {
-        val pos = getItemPosition(id)
-        if (pos >= 0) {
-            super.notifyItemChanged(pos, payload)
-        }
-    }
-
-    fun getItemPosition(item: ListItemProps): Int {
-        return this.items.indexOf(item)
-    }
-
-    /**
-     * @param id
-     * @return id's item position, or -1 if not found
-     */
-    fun getItemPosition(id: String): Int {
-        if( !TextUtils.isEmpty(id)) {
-            for (i in items.indices) {
-                if (id == items[i].id) {
-                    return i
-                }
-            }
-        }
-        return -1
-    }
-
-    protected open fun getItem(index: Int): ListItemProps? {
-        var position = index
-        position = getActualPosition(position)
-
-        return if (position > -1 && position < this.items.size) {
-            this.items[position]
-        } else null
-
-    }
-
-    protected open fun getItem(id: String): ListItemProps? {
-        for (item in items) {
-            if (id == item.id) {
-                return item
-            }
-        }
-        return null
     }
 
     protected fun getFirstFullyVisibleItem(): ListItemProps? {
@@ -916,8 +708,9 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
      * @param listener
      */
     fun onItemClick(
-            listener: (parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps, position: Int) -> Boolean)
-                : RecyclerComponentAdapter {
+            listener: (parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps, position: Int) -> Boolean
+        ): RecyclerComponentAdapter {
+
         this.customShortClickListener = listener
         return this
     }
@@ -927,8 +720,9 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
      * @param listener
      */
     fun onItemLongClick(
-            listener: (parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps, position: Int) -> Boolean)
-                : RecyclerComponentAdapter {
+            listener: (parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps, position: Int) -> Boolean
+        ): RecyclerComponentAdapter {
+
         this.customLongClickListener = listener
         return this
     }
@@ -936,26 +730,15 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
     /**
      * @param listener return true if click handled
      */
-    fun <T : ListItemProps> onItemClick(cls: Class<T>, listener: (T, position: Int) -> Boolean) : RecyclerComponentAdapter {
+    fun <P : OwnProps> onItemClick(cls: Class<P>, listener: (P, position: Int) -> Boolean) : RecyclerComponentAdapter {
         this.customPerClassClickListeners[cls] = { item, position ->
             @Suppress("UNCHECKED_CAST")
-            (item as? T?)?.let { t -> listener(t, position) } ?: false
+            (item.props as? P)?.let { props -> listener(props, position) } ?: false
         }
 
         return this
     }
 
-    /**
-     * @param listener return true if click handled
-     */
-    fun <T : Any> onDataItemClick(cls: Class<T>, listener: (T, position: Int) -> Boolean) : RecyclerComponentAdapter {
-        this.customPerClassClickListeners[cls] = { item, position ->
-            @Suppress("UNCHECKED_CAST")
-            (item as? DataItemProps<T>?)?.let { t -> listener(t.data, position) } ?: false
-        }
-
-        return this
-    }
 
     /** Use this method when this adapter's [RecyclerView] is located inside a [SwipeRefreshLayout] */
     /*fun bindSwipeRefreshLayout(swipeLayout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout) {
@@ -988,6 +771,17 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
     fun setOnReachingBottomListener(listener: RecyclerComponentAdapterScrollListener.OnReachingBottomListener) {
         mScrollListener.setOnReachingBottomListener(listener)
     }
+
+    override fun toString(): String {
+        return super.toString() +
+                "\n${recyclerView.javaClass.simpleName}: " +
+                "${layoutManager.javaClass.simpleName}{orientation: ${ComponentListUtils.getOrientation(layoutManager)}}"
+    }
+
+
+
+
+
 
     private inner class ItemTouchListener(recycler: RecyclerView) : ClickItemTouchListener(recycler) {
 
@@ -1109,9 +903,5 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
          * @return True to allow state change, false to prevent it.
          */
         fun onListEmptyViewBeforeStateChange(aboutToShow: Boolean): Boolean
-    }
-
-    companion object {
-        val HALF_MAX_VALUE = Integer.MAX_VALUE / 2
     }
 }

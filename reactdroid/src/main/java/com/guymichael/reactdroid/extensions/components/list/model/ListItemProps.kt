@@ -6,16 +6,21 @@ import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.reactdroid.core.model.AComponent
 import java.io.Serializable
 
-abstract class ListItemProps(open val id: String) : OwnProps(), Serializable {
-    @LayoutRes
-    open fun getHorizontalLayoutRes(): Int = getLayoutRes()
-    open fun getHorizontalWidthFactor(): Float = 1F
-    final override fun getAllMembers(): List<*> = listOf(id).plus(getAllMembersImpl())
+/**
+ * @param initial_componentCreator create (new) component to be used as a list item (view)
+ * @param props for the component created using `initial_componentCreator`
+ */
+data class ListItemProps(
+        override val id: String,
+        @LayoutRes override val layoutRes: Int,
+        override val props: OwnProps,
+        override val initial_componentCreator: (layout: View) -> AComponent<*, *, *>,
+        @LayoutRes val horizontalLayoutRes: Int = layoutRes,
+        val horizontalWidthFactor: Float = 1F
+    ) : AdapterItemProps(id, layoutRes, props, initial_componentCreator)
+    , Serializable {
 
-    @LayoutRes
-    abstract fun getLayoutRes(): Int
-    abstract fun getAllMembersImpl(): List<*>
-
-    abstract fun createComponent(v: View): AComponent<*, *, *>
-    open fun mapToComponentProps(): OwnProps = this
+    override fun getExtraMembers() = listOf(
+        horizontalLayoutRes, horizontalWidthFactor
+    )
 }

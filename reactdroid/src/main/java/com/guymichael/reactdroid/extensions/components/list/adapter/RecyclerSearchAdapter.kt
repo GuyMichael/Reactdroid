@@ -8,7 +8,6 @@ import android.widget.Filterable
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.guymichael.reactdroid.extensions.components.list.ComponentListUtils
-import com.guymichael.reactdroid.extensions.components.list.adapter.model.BaseRecyclerComponentViewHolder
 import com.guymichael.reactdroid.extensions.components.list.adapter.model.RecyclerComponentViewHolder
 import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 import java.util.*
@@ -16,19 +15,30 @@ import java.util.*
 /** Adds [Filter] to [RecyclerComponentAdapter], to be used with AutoCompleteTextView, for example  */
 class RecyclerSearchAdapter(
         recyclerView: RecyclerView
-        , items: List<ListItemProps> = emptyList()
+        , filterSelector: (ListItemProps) -> String
+        , layoutManager: RecyclerView.LayoutManager
+        , viewHolderSupplier: (View) -> RecyclerComponentViewHolder = ::RecyclerComponentViewHolder
+    ) : RecyclerComponentAdapter(recyclerView, layoutManager, viewHolderSupplier)
+    , Filterable {
+
+
+    constructor(
+        recyclerView: RecyclerView
         , filterSelector: (ListItemProps) -> String
         , @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL
-        , layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(recyclerView.context, orientation, false)
-        , viewHolderSupplier: (View) -> BaseRecyclerComponentViewHolder = ::RecyclerComponentViewHolder
-    ) : RecyclerComponentAdapter(recyclerView, items, orientation, layoutManager, viewHolderSupplier)
-        , Filterable {
+        , viewHolderSupplier: (View) -> RecyclerComponentViewHolder = ::RecyclerComponentViewHolder
+    ): this(recyclerView, filterSelector
+        , LinearLayoutManager(recyclerView.context, orientation, false)
+        , viewHolderSupplier
+    )
+
+
 
     /**
      * Takes the regular adapter's 'items' job as the 'all' list.<br></br>
      * The old 'items' list will be used as the filtered list
      */
-    private var allItems: List<ListItemProps> = ArrayList(items)
+    private var allItems: List<ListItemProps> = ArrayList()
 
     /** Performs list filtering */
     private val filter = MyFilter(filterSelector)

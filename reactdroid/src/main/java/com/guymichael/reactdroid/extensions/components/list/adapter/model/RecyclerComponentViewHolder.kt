@@ -7,30 +7,31 @@ import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 import com.guymichael.reactdroid.core.model.AComponent
 
 class RecyclerComponentViewHolder(itemView: View)
-    : BaseRecyclerComponentViewHolder(itemView) {
+    : BaseRecyclerComponentViewHolder<ListItemProps>(itemView) {
 
     private lateinit var mComponent: AComponent<*, *, *>
 
-    override fun bind(props: ListItemProps) {
-        val component = getOrCreateComponent(props)
+    override fun bind(item: ListItemProps) {
+        val component = getOrCreateComponent(item)
 
         try {
-            component.onRenderOrThrow(props.mapToComponentProps())
+            component.onRenderOrThrow(item.props)
         } catch (e: IllegalArgumentException) {
             if (BuildConfig.DEBUG) {
                 throw e//rethrow
             } else {
-                Logger.e(
-                    RecyclerComponentViewHolder::class, "bind failed: give props (${props.javaClass.simpleName}) " +
-                        "differs from ${component.javaClass.simpleName}'s props")
+                Logger.e(RecyclerComponentViewHolder::class
+                    , "bind failed: give props (${item.javaClass.simpleName}) " +
+                        "differs from ${component.javaClass.simpleName}'s props"
+                )
             }
         }
     }
 
-    private fun getOrCreateComponent(props: ListItemProps): AComponent<*, *, *> {
+    private fun getOrCreateComponent(item: ListItemProps): AComponent<*, *, *> {
         //THINK lateinitvar.getOrNull(). Also, try may be better ?
         if( !this::mComponent.isInitialized) {
-            mComponent = props.createComponent(itemView)
+            mComponent = item.initial_componentCreator(itemView)
         }
 
         return mComponent

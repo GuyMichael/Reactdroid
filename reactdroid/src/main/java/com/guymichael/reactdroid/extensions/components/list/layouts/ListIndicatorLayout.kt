@@ -42,9 +42,10 @@ class ListIndicatorLayout : LinearLayout {
      * @param indicatorsClickable
      */
     fun setup(adapter: RecyclerComponentAdapter, tabViewResId: Int, indicatorsClickable: Boolean) {
-        this.adapter = adapter
-        this.adapter!!.addOnListScrollListener(onListScrollListener)
-        this.adapter!!.registerAdapterDataObserver(dataObserver)
+        this.adapter = adapter.also {
+            it.addOnListScrollListener(onListScrollListener)
+            it.registerAdapterDataObserver(dataObserver)
+        }
         this.tabViewResId = tabViewResId
         this.isIndicatorsClickable = indicatorsClickable
 
