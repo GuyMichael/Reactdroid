@@ -13,6 +13,8 @@ abstract class BaseListComponent<P : BaseListProps, S : OwnState, V : RecyclerVi
 
     override fun render() {
         //THINK get actual diff indexes and use efficient methods (e.g. notifyItemRangeChanged() )
+        // OR, consider extending ListAdapter to make use of DiffUtil, which calculates list diffs
+        // efficiently and on a background thread
         adapter.notifyDataSetChanged(props.items)
     }
 }

@@ -101,7 +101,7 @@ class CList(
     private var didFirstRender = false
     override fun render() {
 
-        if( !didFirstRender || adapter.getAllItems() != props.items) { //THINK efficiency
+        if( !didFirstRender || adapter.getAllItems() != props.items) { //THINK efficiency (see super.render())
             //notify data set changed
             super.render()
         }
