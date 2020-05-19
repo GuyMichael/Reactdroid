@@ -129,7 +129,7 @@ open class BaseComponentAdapter<ITEM_PROPS : AdapterItemProps>(
      */
     fun getActualPosition(cyclicPosition: Int): Int {
         return if (this.isCyclic) {
-            cyclicPosition % (getActualItemCount().takeIf { it > 0 } ?: 1)
+            cyclicPosition % getActualItemCount()
         } else cyclicPosition
     }
 
