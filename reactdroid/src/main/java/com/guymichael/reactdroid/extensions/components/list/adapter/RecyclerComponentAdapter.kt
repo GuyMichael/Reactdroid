@@ -131,9 +131,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
     }
 
     override fun onCyclicMiddleIndexUpdated(cyclicMiddleIndex: Int) {
-        if (cyclicMiddleIndex > 0) {
-            Handler().postDelayed({ scrollImmediately(cyclicMiddleIndex) }, 2000)//TODO change this ugly thing to listen to when the RecyclerView finished inflating the Views
-        } //else - no items
+        Handler().postDelayed({ scrollImmediately(cyclicMiddleIndex) }, 2000)//TODO change this ugly thing to listen to when the RecyclerView finished inflating the Views
     }
 
 
