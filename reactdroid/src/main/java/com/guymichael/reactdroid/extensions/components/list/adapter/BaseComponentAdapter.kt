@@ -87,7 +87,7 @@ open class BaseComponentAdapter<ITEM_PROPS : AdapterItemProps>(
     }
 
     override fun getItemCount(): Int {
-        return if (this.isCyclic) {
+        return if (this.isCyclic && this.items.isNotEmpty()) {
             Integer.MAX_VALUE
         } else this.items.size
     }
