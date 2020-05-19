@@ -43,7 +43,7 @@ class CList(
 
 
     /* API */
-    fun onRender(items: List<ListItemProps>) {
+    fun onRender(items: List<ListItemProps<*>>) {
         onRender(ListProps(items))
     }
 

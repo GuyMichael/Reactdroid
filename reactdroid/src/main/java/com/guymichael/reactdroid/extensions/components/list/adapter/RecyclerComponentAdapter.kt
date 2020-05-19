@@ -38,7 +38,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         val recyclerView: RecyclerView
         , val layoutManager: RecyclerView.LayoutManager
         , override val viewHolderSupplier: (View) -> RecyclerComponentViewHolder = ::RecyclerComponentViewHolder
-    ) : BaseComponentAdapter<ListItemProps>(viewHolderSupplier) {
+    ) : BaseComponentAdapter<ListItemProps<*>>(viewHolderSupplier) {
 
 
     constructor(
@@ -56,11 +56,11 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
     private val mScrollListener = RecyclerComponentAdapterScrollListener(this)//THINK leaking 'this' in constructor
 
     private var customShortClickListener:
-        ((parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps, position: Int) -> Boolean)? = null
+        ((parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps<*>, position: Int) -> Boolean)? = null
     private var customLongClickListener:
-        ((parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps, position: Int) -> Boolean)? = null
+        ((parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps<*>, position: Int) -> Boolean)? = null
     private val customPerClassClickListeners by lazy {
-        HashMap<Class<*>, ((ListItemProps, position: Int) -> Boolean)>()
+        HashMap<Class<*>, ((ListItemProps<*>, position: Int) -> Boolean)>()
     }
     private var emptyView: View? = null
     private var itemDecoration: RecyclerView.ItemDecoration? = null
@@ -113,7 +113,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         }
     }
 
-    override fun onItemViewBound(props: ListItemProps, itemView: View) {
+    override fun onItemViewBound(props: ListItemProps<*>, itemView: View) {
         /*calculate horizontal width*/
         if (isHorizontalRelativeItemWidthEnabled && isLinearLayoutOrientationHorizontal) {
             setRelativeCustomWidth(
@@ -123,7 +123,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         }
     }
 
-    override fun getItemLayoutRes(item: ListItemProps): Int {
+    override fun getItemLayoutRes(item: ListItemProps<*>): Int {
         return item.horizontalLayoutRes.takeIf { isLinearLayoutOrientationHorizontal && it != 0 }
             ?: super.getItemLayoutRes(item)
     }
@@ -179,7 +179,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
             && recyclerView.isSnappingEnabled)
     }
 
-    protected fun getFirstVisibleItem(): ListItemProps? {
+    protected fun getFirstVisibleItem(): ListItemProps<*>? {
         return getItem( ComponentListUtils.getFirstVisiblePosition(layoutManager) )
     }
 
@@ -509,12 +509,12 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         lp.width = (widthFactor * recyclerView.width).toInt()
     }
 
-    protected fun getFirstFullyVisibleItem(): ListItemProps? {
+    protected fun getFirstFullyVisibleItem(): ListItemProps<*>? {
         val position = ComponentListUtils.getFirstFullyVisiblePosition(layoutManager)
         return getItem(position)
     }
 
-    protected fun getLastFullyVisibleItem(): ListItemProps? {
+    protected fun getLastFullyVisibleItem(): ListItemProps<*>? {
         val position = ComponentListUtils.getLastFullyVisiblePosition(layoutManager)
         return getItem(position)
     }
@@ -559,7 +559,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
      * @param item
      * @return The 'item's View, or null if 'item' is not visible
      */
-    fun getChildIfVisible(item: ListItemProps?): View? {
+    fun getChildIfVisible(item: ListItemProps<*>?): View? {
         return if (item != null) {
             getChildIfVisible(item.id)
         } else {
@@ -567,7 +567,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         }
     }
 
-    fun scrollImmediately(item: ListItemProps) {
+    fun scrollImmediately(item: ListItemProps<*>) {
         val pos = items.indexOf(item)
         if (pos > -1) {
             scrollImmediately(pos)
@@ -606,7 +606,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         }
     }
 
-    fun smoothScroll(item: ListItemProps) {
+    fun smoothScroll(item: ListItemProps<*>) {
         val pos = items.indexOf(item)
         if (pos > -1) {
             smoothScroll(pos)
@@ -708,7 +708,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
      * @param listener
      */
     fun onItemClick(
-            listener: (parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps, position: Int) -> Boolean
+            listener: (parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps<*>, position: Int) -> Boolean
         ): RecyclerComponentAdapter {
 
         this.customShortClickListener = listener
@@ -720,7 +720,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
      * @param listener
      */
     fun onItemLongClick(
-            listener: (parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps, position: Int) -> Boolean
+            listener: (parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps<*>, position: Int) -> Boolean
         ): RecyclerComponentAdapter {
 
         this.customLongClickListener = listener

@@ -7,11 +7,11 @@ import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 import com.guymichael.reactdroid.core.model.AComponent
 
 class RecyclerComponentViewHolder(itemView: View)
-    : BaseRecyclerComponentViewHolder<ListItemProps>(itemView) {
+    : BaseRecyclerComponentViewHolder<ListItemProps<*>>(itemView) {
 
     private lateinit var mComponent: AComponent<*, *, *>
 
-    override fun bind(item: ListItemProps) {
+    override fun bind(item: ListItemProps<*>) {
         val component = getOrCreateComponent(item)
 
         try {
@@ -28,7 +28,7 @@ class RecyclerComponentViewHolder(itemView: View)
         }
     }
 
-    private fun getOrCreateComponent(item: ListItemProps): AComponent<*, *, *> {
+    private fun getOrCreateComponent(item: ListItemProps<*>): AComponent<*, *, *> {
         //THINK lateinitvar.getOrNull(). Also, try may be better ?
         if( !this::mComponent.isInitialized) {
             mComponent = item.initial_componentCreator(itemView)

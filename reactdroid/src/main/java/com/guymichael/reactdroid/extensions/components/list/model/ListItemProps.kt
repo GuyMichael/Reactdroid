@@ -10,11 +10,11 @@ import java.io.Serializable
  * @param initial_componentCreator create (new) component to be used as a list item (view)
  * @param props for the component created using `initial_componentCreator`
  */
-data class ListItemProps(
+data class ListItemProps<COMPONENT_PROPS : OwnProps>(
         override val id: String,
         @LayoutRes override val layoutRes: Int,
-        override val props: OwnProps,
-        override val initial_componentCreator: (layout: View) -> AComponent<*, *, *>,
+        override val props: COMPONENT_PROPS,
+        override val initial_componentCreator: (layout: View) -> AComponent<COMPONENT_PROPS, *, *>,
         @LayoutRes val horizontalLayoutRes: Int = layoutRes,
         val horizontalWidthFactor: Float = 1F
     ) : AdapterItemProps(id, layoutRes, props, initial_componentCreator)

@@ -15,7 +15,7 @@ import java.util.*
 /** Adds [Filter] to [RecyclerComponentAdapter], to be used with AutoCompleteTextView, for example  */
 class RecyclerSearchAdapter(
         recyclerView: RecyclerView
-        , filterSelector: (ListItemProps) -> String
+        , filterSelector: (ListItemProps<*>) -> String
         , layoutManager: RecyclerView.LayoutManager
         , viewHolderSupplier: (View) -> RecyclerComponentViewHolder = ::RecyclerComponentViewHolder
     ) : RecyclerComponentAdapter(recyclerView, layoutManager, viewHolderSupplier)
@@ -24,7 +24,7 @@ class RecyclerSearchAdapter(
 
     constructor(
         recyclerView: RecyclerView
-        , filterSelector: (ListItemProps) -> String
+        , filterSelector: (ListItemProps<*>) -> String
         , @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL
         , viewHolderSupplier: (View) -> RecyclerComponentViewHolder = ::RecyclerComponentViewHolder
     ): this(recyclerView, filterSelector
@@ -38,7 +38,7 @@ class RecyclerSearchAdapter(
      * Takes the regular adapter's 'items' job as the 'all' list.<br></br>
      * The old 'items' list will be used as the filtered list
      */
-    private var allItems: List<ListItemProps> = ArrayList()
+    private var allItems: List<ListItemProps<*>> = ArrayList()
 
     /** Performs list filtering */
     private val filter = MyFilter(filterSelector)
@@ -56,7 +56,7 @@ class RecyclerSearchAdapter(
      * Updates all items and doesn't filter them
      * @param newList
      */
-    override fun notifyDataSetChanged(newList: List<ListItemProps>) {
+    override fun notifyDataSetChanged(newList: List<ListItemProps<*>>) {
         this.notifyDataSetChanged(newList, false)
     }
 
@@ -65,7 +65,7 @@ class RecyclerSearchAdapter(
      * @param newList
      * @param filter if true, the new list is filtered against the old constraint ([MyFilter.lastFilterText])
      */
-    fun notifyDataSetChanged(newList: List<ListItemProps>, filter: Boolean) {
+    fun notifyDataSetChanged(newList: List<ListItemProps<*>>, filter: Boolean) {
         allItems = ArrayList(newList)
         super.notifyDataSetChanged(newList)
         if (filter) {
@@ -76,20 +76,20 @@ class RecyclerSearchAdapter(
     /**
      * @param newList MUST be a list which all of it's items are contained in [.allItems]
      */
-    private fun notifyFilteredDataSetChanged(newList: List<ListItemProps>) {
+    private fun notifyFilteredDataSetChanged(newList: List<ListItemProps<*>>) {
         super.notifyDataSetChanged(newList)
     }
 
     /** All items count, including filtered-out */
     fun getCachedItemCount(): Int = allItems.size
 
-    fun getCachedItem(index: Int): ListItemProps? {
+    fun getCachedItem(index: Int): ListItemProps<*>? {
         return if (index > -1 && index < allItems.size) {
             allItems[index]
         } else null
     }
 
-    fun getCachedItem(id: String): ListItemProps? {
+    fun getCachedItem(id: String): ListItemProps<*>? {
         for (item in allItems) {
             if (id == item.id) {
                 return item
@@ -98,27 +98,27 @@ class RecyclerSearchAdapter(
         return null
     }
 
-    fun getAllCachedItems(): List<ListItemProps> {
+    fun getAllCachedItems(): List<ListItemProps<*>> {
         return ArrayList(allItems)
     }
 
 
 
 
-    private inner class MyFilter(val selector: (ListItemProps) -> String) : Filter() {
+    private inner class MyFilter(val selector: (ListItemProps<*>) -> String) : Filter() {
         var lastFilterText: CharSequence? = ""
 
         @Suppress("UNCHECKED_CAST")
         override fun publishResults(constraint: CharSequence?, results: FilterResults) {
             if (animateOnFilter) {
-                notifyFilteredDataSetChanged(results.values as List<ListItemProps>)
+                notifyFilteredDataSetChanged(results.values as List<ListItemProps<*>>)
             } else {
                 //take the animator off
                 val animator = recyclerView.itemAnimator
                 recyclerView.itemAnimator = null
 
                 //now update
-                notifyFilteredDataSetChanged(results.values as List<ListItemProps>)
+                notifyFilteredDataSetChanged(results.values as List<ListItemProps<*>>)
 
                 //restore animator (backstack)
                 Handler().postDelayed({ recyclerView.itemAnimator = animator }, 0)
@@ -135,9 +135,9 @@ class RecyclerSearchAdapter(
             return results
         }
 
-        fun getFilteredList(constraint: CharSequence?): List<ListItemProps> {
+        fun getFilteredList(constraint: CharSequence?): List<ListItemProps<*>> {
             @Suppress("UNCHECKED_CAST")
-            return performFiltering(constraint).values as List<ListItemProps>
+            return performFiltering(constraint).values as List<ListItemProps<*>>
         }
 
         /** Filters using [.lastFilterText] */
@@ -148,7 +148,7 @@ class RecyclerSearchAdapter(
         //probably used only by AutoCompleteTextView for suggestions
         override fun convertResultToString(resultValue: Any?): CharSequence {
             return if (resultValue == null) "" else try {
-                (resultValue as ListItemProps).id
+                (resultValue as ListItemProps<*>).id
             } catch (e: NullPointerException) {
                 super.convertResultToString(resultValue)
             } catch (e: ClassCastException) {
@@ -173,7 +173,7 @@ class RecyclerSearchAdapter(
      * @param constraint
      * @return filtered items.
      */
-    fun getFilteredList(constraint: CharSequence?): List<ListItemProps> {
+    fun getFilteredList(constraint: CharSequence?): List<ListItemProps<*>> {
         return filter.getFilteredList(constraint)
     }
 
@@ -199,8 +199,8 @@ class RecyclerSearchAdapter(
      * @param constraint
      * @return The filtered list
      */
-    fun performFiltering(constraint: CharSequence?, selector: (ListItemProps) -> String)
-        : List<ListItemProps> {
+    fun performFiltering(constraint: CharSequence?, selector: (ListItemProps<*>) -> String)
+        : List<ListItemProps<*>> {
 
         return customFilter?.filter(
             allItems, constraint, selector
@@ -218,9 +218,9 @@ class RecyclerSearchAdapter(
 
 
     interface SearchFilter {
-        fun filter(list: List<ListItemProps>, constraint: CharSequence?
-           , selector: (ListItemProps) -> String
-        ): List<ListItemProps>
+        fun filter(list: List<ListItemProps<*>>, constraint: CharSequence?
+           , selector: (ListItemProps<*>) -> String
+        ): List<ListItemProps<*>>
     }
 
 
