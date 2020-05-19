@@ -7,7 +7,7 @@ import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 import com.guymichael.reactdroid.core.model.AComponent
 
 class RecyclerComponentViewHolder(itemView: View)
-    : BaseRecyclerComponentViewHolder<ListItemProps<*>>(itemView) {
+    : BaseComponentViewHolder<ListItemProps<*>>(itemView) {
 
     private lateinit var mComponent: AComponent<*, *, *>
 

@@ -109,7 +109,7 @@ class CList(
         //update adapter's scroll position
         getScrollIndex()?.also {
             //end of execution queue to let recycler itself update with new data
-            mView.post { renderScrollPosition(it) }
+            mView.post { renderScrollPosition(it) } //THINK better way? listen to recycler's view change?
         }
 
         didFirstRender = true

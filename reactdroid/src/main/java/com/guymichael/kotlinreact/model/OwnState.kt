@@ -28,6 +28,7 @@ abstract class OwnState {
     }
 
     //THINK reflection/annotation
-    /** @return all state-relevant props, meaning props that if they change, you'd expect a re-render */
+    /** @return all state-relevant props, meaning props that if they change, you'd expect a re-render.
+     * It's best to start with primitives (Int, String, etc.) for efficiency */
     abstract fun getAllMembers() : List<*>
 }

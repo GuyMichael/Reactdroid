@@ -9,8 +9,8 @@ import com.guymichael.reactdroid.extensions.components.list.model.AdapterItemPro
 import java.util.*
 
 open class BaseComponentAdapter<ITEM_PROPS : AdapterItemProps>(
-        open val viewHolderSupplier: (View) -> BaseRecyclerComponentViewHolder<ITEM_PROPS>
-    ) : RecyclerView.Adapter<BaseRecyclerComponentViewHolder<ITEM_PROPS>>() {
+        open val viewHolderSupplier: (View) -> BaseComponentViewHolder<ITEM_PROPS>
+    ) : RecyclerView.Adapter<BaseComponentViewHolder<ITEM_PROPS>>() {
 
     protected val items: MutableList<ITEM_PROPS> = ArrayList()
 
@@ -34,7 +34,7 @@ open class BaseComponentAdapter<ITEM_PROPS : AdapterItemProps>(
         this.setHasStableIds(true)
     }
 
-    final override fun onCreateViewHolder(viewGroup: ViewGroup, viewTypeIndex: Int): BaseRecyclerComponentViewHolder<ITEM_PROPS> {
+    final override fun onCreateViewHolder(viewGroup: ViewGroup, viewTypeIndex: Int): BaseComponentViewHolder<ITEM_PROPS> {
         @LayoutRes val layoutRes = this.customItemLayoutResId.takeIf { it != 0 }
             ?: getViewRes(viewTypeIndex)//viewTypeIndex is an index/id to the actual layout resId
 
@@ -52,7 +52,7 @@ open class BaseComponentAdapter<ITEM_PROPS : AdapterItemProps>(
      * and just before it is wrapped with a view holder */
     open fun onItemViewCreated(itemView: View) {}
 
-    final override fun onBindViewHolder(viewHolder: BaseRecyclerComponentViewHolder<ITEM_PROPS>, position: Int) {
+    final override fun onBindViewHolder(viewHolder: BaseComponentViewHolder<ITEM_PROPS>, position: Int) {
         getItem(position)?.let {
 
             viewHolder.bind(it)
@@ -62,7 +62,7 @@ open class BaseComponentAdapter<ITEM_PROPS : AdapterItemProps>(
     }
 
     /** Callback from [onBindViewHolder] after the relevant view `itemView` has been
-     * [bound][BaseRecyclerComponentViewHolder.bind] to `props` */
+     * [bound][BaseComponentViewHolder.bind] to `props` */
     open protected fun onItemViewBound(props: ITEM_PROPS, itemView: View) {}
 
     final override fun getItemViewType(position: Int): Int {

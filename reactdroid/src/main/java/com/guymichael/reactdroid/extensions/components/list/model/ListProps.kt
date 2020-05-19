@@ -8,6 +8,6 @@ data class ListProps(
     ) : BaseListProps(items) {
 
     override fun getAllMembers() = listOf(
-        items, controlledScroll?.first, constraint
+        controlledScroll?.first, constraint, items
     )
 }
