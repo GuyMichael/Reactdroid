@@ -191,16 +191,13 @@ object PermissionsLogic {
         return APromise.ofCallback<Unit, Disposable?>({ promiseCallback ->
             contextRef.get()?.takeIf { !it.isDestroyed && !it.isFinishing }?.let {
                 it.observeOnPermissionResults()
-                    .doOnError { e ->
-                        promiseCallback.onFailure(e)
-                    }.subscribe { result ->
-                        //all permissions granted
-                        if (result.requestCode == ComponentActivity.REQUEST_CODE_PERMISSIONS) {
-                            promiseCallback.onSuccess(Unit)
-                        }
-                    }.also { _ ->
-                        ActivityCompat.requestPermissions(it, permissions, ComponentActivity.REQUEST_CODE_PERMISSIONS)
-                    }
+                .filter { result -> result.requestCode == ComponentActivity.REQUEST_CODE_PERMISSIONS }
+                .subscribe(
+                    { promiseCallback.onSuccess(Unit) }           //result -> all permissions granted
+                    , { e -> promiseCallback.onFailure(e) }       //error in observer
+                ).also { _ ->
+                    ActivityCompat.requestPermissions(it, permissions, ComponentActivity.REQUEST_CODE_PERMISSIONS)
+                }
             } ?: let {
                 promiseCallback.onCancel("context became null")
                 null
