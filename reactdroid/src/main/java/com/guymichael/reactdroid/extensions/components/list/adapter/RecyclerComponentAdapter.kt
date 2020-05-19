@@ -1,13 +1,9 @@
 package com.guymichael.reactdroid.extensions.components.list.adapter
 
-import android.os.Handler
 import android.view.*
 import androidx.annotation.DimenRes
 import androidx.annotation.LayoutRes
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.OrientationHelper
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import com.guymichael.kotlinreact.R
 import com.guymichael.kotlinreact.model.OwnProps
 //import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -16,7 +12,6 @@ import com.guymichael.reactdroid.core.ViewUtils
 import com.guymichael.reactdroid.core.getDimenPx
 import com.guymichael.reactdroid.extensions.components.list.ComponentListUtils
 import com.guymichael.reactdroid.extensions.components.list.layouts.ListIndicatorLayout
-import com.guymichael.reactdroid.extensions.components.list.layouts.recycler.SnappingRecyclerView
 import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 import com.guymichael.reactdroid.core.model.IntervalRunnable
 import com.guymichael.reactdroid.extensions.components.list.adapter.model.*
@@ -71,6 +66,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
     private var onEmptyViewStateChangeListener: OnEmptyViewStateChangeListener? = null
     private var isHorizontalRelativeItemWidthEnabled = true
     private var autoscrollRunnableKey: Long? = null
+    private var snapHelper: SnapHelper? = null
 
     var customItemWidthFactor = -1f
 
@@ -131,7 +127,7 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
     }
 
     override fun onCyclicMiddleIndexUpdated(cyclicMiddleIndex: Int) {
-        Handler().postDelayed({ scrollImmediately(cyclicMiddleIndex) }, 2000)//TODO change this ugly thing to listen to when the RecyclerView finished inflating the Views
+        recyclerView.post { scrollImmediately(cyclicMiddleIndex) }
     }
 
 
@@ -176,9 +172,8 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
         return androidx.recyclerview.widget.GridLayoutManager::class.java.isInstance(layoutManager)
     }
 
-    fun isSnappingEnabled(): Boolean {
-        return (recyclerView is SnappingRecyclerView
-            && recyclerView.isSnappingEnabled)
+    fun isSnapEnabled(): Boolean {
+        return snapHelper != null
     }
 
     protected fun getFirstVisibleItem(): ListItemProps<*>? {
@@ -413,19 +408,13 @@ open class RecyclerComponentAdapter @JvmOverloads constructor(
     }
 
     /**
+     * Note: once enabled, cannot be disabled. Call on adapter initialization.
      * @param enabled
      * @param snapOneAtAtime
      */
     fun setSnapEnabled(enabled: Boolean, snapOneAtAtime: Boolean = enabled) {
-        if (recyclerView is SnappingRecyclerView) {
-            recyclerView.setSnappingEnabled(enabled, snapOneAtAtime)
-        } else {
-            //TODO set disabled!
-            val snapHelper =
-                GravityPagerSnapHelper(
-                    Gravity.START
-                )
-            snapHelper.attachToRecyclerView(recyclerView)
+        this.snapHelper = GravityPagerSnapHelper(Gravity.START).also {
+            it.attachToRecyclerView(recyclerView)
         }
     }
 

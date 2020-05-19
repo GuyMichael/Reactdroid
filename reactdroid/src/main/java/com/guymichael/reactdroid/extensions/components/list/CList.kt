@@ -56,11 +56,7 @@ class CList(
      * Note: To render components with custom props, use the default `onRender` method -
      * the one that accepts [ListProps] or `List<ListItemProps>` */
     fun onRender(vararg items: Pair<Int, (View) -> AComponent<EmptyOwnProps, *, *>>) {
-        onRender(ListProps(
-            items.map { (layoutRes, componentCreator) ->
-                ListItemProps("$layoutRes", layoutRes, EmptyOwnProps, componentCreator)
-            }
-        ))
+        onRender(ListProps(ListItemProps.listFromUniqueLayouts(*items)))
     }
 
 
