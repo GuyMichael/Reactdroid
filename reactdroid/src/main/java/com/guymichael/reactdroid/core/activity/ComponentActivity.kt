@@ -55,7 +55,18 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
         PublishSubject.create<PermissionsResult>()
     }
     private val permissionRequestObservable by lazy {
-        permissionRequestSubject.value.retry().share()
+        permissionRequestSubject.value
+            .doOnError { e -> //probably PermissionDeniedException
+                Logger.w(this@ComponentActivity::class, "permission request error: ${e.message}")
+            }
+            .doOnNext { result ->
+                Logger.d(this@ComponentActivity::class, "new permission result : $result")
+            }
+            .doOnComplete {
+                Logger.e(this@ComponentActivity::class, "permission request subject completed!")
+            }
+            .retry()
+            .share()
     }
 
     /* activity result */
@@ -63,7 +74,18 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
         PublishSubject.create<ActivityResult>()
     }
     private val activityResultObservable by lazy {
-        activityResultSubject.value.retry().share()
+        activityResultSubject.value
+            .doOnError { e ->
+                Logger.w(this@ComponentActivity::class, "activity result request error: ${e.message}")
+            }
+            .doOnNext { result ->
+                Logger.d(this@ComponentActivity::class, "new activity result : $result")
+            }
+            .doOnComplete {
+                Logger.e(this@ComponentActivity::class, "activity result subject completed!")
+            }
+            .retry()
+            .share()
     }
 
 
