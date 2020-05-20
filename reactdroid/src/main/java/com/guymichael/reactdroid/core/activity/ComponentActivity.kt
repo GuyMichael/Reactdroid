@@ -16,7 +16,9 @@ import com.guymichael.reactdroid.core.activity.model.ActivityResult
 import com.guymichael.reactdroid.core.activity.model.PermissionsDeniedException
 import com.guymichael.reactdroid.core.activity.model.PermissionsResult
 import com.guymichael.reactdroid.extensions.components.permissions.PermissionsLogic
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -56,6 +58,8 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
     }
     private val permissionRequestObservable by lazy {
         permissionRequestSubject.value
+            .subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
             .doOnError { e -> //probably PermissionDeniedException
                 Logger.w(this@ComponentActivity::class, "permission request error: ${e.message}")
             }
@@ -75,6 +79,8 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
     }
     private val activityResultObservable by lazy {
         activityResultSubject.value
+            .subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
             .doOnError { e ->
                 Logger.w(this@ComponentActivity::class, "activity result request error: ${e.message}")
             }

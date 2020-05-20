@@ -250,6 +250,7 @@ private fun <T> Observable<T>.debouncedBuffer(timeout: Long, timeUnit: TimeUnit,
 }
 
 /** Maps non null mappings, and skips (silently) nulls */
+//THINK it is unclear that the usage of onErrorResumeNext absorbs ALL errors (not just this method's)
 private inline fun <T, R> Observable<T>.mapSkipNull(crossinline mapper: (T) -> R?): Observable<R> {
     return this.map { mapper(it) ?: throw NullPointerException("Observable mapSkipNull: mapping returned null, skipping this one") }
             .onErrorResumeNext { Observable.empty() }
