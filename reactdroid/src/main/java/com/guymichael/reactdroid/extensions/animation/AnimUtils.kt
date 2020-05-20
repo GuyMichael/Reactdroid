@@ -310,14 +310,6 @@ object AnimUtils {
             }
     }
 
-    fun animateFadeOut(view: View, duration: Long
-        , startDelay: Long = 0
-        , interpolator: TimeInterpolator = LinearInterpolator()
-    ): ObjectAnimator {
-
-        return animateFloat(view, "alpha", 0f, duration, startDelay, interpolator)
-    }
-
     /** animates alpha to 0 and sets the target visibility to GONE
      * @return promise, cancelled when/if the view is destroyed */
     fun <T : View> animateFadeOutAndGone(target: T, duration: Long = 150
