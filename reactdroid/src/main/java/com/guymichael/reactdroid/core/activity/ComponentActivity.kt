@@ -57,7 +57,7 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
         PublishSubject.create<PermissionsResult>()
     }
     private val permissionRequestObservable by lazy {
-        permissionRequestSubject.value.share().also {
+        permissionRequestSubject.value.retry().share().also { //retry on errors, instead of completing
             //subscribe a permanent observer to log and to keep the PublishSubject connected
             // after all (other) subscribers completed
             it.subscribe(mPermissionRequestObserver)
@@ -79,7 +79,7 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
         PublishSubject.create<ActivityResult>()
     }
     private val activityResultObservable by lazy {
-        activityResultSubject.value.share().also {
+        activityResultSubject.value.retry().share().also { //retry on errors, instead of completing
             //subscribe a permanent observer to log and to keep the PublishSubject connected
             // after all (other) subscribers completed
             it.subscribe(mActivityResultObserver)
