@@ -5,18 +5,28 @@ import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.reactdroid.core.fragment.ComponentFragment
 
 /**
- * @param itemCount total fragments in pager
- * @param initial_pageCreator creates (new) fragment per call, for 'position'
- * @param initial_propsSupplier supply relevant props for fragment in 'position'.
- * Default supplies [empty props][EmptyOwnProps]
+ * @param fragments pairs of fragment-creator to props supplier
  */
 data class FragmentPagerProps<F : ComponentFragment<*>>(
-        val itemCount: Int,
-        val initial_pageCreator: (position: Int) -> F,
-        val initial_propsSupplier: (position: Int) -> OwnProps = { EmptyOwnProps }
+        val fragments: List<Pair<() -> F, () -> OwnProps>>
     ) : OwnProps() {
+
+    private val itemCount: Int = fragments.size
 
     override fun getAllMembers() = listOf(
         itemCount
     )
+
+
+
+    companion object {
+        fun <T : ComponentFragment<*>> from(vararg fragments: () -> T
+            , unifiedPropsSupplier: () -> OwnProps = { EmptyOwnProps }
+        ): FragmentPagerProps<T> {
+
+            return FragmentPagerProps(
+                fragments.map { it to unifiedPropsSupplier }
+            )
+        }
+    }
 }

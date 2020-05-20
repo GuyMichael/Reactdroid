@@ -2,7 +2,9 @@ package com.guymichael.reactdroid.extensions.components.pager.fragment
 
 import androidx.annotation.IdRes
 import androidx.viewpager2.widget.ViewPager2
+import com.guymichael.kotlinreact.model.EmptyOwnProps
 import com.guymichael.kotlinreact.model.EmptyOwnState
+import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.reactdroid.extensions.components.pager.BasePager
 import com.guymichael.reactdroid.extensions.components.pager.fragment.adapter.PagerFragmentAdapter
 import com.guymichael.reactdroid.core.Utils
@@ -15,6 +17,19 @@ class CFragmentPager<F : ComponentFragment<*>>(
     ) : BasePager<FragmentPagerProps<F>, EmptyOwnState, PagerFragmentAdapter<F>>(v) {
     override fun createInitialState(props: FragmentPagerProps<F>) = EmptyOwnState
 
+
+
+
+    /* API */
+    fun onRender(vararg fragments: () -> F
+        , unifiedPropsSupplier: () -> OwnProps = { EmptyOwnProps }
+    ) {
+        super.onRender(FragmentPagerProps.from(*fragments, unifiedPropsSupplier = unifiedPropsSupplier))
+    }
+
+
+
+
     override fun render_createAdapter() = object : PagerFragmentAdapter<F>(
         Utils.getActivity(mView.context, ComponentActivity::class.java)
             ?: throw IllegalArgumentException(
@@ -22,9 +37,9 @@ class CFragmentPager<F : ComponentFragment<*>>(
             )
         ) {
 
-        override fun createComponentFragment(position: Int) = props.initial_pageCreator(position)
-        override fun createFragmentProps(position: Int) = props.initial_propsSupplier(position)
-        override fun getItemCount() = props.itemCount
+        override fun createComponentFragment(position: Int) = props.fragments[position].first.invoke()
+        override fun createFragmentProps(position: Int) = props.fragments[position].second.invoke()
+        override fun getItemCount() = props.fragments.size
     }
 
     override fun render_notifyAdapterOnDataSetChanged(adapter: PagerFragmentAdapter<F>) {
