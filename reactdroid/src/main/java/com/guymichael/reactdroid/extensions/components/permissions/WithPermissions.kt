@@ -9,6 +9,7 @@ import com.guymichael.reactdroid.core.execute
 import com.guymichael.reactdroid.core.model.AComponent
 import com.guymichael.reactdroid.core.model.AHOC
 import com.guymichael.reactdroid.core.renderOrGone
+import com.guymichael.reactdroid.extensions.animation.renderOrGone
 
 class WithPermissions<COMPONENT_PROPS : OwnProps, V : View, C : AComponent<COMPONENT_PROPS, *, V>>(
         component: C
@@ -63,7 +64,17 @@ class WithPermissions<COMPONENT_PROPS : OwnProps, V : View, C : AComponent<COMPO
 
 
     override fun render() {
-        mComponent.renderOrGone(if (ownState.value) props.componentProps else null)
+        if (ownState.value) {
+            //permissions are granted
+            mComponent.renderOrGone(
+                props.componentProps
+                , animateVisibility = props.initial_animateVisibility
+                , animDuration = 250
+            )
+        } else {
+            //permissions denied, hide component
+            mComponent.renderOrGone(null)
+        }
     }
 }
 

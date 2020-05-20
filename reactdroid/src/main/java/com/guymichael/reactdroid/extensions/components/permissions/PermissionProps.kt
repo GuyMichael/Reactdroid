@@ -26,8 +26,13 @@ data class PermissionProps<COMPONENT_PROPS : OwnProps>(
          * the app settings will open to let the user change there.
          * If the user grants permissions, and there are some permissions still missing
          * (weren't on 'always deny'), they will be automatically requested when app resumes.
-         * Doesn't affect re-renders*/
-        val initial_goToAppSettingsIfAlwaysDeny: Boolean = false
+         * Doesn't affect re-renders */
+        val initial_goToAppSettingsIfAlwaysDeny: Boolean = false,
+
+        /** If `true`, fades the component in and out when permission state
+         * changes (between granted and denied). See `ViewUtils.applyVisibility` for more.
+         * Doesn't affect re-renders */
+        val initial_animateVisibility: Boolean = true
     ) : OwnProps() {
 
     override fun getAllMembers() = listOf(
