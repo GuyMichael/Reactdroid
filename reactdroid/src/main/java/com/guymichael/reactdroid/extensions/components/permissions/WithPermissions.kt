@@ -64,17 +64,11 @@ class WithPermissions<COMPONENT_PROPS : OwnProps, V : View, C : AComponent<COMPO
 
 
     override fun render() {
-        if (ownState.value) {
-            //permissions are granted
-            mComponent.renderOrGone(
-                props.componentProps
-                , animateVisibility = props.initial_animateVisibility
-                , animDuration = 250
-            )
-        } else {
-            //permissions denied, hide component
-            mComponent.renderOrGone(null)
-        }
+        mComponent.renderOrGone(
+            props.componentProps.takeIf { ownState.value /*permissions granted when true*/ }
+            , animateVisibility = props.initial_animateVisibility
+            , animDuration = 250
+        )
     }
 }
 
