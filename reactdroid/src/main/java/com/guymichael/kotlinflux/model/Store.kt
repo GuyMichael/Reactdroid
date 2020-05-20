@@ -109,8 +109,8 @@ abstract class Store protected constructor(
             .doOnComplete {
                 Logger.e(this@Store::class, "store dispatchSubject completed!")
             }
-            .retry()//re-subscribe on errors, instead of completing and preventing the store from emitting more items
-
+            .retry(1)//re-subscribe on errors, instead of completing and preventing the store from emitting more items
+            .onErrorResumeNext { Observable.empty() } //swallow all errors for Store subscribers - actions will be skipped
             .share()//cold. publish to store observers when all previous conditions are met, without running the code above for each one
 
         this.stateChangeObservable.subscribe(this.mStateChangeObserver)
