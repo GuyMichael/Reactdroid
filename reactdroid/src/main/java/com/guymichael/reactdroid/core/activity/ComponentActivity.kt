@@ -56,6 +56,7 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
     }
     private val permissionRequestObservable by lazy {
         permissionRequestSubject.value
+            .filter { it.isSuccess || throw PermissionsDeniedException(it.requestedPermissions, it.deniedPermissions!!) }
             .doOnError { e -> //probably PermissionDeniedException
                 Logger.w(this@ComponentActivity::class, "permission request error: ${e.message}")
             }
@@ -113,6 +114,8 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
     protected abstract fun onBindViewListeners()
 
 
+    /** Only emits [successful][PermissionsResult.isSuccess] results. If user denied the request,
+     * it signals failures (`doOnError`) with [PermissionsDeniedException] */
     fun observeOnPermissionResults(): Observable<PermissionsResult> {
         return permissionRequestObservable
     }
@@ -203,23 +206,13 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
         , grantResults: IntArray
     ) {
 
-        val deniedPermissions = PermissionsLogic.filterDeniedPermissions(permissions, grantResults)
-        val isSuccess = deniedPermissions.isEmpty()
-
-        //log
-        if( !isSuccess) {
-            Logger.w(this::class, "onRequestPermissionsResult: Permissions not granted by the user - $deniedPermissions")
-        }
-
         //notify listeners if exist
         if (permissionRequestSubject.isInitialized()) {
-            if (isSuccess) {
-                permissionRequestSubject.value.onNext(PermissionsResult(requestCode, permissions.toList()))
-            } else {
-                permissionRequestSubject.value.onError(
-                    PermissionsDeniedException(permissions.toList(), deniedPermissions)
-                )
-            }
+            permissionRequestSubject.value.onNext(PermissionsResult(
+                requestCode
+                , permissions.toList()
+                , deniedPermissions = PermissionsLogic.filterDeniedPermissions(permissions, grantResults)
+            ))
         }
 
         //update permission 'first deny'||'always deny' states
