@@ -36,12 +36,20 @@ interface Component<P : OwnProps, S : OwnState> {
     fun isMounted(): Boolean
 
     /**
-     * @param consumer invoke when this Component is either mounted to the window (with True),
-     * or unmounted (with False).
+     * @param consumer invoke (multiple times) when this Component is either attached (mounted)
+     * to the window (with `true`), or detached (unmounted) (with `false`).
      * It is OK to call back immediately if conditions are already met (but not mandatory)
      *
-     * Note: when unmounted (you pass False), it's probably a good time to
-     * unregister and release your own listener
+     * Keep in mind that `consumer` is considered to be registered only when this component
+     * is alive, so:
+     *
+     * 1. no side effects when implementing the registration
+     * (remain in this component and its members' scope)
+     *
+     * 2. sanity check for #1 - when this component is destroyed (e.g. garbage collected), the
+     * `consumer` should already by unregistered.
+     * Normally the extending component will hold a view member and listen on it, so when the view
+     * is collected, so is the registration
      */
     fun listenOnMountStateChanges(consumer: (Boolean) -> Unit)
 
