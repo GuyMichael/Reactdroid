@@ -17,8 +17,6 @@ import com.guymichael.reactdroid.core.activity.model.PermissionsDeniedException
 import com.guymichael.reactdroid.core.activity.model.PermissionsResult
 import com.guymichael.reactdroid.extensions.components.permissions.PermissionsLogic
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Observer
-import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -57,44 +55,16 @@ abstract class ComponentActivity<P : OwnProps> : AppCompatActivity(), Component<
         PublishSubject.create<PermissionsResult>()
     }
     private val permissionRequestObservable by lazy {
-        permissionRequestSubject.value.retry().share().also { //retry on errors, instead of completing
-            //subscribe a permanent observer to log and to keep the PublishSubject connected
-            // after all (other) subscribers completed
-            it.subscribe(mPermissionRequestObserver)
-        }
+        permissionRequestSubject.value.retry().share()
     }
-    private val mPermissionRequestObserver by lazy { object : Observer<PermissionsResult> {
-        override fun onComplete() {}
-        override fun onSubscribe(d: Disposable) {}
-        override fun onError(e: Throwable) { //probably PermissionsDeniedException
-            Logger.w(this@ComponentActivity::class, "permissions request error: ${e.message}")
-        }
-        override fun onNext(result: PermissionsResult) {
-            Logger.d(this@ComponentActivity::class, "permissions granted: ${result.permissions}")
-        }
-    }}
 
     /* activity result */
     private val activityResultSubject = lazy {
         PublishSubject.create<ActivityResult>()
     }
     private val activityResultObservable by lazy {
-        activityResultSubject.value.retry().share().also { //retry on errors, instead of completing
-            //subscribe a permanent observer to log and to keep the PublishSubject connected
-            // after all (other) subscribers completed
-            it.subscribe(mActivityResultObserver)
-        }
+        activityResultSubject.value.retry().share()
     }
-    private val mActivityResultObserver by lazy { object : Observer<ActivityResult> {
-        override fun onComplete() {}
-        override fun onSubscribe(d: Disposable) {}
-        override fun onError(e: Throwable) {
-            Logger.w(this@ComponentActivity::class, "activity result request error: ${e.message}")
-        }
-        override fun onNext(result: ActivityResult) {
-            Logger.d(this@ComponentActivity::class, "new activity result: $result")
-        }
-    }}
 
 
 
