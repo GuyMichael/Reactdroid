@@ -6,7 +6,6 @@ import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
 import com.guymichael.kotlinreact.model.EmptyOwnProps
 import com.guymichael.kotlinreact.model.EmptyOwnState
-import com.guymichael.reactdroid.extensions.components.list.adapter.model.RecyclerComponentViewHolder
 import com.guymichael.reactdroid.extensions.components.list.adapter.RecyclerComponentAdapter
 import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 import com.guymichael.reactdroid.core.model.AComponent
@@ -140,9 +139,7 @@ class CList(
 
 
 private fun createAdapter(v: RecyclerView, orientation: Int = RecyclerView.VERTICAL): RecyclerComponentAdapter {
-    return RecyclerComponentAdapter(v
-        , viewHolderSupplier = ::RecyclerComponentViewHolder
-        , orientation = orientation)
+    return RecyclerComponentAdapter(v, orientation = orientation)
 }
 
 //THINK as Annotations

@@ -31,18 +31,16 @@ import kotlin.math.max
  * <br></br>**NOTE:** Please use [RecyclerView.setHasFixedSize] if all items are same size,
  * for performance.
  */
-open class RecyclerComponentAdapter @JvmOverloads constructor(
+open class RecyclerComponentAdapter constructor(
         val recyclerView: RecyclerView
         , val layoutManager: RecyclerView.LayoutManager
-        , override val viewHolderSupplier: (View) -> RecyclerComponentViewHolder = ::RecyclerComponentViewHolder
-    ) : BaseComponentAdapter<ListItemProps<*>>(viewHolderSupplier) {
+    ) : BaseComponentAdapter<ListItemProps<*>>() {
 
 
     constructor(
         recyclerView: RecyclerView
         , @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL
-        , viewHolderSupplier: (View) -> RecyclerComponentViewHolder = ::RecyclerComponentViewHolder
-    ): this(recyclerView, LinearLayoutManager(recyclerView.context, orientation, false), viewHolderSupplier)
+    ): this(recyclerView, LinearLayoutManager(recyclerView.context, orientation, false))
 
 
 

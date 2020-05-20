@@ -1,14 +1,12 @@
 package com.guymichael.reactdroid.extensions.components.list.adapter
 
 import android.os.Handler
-import android.view.View
 import android.widget.Filter
 import android.widget.Filter.FilterListener
 import android.widget.Filterable
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.guymichael.reactdroid.extensions.components.list.ComponentListUtils
-import com.guymichael.reactdroid.extensions.components.list.adapter.model.RecyclerComponentViewHolder
 import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 import java.util.*
 
@@ -17,8 +15,7 @@ class RecyclerSearchAdapter(
         recyclerView: RecyclerView
         , filterSelector: (ListItemProps<*>) -> String
         , layoutManager: RecyclerView.LayoutManager
-        , viewHolderSupplier: (View) -> RecyclerComponentViewHolder = ::RecyclerComponentViewHolder
-    ) : RecyclerComponentAdapter(recyclerView, layoutManager, viewHolderSupplier)
+    ) : RecyclerComponentAdapter(recyclerView, layoutManager)
     , Filterable {
 
 
@@ -26,10 +23,8 @@ class RecyclerSearchAdapter(
         recyclerView: RecyclerView
         , filterSelector: (ListItemProps<*>) -> String
         , @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL
-        , viewHolderSupplier: (View) -> RecyclerComponentViewHolder = ::RecyclerComponentViewHolder
     ): this(recyclerView, filterSelector
         , LinearLayoutManager(recyclerView.context, orientation, false)
-        , viewHolderSupplier
     )
 
 

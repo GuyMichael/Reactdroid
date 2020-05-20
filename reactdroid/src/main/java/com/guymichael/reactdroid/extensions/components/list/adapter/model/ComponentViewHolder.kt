@@ -1,17 +1,18 @@
 package com.guymichael.reactdroid.extensions.components.list.adapter.model
 
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 import com.guymichael.kotlinreact.BuildConfig
 import com.guymichael.kotlinreact.Logger
-import com.guymichael.reactdroid.extensions.components.list.model.ListItemProps
 import com.guymichael.reactdroid.core.model.AComponent
+import com.guymichael.reactdroid.extensions.components.list.model.AdapterItemProps
 
-class RecyclerComponentViewHolder(itemView: View)
-    : BaseComponentViewHolder<ListItemProps<*>>(itemView) {
+class ComponentViewHolder<T : AdapterItemProps>(itemView: View)
+    : RecyclerView.ViewHolder(itemView) {
 
     private lateinit var mComponent: AComponent<*, *, *>
 
-    override fun bind(item: ListItemProps<*>) {
+    fun bind(item: T) {
         val component = getOrCreateComponent(item)
 
         try {
@@ -20,7 +21,7 @@ class RecyclerComponentViewHolder(itemView: View)
             if (BuildConfig.DEBUG) {
                 throw e//rethrow
             } else {
-                Logger.e(RecyclerComponentViewHolder::class
+                Logger.e(ComponentViewHolder::class
                     , "bind failed: give props (${item.javaClass.simpleName}) " +
                         "differs from ${component.javaClass.simpleName}'s props"
                 )
@@ -28,7 +29,7 @@ class RecyclerComponentViewHolder(itemView: View)
         }
     }
 
-    private fun getOrCreateComponent(item: ListItemProps<*>): AComponent<*, *, *> {
+    private fun getOrCreateComponent(item: T): AComponent<*, *, *> {
         //THINK lateinitvar.getOrNull(). Also, try may be better ?
         if( !this::mComponent.isInitialized) {
             mComponent = item.initial_componentCreator(itemView)

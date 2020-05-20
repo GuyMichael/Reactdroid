@@ -8,9 +8,8 @@ import com.guymichael.reactdroid.extensions.components.list.adapter.model.*
 import com.guymichael.reactdroid.extensions.components.list.model.AdapterItemProps
 import java.util.*
 
-open class BaseComponentAdapter<ITEM_PROPS : AdapterItemProps>(
-        open val viewHolderSupplier: (View) -> BaseComponentViewHolder<ITEM_PROPS>
-    ) : RecyclerView.Adapter<BaseComponentViewHolder<ITEM_PROPS>>() {
+open class BaseComponentAdapter<ITEM_PROPS : AdapterItemProps>
+    : RecyclerView.Adapter<ComponentViewHolder<ITEM_PROPS>>() {
 
     protected val items: MutableList<ITEM_PROPS> = ArrayList()
 
@@ -34,7 +33,7 @@ open class BaseComponentAdapter<ITEM_PROPS : AdapterItemProps>(
         this.setHasStableIds(true)
     }
 
-    final override fun onCreateViewHolder(viewGroup: ViewGroup, viewTypeIndex: Int): BaseComponentViewHolder<ITEM_PROPS> {
+    final override fun onCreateViewHolder(viewGroup: ViewGroup, viewTypeIndex: Int): ComponentViewHolder<ITEM_PROPS> {
         @LayoutRes val layoutRes = this.customItemLayoutResId.takeIf { it != 0 }
             ?: getViewRes(viewTypeIndex)//viewTypeIndex is an index/id to the actual layout resId
 
@@ -45,14 +44,14 @@ open class BaseComponentAdapter<ITEM_PROPS : AdapterItemProps>(
         onItemViewCreated(itemView)
 
         /*create ViewHolder*/
-        return viewHolderSupplier(itemView)
+        return ComponentViewHolder<ITEM_PROPS>(itemView)
     }
 
     /** Callback from [onCreateViewHolder] after the relevant view `itemView` has been created
      * and just before it is wrapped with a view holder */
     open fun onItemViewCreated(itemView: View) {}
 
-    final override fun onBindViewHolder(viewHolder: BaseComponentViewHolder<ITEM_PROPS>, position: Int) {
+    final override fun onBindViewHolder(viewHolder: ComponentViewHolder<ITEM_PROPS>, position: Int) {
         getItem(position)?.let {
 
             viewHolder.bind(it)
@@ -62,7 +61,7 @@ open class BaseComponentAdapter<ITEM_PROPS : AdapterItemProps>(
     }
 
     /** Callback from [onBindViewHolder] after the relevant view `itemView` has been
-     * [bound][BaseComponentViewHolder.bind] to `props` */
+     * [bound][ComponentViewHolder.bind] to `props` */
     open protected fun onItemViewBound(props: ITEM_PROPS, itemView: View) {}
 
     final override fun getItemViewType(position: Int): Int {
