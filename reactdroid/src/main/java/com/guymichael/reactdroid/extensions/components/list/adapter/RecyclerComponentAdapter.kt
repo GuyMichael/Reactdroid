@@ -53,7 +53,7 @@ open class RecyclerComponentAdapter constructor(
     private var customShortClickListener:
         ((parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps<*>, position: Int) -> Boolean)? = null
     private var customLongClickListener:
-        ((parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps<*>, position: Int) -> Boolean)? = null
+        ((parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps<*>, position: Int) -> Unit)? = null
     private val customPerClassClickListeners by lazy {
         HashMap<Class<*>, ((ListItemProps<*>, position: Int) -> Boolean)>()
     }
@@ -715,7 +715,7 @@ open class RecyclerComponentAdapter constructor(
      * @param listener
      */
     fun onItemLongClick(
-            listener: (parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps<*>, position: Int) -> Boolean
+            listener: (parent: RecyclerView.Adapter<*>, view: View, props: ListItemProps<*>, position: Int) -> Unit
         ): RecyclerComponentAdapter {
 
         this.customLongClickListener = listener
@@ -723,7 +723,7 @@ open class RecyclerComponentAdapter constructor(
     }
 
     /**
-     * @param listener return true if click handled
+     * @param listener return true if click handled to show click feedback (View.isPressed = true)
      */
     fun <P : OwnProps> onItemClick(cls: Class<P>, listener: (P, position: Int) -> Boolean) : RecyclerComponentAdapter {
         this.customPerClassClickListeners[cls] = { item, position ->
@@ -782,17 +782,13 @@ open class RecyclerComponentAdapter constructor(
 
         override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
 
-        override fun performItemLongClick(parent: RecyclerView, view: View, position: Int, id: Long): Boolean {
-            if (view.isClickable) {
-                customLongClickListener?.let {
-                    view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                    getItem(position)?.let { item ->
-                        return it(this@RecyclerComponentAdapter, view, item, position)
-                    }
+        override fun performItemLongClick(parent: RecyclerView, view: View, position: Int, id: Long) {
+            customLongClickListener?.let { listener ->
+                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                getItem(position)?.let { item ->
+                    listener.invoke(this@RecyclerComponentAdapter, view, item, position)
                 }
             }
-
-            return true//a regular click will be called upon onSingleTapUp()
         }
 
         override fun performItemClick(parent: RecyclerView, view: View, position: Int, id: Long): Boolean {

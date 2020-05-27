@@ -44,7 +44,7 @@ abstract class ClickItemTouchListener(hostView: RecyclerView) : RecyclerView.OnI
     }
 
     protected abstract fun performItemClick(parent: RecyclerView, view: View, position: Int, id: Long): Boolean
-    protected abstract fun performItemLongClick(parent: RecyclerView, view: View, position: Int, id: Long): Boolean
+    protected abstract fun performItemLongClick(parent: RecyclerView, view: View, position: Int, id: Long)
 
     private inner class ItemClickGestureDetector(context: Context, private val mGestureListener: ItemClickGestureListener) : GestureDetector(context, mGestureListener) {
 
@@ -101,6 +101,7 @@ abstract class ClickItemTouchListener(hostView: RecyclerView) : RecyclerView.OnI
 
                     if (handled) {
                         //post delayed pressed-feedback clear
+                        clickTarget.isPressed = true //onShowPress() doesn't get called on single-tap
                         clickTarget.postDelayed(ClearPressRunnable(clickTarget), mPressStateDuration.toLong())
                     } else {
                         clickTarget.isPressed = false
