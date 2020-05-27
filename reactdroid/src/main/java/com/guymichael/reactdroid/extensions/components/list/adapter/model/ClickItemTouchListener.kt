@@ -156,7 +156,7 @@ abstract class ClickItemTouchListener(hostView: RecyclerView) : RecyclerView.OnI
 
         private fun shouldHandleAsAdapterClick(itemView: View, event: MotionEvent): Boolean {
             return findItemInnerClickableViewOrNull(itemView, event) == null //no item inner-view (e.g. some button) listener
-                && !itemView.hasOnClickListeners()                           //no item custom/specific click listener
+                && !viewHasClickListeners(itemView)                          //no item custom/specific click listener
                 && itemView.isClickable                                      //or standard using the adapter click listener
         }
 
@@ -189,6 +189,11 @@ private fun isTouchOnView(view: View, x: Float, y: Float, extraClickAreaPx: Int?
         && y <= viewBounds.bottom + (extraClickAreaPx?:0)
 }
 
+/** @return `true` if `view` has normal and/or long click listeners set */
+private fun viewHasClickListeners(view: View): Boolean {
+    return view.hasOnClickListeners() || view.isLongClickable
+}
+
 private fun findChild(parent: ViewGroup, predicate: (child: View) -> Boolean): View? {
     var i = 0
     while (i < parent.childCount) {
@@ -218,6 +223,6 @@ private fun findChild(parent: ViewGroup, predicate: (child: View) -> Boolean): V
 
 private fun findItemInnerClickableViewOrNull(itemView: View, event: MotionEvent): View? {
     return (itemView as? ViewGroup)?.let {
-        findChild(it) { child -> child.hasOnClickListeners() && isTouchOnView(child, event.rawX, event.rawY) }
+        findChild(it) { child -> viewHasClickListeners(child) && isTouchOnView(child, event.rawX, event.rawY) }
     }
 }
