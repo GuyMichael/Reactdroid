@@ -100,8 +100,8 @@ abstract class ClickItemTouchListener(hostView: RecyclerView) : RecyclerView.OnI
                     handled = performItemClick(mHostView, clickTarget, position, id)
 
                     if (handled) {
-                        //post delayed pressed-feedback clear
-                        clickTarget.isPressed = true //onShowPress() doesn't get called on single-tap
+                        //post + delayed pressed-feedback
+                        clickTarget.post { clickTarget.isPressed = true } //onShowPress() doesn't get called on single-tap
                         clickTarget.postDelayed(ClearPressRunnable(clickTarget), mPressStateDuration.toLong())
                     } else {
                         clickTarget.isPressed = false
