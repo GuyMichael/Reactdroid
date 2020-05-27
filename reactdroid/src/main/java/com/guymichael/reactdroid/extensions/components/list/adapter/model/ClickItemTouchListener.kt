@@ -6,6 +6,7 @@ import android.graphics.Rect
 import android.os.Build
 import android.view.*
 import androidx.recyclerview.widget.RecyclerView
+import java.lang.ref.WeakReference
 
 abstract class ClickItemTouchListener(hostView: RecyclerView) : RecyclerView.OnItemTouchListener {
 
@@ -59,110 +60,113 @@ abstract class ClickItemTouchListener(hostView: RecyclerView) : RecyclerView.OnI
         }
     }
 
-    private inner class ItemClickGestureListener(private val mHostView: RecyclerView) : GestureDetector.SimpleOnGestureListener() {
-        private val CLICK_PRESSED_STATE_DURATION = ViewConfiguration.getPressedStateDuration()
-        private var mTargetChild: View? = null
+
+
+
+
+
+    private inner class ItemClickGestureListener(private val mHostView: RecyclerView)
+        : GestureDetector.SimpleOnGestureListener() {
+
+        private val mPressStateDuration = ViewConfiguration.getPressedStateDuration()
+        private var mClickTarget: WeakReference<View>? = null
 
         fun dispatchSingleTapUpIfNeeded(event: MotionEvent) {
             // When the long press hook is called but the long press listener
             // returns false, the target child will be left around to be
             // handled later. In this case, we should still treat the gesture
             // as potential item click.
-            if (mTargetChild != null) {
+            if (mClickTarget?.get() != null) {
                 onSingleTapUp(event)
             }
         }
 
         override fun onDown(event: MotionEvent): Boolean {
-            return mHostView.findChildViewUnder(event.x, event.y).also {
-                mTargetChild = it
-            } != null
+            return mHostView.findChildViewUnder(event.x, event.y)
+                ?.takeIf { shouldHandleAsAdapterClick(it, event) }
+                ?.also { mClickTarget = WeakReference(it) } != null //handling as adapter click if true
         }
 
         override fun onShowPress(event: MotionEvent) {
-            mTargetChild?.isPressed = true
+            mClickTarget?.get()?.isPressed = true
         }
 
         override fun onSingleTapUp(event: MotionEvent): Boolean {
             var handled = false
 
-            mTargetChild?.also {
-                it.isPressed = false
+            mClickTarget?.get()?.also { clickTarget ->
+                getPosAndId(clickTarget)?.also { (position, id) ->
+                    //clickTarget is an itemView w/o custom listeners - handle as adapter-item-click
+                    handled = performItemClick(mHostView, clickTarget, position, id)
 
-                //changed by @Guy from deprecated getChildPosition()
-                val position = mHostView.getChildAdapterPosition(it)
-                val id = mHostView.adapter?.getItemId(position)
-                //changed by @Guy to check for id -1 (which also means position -1)
-                if (id == null || id < 0) {
-                    //THINK (usually next click/tap works so it's a matter of race)
-//                    Utils.toastDebug(mHostView.context, "adapter: id $id!\n$it")
-                } else {
-                    handled = findBestViewToClickAndPerform(mHostView, it, position, id, event)
-
-                    /*if (handled) {
-                        it.isPressed = true
-                        it.postDelayed(ClearPressRunnable(it), CLICK_PRESSED_STATE_DURATION.toLong())
-                    }*/
+                    if (handled) {
+                        //post delayed pressed-feedback clear
+                        clickTarget.postDelayed(ClearPressRunnable(clickTarget), mPressStateDuration.toLong())
+                    } else {
+                        clickTarget.isPressed = false
+                    }
                 }
-            }
 
-            mTargetChild = null
+                //end of click event-chain, clear target
+                mClickTarget = null
+            }
 
             return handled
         }
 
         override fun onScroll(event: MotionEvent, event2: MotionEvent, v: Float, v2: Float): Boolean {
-            return mTargetChild?.let {
+            return mClickTarget?.get()?.let {
+                //consider as "cancel" touch event
                 it.isPressed = false
-                mTargetChild = null
+                mClickTarget = null
                 true
 
             } ?: false
         }
 
         override fun onLongPress(event: MotionEvent) {
-            mTargetChild?.also {
-                //changed by @Guy from deprecated getChildPosition()
-                val position = mHostView.getChildAdapterPosition(it)
-                mHostView.adapter?.getItemId(position)?.let {id ->
-                    /*val handled = */findBestViewToLongClickAndPerform(mHostView, it, position, id)
+            mClickTarget?.get()?.also { clickTarget ->
+                getPosAndId(clickTarget)?.also { (position, id) ->
+                    //clickTarget is an itemView w/o custom listeners - handle as adapter-item-click
+                    performItemLongClick(mHostView, clickTarget, position, id)
+                    clickTarget.isPressed = false
+                }
 
-                    /*if (handled) {
-                        it.isPressed = false
-                    }*/
+                //end of click event-chain, clear target
+                mClickTarget = null
+            }
+        }
+
+        /** @return if not null, `position >= 0` and  */
+        private fun getPosAndId(itemView: View): Pair<Int, Long>? {
+            return itemView.let { clickTarget ->
+                val position = mHostView.getChildAdapterPosition(clickTarget)
+                val id = mHostView.adapter?.takeIf { position != RecyclerView.NO_POSITION }?.getItemId(position)
+                if (id == null || id == RecyclerView.NO_ID) {
+                    //id / position is probably '-1'
+                    //THINK (usually next click/tap works so it's a matter of race)
+//                    Utils.toastDebug(mHostView.context, "adapter: position $position, id $id !\n$it")
+                    null
+                } else {
+                    Pair(position, id)
                 }
             }
-
-            mTargetChild = null
         }
 
-        private fun findBestViewToClickAndPerform(recycler: RecyclerView, itemView: View
-                , position: Int, id: Long, event: MotionEvent
-            ): Boolean {
-
-            return tryToClickOnItemInnerView(itemView, event)   //some item inner view (e.g. some button)
-                || tryToClickOnItemView(itemView)               //custom on-view item click
-                || performItemClick(recycler, itemView, position, id)  //or standard using the adapter click listener
-        }
-
-        private fun findBestViewToLongClickAndPerform(recycler: RecyclerView, itemView: View
-                , position: Int, id: Long
-            ): Boolean {
-
-            //THINK currently we don't want to support inner view long clicks, part because 'why?' and part because
-            // View doesn't have a hasOnLongClickListeners() method which help us understand if a (long) click should be initiated,
-            // but we could try to use View.isLongClickable() and/or View.performLongClick() to infer that
-            return performItemLongClick(recycler, itemView, position, id).also { handled ->
-                if (handled) { itemView.isPressed = false }
-            }
+        private fun shouldHandleAsAdapterClick(itemView: View, event: MotionEvent): Boolean {
+            return findItemInnerClickableViewOrNull(itemView, event) == null //no item inner-view (e.g. some button) listener
+                && !itemView.hasOnClickListeners()                           //no item custom/specific click listener
+                && itemView.isClickable                                      //or standard using the adapter click listener
         }
 
         private inner class ClearPressRunnable internal constructor(
-            private val clickedView: View?
+            clickedView: View
         ) : Runnable {
 
+            private val viewRef = WeakReference(clickedView)
+
             override fun run() {
-                clickedView?.isPressed = false
+                viewRef.get()?.isPressed = false
             }
         }
     }
@@ -174,13 +178,14 @@ abstract class ClickItemTouchListener(hostView: RecyclerView) : RecyclerView.OnI
 
 
 
-private fun isClickOnView(view: View, x: Float, y: Float, extraClickAreaPx: Int? = null): Boolean {
+
+private fun isTouchOnView(view: View, x: Float, y: Float, extraClickAreaPx: Int? = null): Boolean {
     val viewBounds = Rect()
     view.getGlobalVisibleRect(viewBounds)
     return x >= viewBounds.left - (extraClickAreaPx?:0)
-            && x <= viewBounds.right + (extraClickAreaPx?:0)
-            && y >= viewBounds.top - (extraClickAreaPx?:0)
-            && y <= viewBounds.bottom + (extraClickAreaPx?:0)
+        && x <= viewBounds.right + (extraClickAreaPx?:0)
+        && y >= viewBounds.top - (extraClickAreaPx?:0)
+        && y <= viewBounds.bottom + (extraClickAreaPx?:0)
 }
 
 private fun findChild(parent: ViewGroup, predicate: (child: View) -> Boolean): View? {
@@ -189,12 +194,9 @@ private fun findChild(parent: ViewGroup, predicate: (child: View) -> Boolean): V
         parent.getChildAt(i)?.let {child ->
             //If it's a viewGroup, try to find deeper views which match this predicate (recursive)
             if (ViewGroup::class.java.isInstance(child)) {
-                (child as? ViewGroup)?.let {viewGroupChild ->
+                (child as? ViewGroup)?.also { viewGroupChild ->
                     //try to find a child of this viewGroup child
-                    findChild(
-                        viewGroupChild,
-                        predicate
-                    )?.let {
+                    findChild(viewGroupChild, predicate)?.also {
                         return it
                     }
                 }
@@ -209,20 +211,12 @@ private fun findChild(parent: ViewGroup, predicate: (child: View) -> Boolean): V
         i += 1
     }
 
+    //no child found
     return null
 }
 
-private fun tryToClickOnItemInnerView(itemView: View, event: MotionEvent): Boolean {
+private fun findItemInnerClickableViewOrNull(itemView: View, event: MotionEvent): View? {
     return (itemView as? ViewGroup)?.let {
-        findChild(it) { child -> isClickOnView(child, event.rawX, event.rawY) }
+        findChild(it) { child -> child.hasOnClickListeners() && isTouchOnView(child, event.rawX, event.rawY) }
     }
-    ?.hasOnClickListeners() //if an inner child has listeners, assume their click is/was handled
-//    ?.let { it.hasOnClickListeners() && (it.performClick() || true) }
-    ?: false
-}
-
-private fun tryToClickOnItemView(itemView: View): Boolean {
-    return itemView.hasOnClickListeners() //if a list item has listeners, assume their click is/was handled
-
-//    return itemView.hasOnClickListeners() && (itemView.performClick() || true)
 }
