@@ -8,12 +8,11 @@ import android.view.*
 
 abstract class ClickItemTouchListener(hostView: androidx.recyclerview.widget.RecyclerView) : androidx.recyclerview.widget.RecyclerView.OnItemTouchListener {
 
-    private val mGestureDetector: GestureDetector
+    private val mGestureDetector: GestureDetector = ItemClickGestureDetector(
+        hostView.context
+        , ItemClickGestureListener(hostView)
+    )
 
-    init {
-        mGestureDetector = ItemClickGestureDetector(hostView.context,
-                ItemClickGestureListener(hostView))
-    }
 
     @SuppressLint("NewApi")
     private fun isAttachedToWindow(hostView: androidx.recyclerview.widget.RecyclerView): Boolean {
@@ -74,20 +73,19 @@ abstract class ClickItemTouchListener(hostView: androidx.recyclerview.widget.Rec
         }
 
         override fun onDown(event: MotionEvent): Boolean {
-            mTargetChild = mHostView.findChildViewUnder(event.x, event.y)
-            return mTargetChild != null
+            return mHostView.findChildViewUnder(event.x, event.y).also {
+                mTargetChild = it
+            } != null
         }
 
         override fun onShowPress(event: MotionEvent) {
-            if (mTargetChild != null) {
-                mTargetChild!!.isPressed = true
-            }
+            mTargetChild?.isPressed = true
         }
 
         override fun onSingleTapUp(event: MotionEvent): Boolean {
             var handled = false
 
-            mTargetChild?.let {
+            mTargetChild?.also {
                 it.isPressed = false
 
                 //changed by @Guy from deprecated getChildPosition()
@@ -113,18 +111,16 @@ abstract class ClickItemTouchListener(hostView: androidx.recyclerview.widget.Rec
         }
 
         override fun onScroll(event: MotionEvent, event2: MotionEvent, v: Float, v2: Float): Boolean {
-            if (mTargetChild != null) {
-                mTargetChild!!.isPressed = false
+            return mTargetChild?.let {
+                it.isPressed = false
                 mTargetChild = null
+                true
 
-                return true
-            }
-
-            return false
+            } ?: false
         }
 
         override fun onLongPress(event: MotionEvent) {
-            mTargetChild?.let {
+            mTargetChild?.also {
                 //changed by @Guy from deprecated getChildPosition()
                 val position = mHostView.getChildAdapterPosition(it)
                 mHostView.adapter?.getItemId(position)?.let {id ->
@@ -142,32 +138,35 @@ abstract class ClickItemTouchListener(hostView: androidx.recyclerview.widget.Rec
         private fun findBestViewToClickAndPerform(recycler: androidx.recyclerview.widget.RecyclerView, itemView: View
                                                   , position: Int, id: Long, event: MotionEvent): Boolean {
 
-            return tryToClickOnInnerView(
-                itemView,
-                event
-            )                   //some item inner view (e.g. some button)
-                    || tryToClickOnRowItemView(
-                itemView
-            )                    //custom on-view item click
-                    || performItemClick(recycler, itemView, position, id)   //or standard using the adapter click listener
+            return tryToClickOnInnerView(itemView, event)   //some item inner view (e.g. some button)
+                || tryToClickOnRowItemView(itemView)        //custom on-view item click
+                || performItemClick(recycler, itemView, position, id)   //or standard using the adapter click listener
         }
 
         private fun findBestViewToLongClickAndPerform(recycler: androidx.recyclerview.widget.RecyclerView, itemView: View
                                                       , position: Int, id: Long): Boolean {
-            //currently we don't want to support inner view long clicks, part because 'why?' and part because
-            //View doesn't have a hasOnLongClickListeners() method which help us understand if a (long) click should be initiated
+            //THINK currently we don't want to support inner view long clicks, part because 'why?' and part because
+            // View doesn't have a hasOnLongClickListeners() method which help us understand if a (long) click should be initiated,
+            // but we could try to use View.isLongClickable() and/or View.performLongClick() to infer that
             return performItemLongClick(recycler, itemView, position, id)
         }
 
-        private inner class ClearPressRunnable internal constructor(private val clickedView: View?) : Runnable {
+        private inner class ClearPressRunnable internal constructor(
+            private val clickedView: View?
+        ) : Runnable {
+
             override fun run() {
-                if (this.clickedView != null) {
-                    clickedView.isPressed = false
-                }
+                clickedView?.isPressed = false
             }
         }
     }
 }
+
+
+
+
+
+
 
 private fun isClickOnView(view: View, x: Float, y: Float, extraClickAreaPx: Int? = null): Boolean {
     val viewBounds = Rect()
@@ -209,15 +208,7 @@ private fun findChild(parent: ViewGroup, predicate: (child: View) -> Boolean): V
 
 private fun tryToClickOnInnerView(itemView: View, event: MotionEvent): Boolean {
     return (itemView as? ViewGroup)?.let {
-        findChild(
-            it
-        ) { child ->
-            isClickOnView(
-                child,
-                event.rawX,
-                event.rawY
-            )
-        }
+        findChild(it) { child -> isClickOnView(child, event.rawX, event.rawY) }
     }
     ?.let { it.hasOnClickListeners() && (it.performClick() || true) }
     ?: false
