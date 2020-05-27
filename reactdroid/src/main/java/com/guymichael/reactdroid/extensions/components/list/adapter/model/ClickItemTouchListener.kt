@@ -99,10 +99,10 @@ abstract class ClickItemTouchListener(hostView: RecyclerView) : RecyclerView.OnI
                 } else {
                     handled = findBestViewToClickAndPerform(mHostView, it, position, id, event)
 
-                    if (handled) {
+                    /*if (handled) {
                         it.isPressed = true
                         it.postDelayed(ClearPressRunnable(it), CLICK_PRESSED_STATE_DURATION.toLong())
-                    }
+                    }*/
                 }
             }
 
@@ -125,11 +125,11 @@ abstract class ClickItemTouchListener(hostView: RecyclerView) : RecyclerView.OnI
                 //changed by @Guy from deprecated getChildPosition()
                 val position = mHostView.getChildAdapterPosition(it)
                 mHostView.adapter?.getItemId(position)?.let {id ->
-                    val handled = findBestViewToLongClickAndPerform(mHostView, it, position, id)
+                    /*val handled = */findBestViewToLongClickAndPerform(mHostView, it, position, id)
 
-                    if (handled) {
+                    /*if (handled) {
                         it.isPressed = false
-                    }
+                    }*/
                 }
             }
 
@@ -152,7 +152,9 @@ abstract class ClickItemTouchListener(hostView: RecyclerView) : RecyclerView.OnI
             //THINK currently we don't want to support inner view long clicks, part because 'why?' and part because
             // View doesn't have a hasOnLongClickListeners() method which help us understand if a (long) click should be initiated,
             // but we could try to use View.isLongClickable() and/or View.performLongClick() to infer that
-            return performItemLongClick(recycler, itemView, position, id)
+            return performItemLongClick(recycler, itemView, position, id).also { handled ->
+                if (handled) { itemView.isPressed = false }
+            }
         }
 
         private inner class ClearPressRunnable internal constructor(
