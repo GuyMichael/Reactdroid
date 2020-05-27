@@ -5,8 +5,9 @@ import android.content.Context
 import android.graphics.Rect
 import android.os.Build
 import android.view.*
+import androidx.recyclerview.widget.RecyclerView
 
-abstract class ClickItemTouchListener(hostView: androidx.recyclerview.widget.RecyclerView) : androidx.recyclerview.widget.RecyclerView.OnItemTouchListener {
+abstract class ClickItemTouchListener(hostView: RecyclerView) : RecyclerView.OnItemTouchListener {
 
     private val mGestureDetector: GestureDetector = ItemClickGestureDetector(
         hostView.context
@@ -15,7 +16,7 @@ abstract class ClickItemTouchListener(hostView: androidx.recyclerview.widget.Rec
 
 
     @SuppressLint("NewApi")
-    private fun isAttachedToWindow(hostView: androidx.recyclerview.widget.RecyclerView): Boolean {
+    private fun isAttachedToWindow(hostView: RecyclerView): Boolean {
         return if (Build.VERSION.SDK_INT >= 19) {
             hostView.isAttachedToWindow
         } else {
@@ -23,11 +24,11 @@ abstract class ClickItemTouchListener(hostView: androidx.recyclerview.widget.Rec
         }
     }
 
-    private fun hasAdapter(hostView: androidx.recyclerview.widget.RecyclerView): Boolean {
+    private fun hasAdapter(hostView: RecyclerView): Boolean {
         return hostView.adapter != null
     }
 
-    override fun onInterceptTouchEvent(recyclerView: androidx.recyclerview.widget.RecyclerView, event: MotionEvent): Boolean {
+    override fun onInterceptTouchEvent(recyclerView: RecyclerView, event: MotionEvent): Boolean {
         if (!isAttachedToWindow(recyclerView) || !hasAdapter(recyclerView)) {
             return false
         }
@@ -36,13 +37,13 @@ abstract class ClickItemTouchListener(hostView: androidx.recyclerview.widget.Rec
         return false
     }
 
-    override fun onTouchEvent(recyclerView: androidx.recyclerview.widget.RecyclerView, event: MotionEvent) {
+    override fun onTouchEvent(recyclerView: RecyclerView, event: MotionEvent) {
         // We can silently track tap and and long presses by silently
         // intercepting touch events in the host RecyclerView.
     }
 
-    protected abstract fun performItemClick(parent: androidx.recyclerview.widget.RecyclerView, view: View, position: Int, id: Long): Boolean
-    protected abstract fun performItemLongClick(parent: androidx.recyclerview.widget.RecyclerView, view: View, position: Int, id: Long): Boolean
+    protected abstract fun performItemClick(parent: RecyclerView, view: View, position: Int, id: Long): Boolean
+    protected abstract fun performItemLongClick(parent: RecyclerView, view: View, position: Int, id: Long): Boolean
 
     private inner class ItemClickGestureDetector(context: Context, private val mGestureListener: ItemClickGestureListener) : GestureDetector(context, mGestureListener) {
 
@@ -58,7 +59,7 @@ abstract class ClickItemTouchListener(hostView: androidx.recyclerview.widget.Rec
         }
     }
 
-    private inner class ItemClickGestureListener(private val mHostView: androidx.recyclerview.widget.RecyclerView) : GestureDetector.SimpleOnGestureListener() {
+    private inner class ItemClickGestureListener(private val mHostView: RecyclerView) : GestureDetector.SimpleOnGestureListener() {
         private val CLICK_PRESSED_STATE_DURATION = ViewConfiguration.getPressedStateDuration()
         private var mTargetChild: View? = null
 
@@ -135,16 +136,19 @@ abstract class ClickItemTouchListener(hostView: androidx.recyclerview.widget.Rec
             mTargetChild = null
         }
 
-        private fun findBestViewToClickAndPerform(recycler: androidx.recyclerview.widget.RecyclerView, itemView: View
-                                                  , position: Int, id: Long, event: MotionEvent): Boolean {
+        private fun findBestViewToClickAndPerform(recycler: RecyclerView, itemView: View
+                , position: Int, id: Long, event: MotionEvent
+            ): Boolean {
 
-            return tryToClickOnInnerView(itemView, event)   //some item inner view (e.g. some button)
-                || tryToClickOnRowItemView(itemView)        //custom on-view item click
-                || performItemClick(recycler, itemView, position, id)   //or standard using the adapter click listener
+            return tryToClickOnItemInnerView(itemView, event)   //some item inner view (e.g. some button)
+                || tryToClickOnItemView(itemView)               //custom on-view item click
+                || performItemClick(recycler, itemView, position, id)  //or standard using the adapter click listener
         }
 
-        private fun findBestViewToLongClickAndPerform(recycler: androidx.recyclerview.widget.RecyclerView, itemView: View
-                                                      , position: Int, id: Long): Boolean {
+        private fun findBestViewToLongClickAndPerform(recycler: RecyclerView, itemView: View
+                , position: Int, id: Long
+            ): Boolean {
+
             //THINK currently we don't want to support inner view long clicks, part because 'why?' and part because
             // View doesn't have a hasOnLongClickListeners() method which help us understand if a (long) click should be initiated,
             // but we could try to use View.isLongClickable() and/or View.performLongClick() to infer that
@@ -206,14 +210,17 @@ private fun findChild(parent: ViewGroup, predicate: (child: View) -> Boolean): V
     return null
 }
 
-private fun tryToClickOnInnerView(itemView: View, event: MotionEvent): Boolean {
+private fun tryToClickOnItemInnerView(itemView: View, event: MotionEvent): Boolean {
     return (itemView as? ViewGroup)?.let {
         findChild(it) { child -> isClickOnView(child, event.rawX, event.rawY) }
     }
-    ?.let { it.hasOnClickListeners() && (it.performClick() || true) }
+    ?.hasOnClickListeners() //if an inner child has listeners, assume their click is/was handled
+//    ?.let { it.hasOnClickListeners() && (it.performClick() || true) }
     ?: false
 }
 
-private fun tryToClickOnRowItemView(itemView: View): Boolean {
-    return itemView.hasOnClickListeners() && (itemView.performClick() || true)
+private fun tryToClickOnItemView(itemView: View): Boolean {
+    return itemView.hasOnClickListeners() //if a list item has listeners, assume their click is/was handled
+
+//    return itemView.hasOnClickListeners() && (itemView.performClick() || true)
 }
