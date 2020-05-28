@@ -1,6 +1,7 @@
 package com.guymichael.reactdroid.core
 
 import android.graphics.Point
+import android.graphics.Rect
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -472,7 +473,79 @@ object ViewUtils {
 
         } ?: Unit}
     }
+
+
+
+
+
+    /**
+     * Waits until `view` [is visible][ViewUtils.isViewVisibleInParent].
+     * If currently visible, listener will be invoked immediately
+     * @param view
+     * @param fullyVisible whether `view` should be fully visible or partly
+     * @param atLeastMs the minimum required 'on-screen' time to wait before invoking `listener`
+     */
+    fun waitForViewOnScreen(view: View, fullyVisible: Boolean, atLeastMs: Int): APromise<View> {
+        val screenView = Utils.getActivityView(view.context)
+            ?: return APromise.ofReject("Activity not found for view $view") //THINK wait for it?
+
+        return waitForViewOnScreenIntl(view, screenView, fullyVisible)
+            .letIf({ atLeastMs > 0 }) { p ->
+                p.thenAwait { v ->
+                    APromise.ofDelayOrCancel(v, atLeastMs.toLong())
+                        .thenAwait { waitForViewOnScreenIntl(it, screenView, fullyVisible) }
+                }
+            }
+    }
+
+    fun isViewOnScreen(view: View, fullyVisible: Boolean): Boolean {
+        return isViewVisibleInParent(
+            Utils.getActivityView(view.context) ?: return false,
+            view,
+            fullyVisible
+        )
+    }
+
+    fun isViewVisibleInParent(parent: View, view: View, fullyVisible: Boolean): Boolean {
+        //note: we're double checking lots of parameters. This is because of two things:
+        //1. Some method behave differently with each Android version (e.g. return a value considering translation(x/y) or not
+        //2. Related to #1, if a view is translated, e.g. in a Fragment, some methods may return values which represent as if they're on screen, but they're not.
+        val parentBounds = Rect().also {
+            parent.getHitRect(it)
+        }
+        val childBounds = Rect().also {
+            view.getGlobalVisibleRect(it)
+        }
+        val locationOnWindow = IntArray(2).also {
+            view.getLocationInWindow(it)
+        }
+        val viewX = locationOnWindow[0]
+        val viewY = locationOnWindow[1]
+
+        if (childBounds.isEmpty || parentBounds.isEmpty || viewX == 0 && viewY == 0) {
+            return false
+        }
+
+        return if (fullyVisible) {
+            if (parentBounds.contains(childBounds)) {
+                childBounds.width() >= view.width
+                        && childBounds.height() >= view.height
+                        && viewX >= parentBounds.left
+                        && viewX + childBounds.width() <= parentBounds.right
+                        && viewY >= parentBounds.top
+                        && viewY + childBounds.height() <= parentBounds.bottom
+            } else false
+        } else {
+            parentBounds.intersect(childBounds)
+                    && viewX >= parentBounds.left
+                    && viewX <= parentBounds.right
+                    && viewY >= parentBounds.top
+                    && viewY <= parentBounds.bottom
+        }
+    }
 }
+
+
 
 
 
@@ -595,4 +668,47 @@ private fun <V : View> createOnDrawListener(viewRef: WeakReference<V>
             } ?: promiseCallback.onCancel("createOnDrawListener: View was garbage collected")
         }
     }
+}
+
+/** Calls back immediately if already on screen */
+private fun waitForViewOnScreenIntl(view: View, screenView: ViewGroup, fullyVisible: Boolean)
+        : APromise<View> {
+    val viewRef = WeakReference(view)
+
+    return APromise.ofCallback<View, ViewTreeObserver.OnPreDrawListener?>({ promiseCallback ->
+        val onExecutionView = viewRef.get() ?: run {
+            promiseCallback.onCancel("View became null")
+            return@ofCallback null
+        }
+
+        //check if already visible to immediately call back
+        if (ViewUtils.isViewVisibleInParent(screenView, onExecutionView, fullyVisible)) {
+            promiseCallback.onSuccess(onExecutionView)
+            null
+        }
+
+        //or register a preDraw listener to wait for it
+        else {
+            object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    //check if still on screen
+                    val preDrawView = viewRef.get() ?: run {
+                        promiseCallback.onCancel("View became null")
+                        return true
+                    }
+
+                    if (ViewUtils.isViewVisibleInParent(screenView, preDrawView, fullyVisible)) {
+                        promiseCallback.onSuccess(preDrawView)
+                    }
+
+                    return true
+                }
+
+                //register the listener
+            }.also { view.viewTreeObserver.addOnPreDrawListener(it) }
+        }
+    })
+
+    //finally, remove the listener
+    { viewRef.get()?.viewTreeObserver?.removeOnPreDrawListener(it) }
 }
