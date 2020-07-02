@@ -7,12 +7,41 @@ import androidx.annotation.IdRes
 import com.guymichael.kotlinreact.model.EmptyOwnState
 import com.guymichael.reactdroid.core.model.AComponent
 
-class CBtn(v: Button) : BaseTextComponent<TextProps, EmptyOwnState, Button>(v) {
+class CBtn(v: Button
+        , onClickDebounceMs: Int = 100
+        , passClicksWhenDisabled: Boolean = false
+        , onClick: ((Button) -> Unit)? = null
+    ) : BaseTextComponent<TextProps, EmptyOwnState, Button>(v) {
+
+    init {
+        if (onClick != null) {
+            setOnDebouncedClickListener(onClickDebounceMs, passClicksWhenDisabled, onClick)
+        }
+    }
+
     override fun createInitialState(props: TextProps) = EmptyOwnState
 }
 
-//THINK as Annotations
-fun withBtn(textView: Button) = CBtn(textView)
-fun AComponent<*, *, *>.withBtn(@IdRes id: Int) = CBtn(mView.findViewById(id))
-fun View.withBtn(@IdRes id: Int) = CBtn(findViewById(id))
-fun Activity.withBtn(@IdRes id: Int) = CBtn(findViewById(id))
+fun withBtn(textView: Button
+    , onClickDebounceMs: Int = 100
+    , passClicksWhenDisabled: Boolean = false
+    , onClick: ((Button) -> Unit)? = null
+) = CBtn(textView, onClickDebounceMs, passClicksWhenDisabled, onClick)
+
+fun AComponent<*, *, *>.withBtn(@IdRes id: Int
+    , onClickDebounceMs: Int = 100
+    , passClicksWhenDisabled: Boolean = false
+    , onClick: ((Button) -> Unit)? = null
+) = CBtn(mView.findViewById(id), onClickDebounceMs, passClicksWhenDisabled, onClick)
+
+fun View.withBtn(@IdRes id: Int
+    , onClickDebounceMs: Int = 100
+    , passClicksWhenDisabled: Boolean = false
+    , onClick: ((Button) -> Unit)? = null
+) = CBtn(findViewById(id), onClickDebounceMs, passClicksWhenDisabled, onClick)
+
+fun Activity.withBtn(@IdRes id: Int
+    , onClickDebounceMs: Int = 100
+    , passClicksWhenDisabled: Boolean = false
+    , onClick: ((Button) -> Unit)? = null
+) = CBtn(findViewById(id), onClickDebounceMs, passClicksWhenDisabled, onClick)
