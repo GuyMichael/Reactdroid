@@ -1,5 +1,8 @@
 package com.guymichael.kotlinflux.extensions.data
 
+import com.guymichael.apromise.APromise
+import com.guymichael.kotlinflux.extensions.data.model.StoreDataAPIController
+import com.guymichael.kotlinflux.extensions.data.model.StoreDataType
 import java.util.*
 
 internal fun MutableMap<String, Any>.putAll(dataList: List<Any>?, idSupplier: (d: Any) -> String?) {
@@ -25,4 +28,49 @@ fun <K, V> Map<K, V>.toImmutableMap(): Map<K, V> {
     } else {
         Collections.unmodifiableMap(LinkedHashMap(this))
     }
+}
+
+/** See [StoreDataAPIController.withDataDispatch] for docs */
+inline fun <reified API_RESPONSE : Any, DATA : Any, TYPE: StoreDataType<DATA>>
+        APromise<API_RESPONSE>.withDataDispatch(
+
+    //store/data connection
+    dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE, StoreDataType<*>) -> Unit>>
+
+    //optionals
+    , noinline persistSideEffects: (API_RESPONSE) -> Unit = {}
+    , noinline dispatchSideEffects: (API_RESPONSE) -> Unit = {}
+): APromise<API_RESPONSE> {
+
+    return StoreDataAPIController.withDataDispatch(
+        this
+        , dataTypes
+        , persistSideEffects
+        , dispatchSideEffects
+    )
+}
+
+/** See [StoreDataAPIController.prepare] for docs */
+inline fun <reified API_RESPONSE : Any, DATA : Any, TYPE: StoreDataType<DATA>>
+        APromise<API_RESPONSE>.withDataDispatch(
+
+    //store/data connection
+    dataType: TYPE
+    , noinline mapResponseToData: (API_RESPONSE) -> List<DATA>
+    , merge: Boolean
+
+    //optionals
+    , noinline persistSideEffects: (API_RESPONSE) -> Unit = {}
+    , noinline dispatchSideEffects: (API_RESPONSE) -> Unit = {}
+    , persist: Boolean = true
+): APromise<API_RESPONSE> {
+
+    return StoreDataAPIController.withDataDispatch(
+        this
+        , listOf(
+            dataType to { res, _ -> dataType.dispatchLoaded(mapResponseToData(res), merge, persist) }
+        )
+        , persistSideEffects
+        , dispatchSideEffects
+    )
 }

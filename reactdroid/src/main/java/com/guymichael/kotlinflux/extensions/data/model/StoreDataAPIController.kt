@@ -19,19 +19,69 @@ import com.guymichael.promise.Promise
  */
 abstract class StoreDataAPIController : StoreAPIController {
 
+    companion object {
+        /**
+         * Chains the given API `call` with dispatch and persist management logic, as per given `dataTypes` to
+         * handle the actual logic (of persisting and dispatching to a Store).
+         *
+         * @param call The API call presented as a [Promise]
+         * @param dataTypes to process the response - dispatch and persist.
+         * Each pair is a [StoreDataType] and a consumer to actually dispatch the relevant data-piece to Store,
+         * e.g.`type.getStore().dispatch(DataAction.setDataLoaded)
+         * @param persistSideEffects with persisting the data (types) done for you,
+         * here you can add any extra persist logic, such as some flag that came with the response
+         * @param dispatchSideEffects with dispatching the data (types) done for you,
+         * here you can add any extra dispatch logic, such as some flag that came with the response
+         * @param catch errors, optional. No advantage over using standard [APromise.catch].
+         *
+         * Also see the simpler single-dataType method
+         */
+        @JvmStatic
+        fun <API_RESPONSE : Any, P : Promise<API_RESPONSE>> withDataDispatch(
+            call: P
+            , dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE, StoreDataType<*>) -> Unit>>
+            , persistSideEffects: ((API_RESPONSE) -> Unit) = {}
+            , dispatchSideEffects: ((API_RESPONSE) -> Unit) = {}
+            , catch: ((Throwable) -> Unit)? = null
+        ): P {
+
+            @Suppress("UNCHECKED_CAST")
+            return StoreAPIController.withStoreDispatch(
+                //on api execution - dispatch data loading state
+                call.doOnExecution {
+                    dataTypes.forEach { (type, _) ->
+                        type.getStore().dispatch(DataAction.setDataLoading(type))
+                    }
+                } as P
+
+                //on response - dispatch the data and side effects
+                , { response ->
+                    //dispatch data to Store
+                    dataTypes.forEach { (type, dispatcher) ->
+                        dispatcher.invoke(response, type)
+                    }
+
+                    //dispatch side-effects to Store
+                    dispatchSideEffects.invoke(response)
+                }
+
+                //side effects
+                , persistSideEffects
+
+                //catch & dispatch
+                , { e ->
+                    dataTypes.forEach { (type, _) ->
+                        type.getStore().dispatch(DataAction.setDataLoadingError(type, e))
+                    }
+
+                    catch?.invoke(e)
+                }
+            )
+        }
+    }
+
     /**
-     * Chains the given API `call` with dispatch and persist management logic, as per given `dataTypes` to
-     * handle the actual logic (of persisting and dispatching to a Store).
-     *
-     * @param call The API call presented as a [Promise]
-     * @param dataTypes to process the response - dispatch and persist.
-     * Each pair is a [StoreDataType] and a consumer to actually dispatch the relevant data-piece to Store,
-     * e.g.`type.getStore().dispatch(DataAction.setDataLoaded)
-     * @param persistSideEffects with persisting the data (types) done for you,
-     * here you can add any extra persist logic, such as some flag that came with the response
-     * @param dispatchSideEffects with dispatching the data (types) done for you,
-     * here you can add any extra dispatch logic, such as some flag that came with the response
-     * @param logErrors if true, logs errors and stack trace
+     * See [withDataDispatch] for docs
      *
      * Also see the simpler single-dataType method
      */
@@ -43,30 +93,10 @@ abstract class StoreDataAPIController : StoreAPIController {
             , logErrors: Boolean = true
         ): P {
 
-        @Suppress("UNCHECKED_CAST")
-        return super.prepare(
-            //on api execution - dispatch data loading state
-            call.doOnExecution {
-                dataTypes.forEach { (type, _) ->
-                    type.getStore().dispatch(DataAction.setDataLoading(type))
-                }
-            } as P
-            //on response - dispatch the data and side effects
-            , { response ->
-                //dispatch data to Store
-                dataTypes.forEach { (type, dispatcher) ->
-                    dispatcher.invoke(response, type)
-                }
-
-                //dispatch side-effects to Store
-                dispatchSideEffects.invoke(response)
-            }
-            , persistSideEffects
-            , logErrors
-
-        ).catch {
+        return withDataDispatch(call, dataTypes, persistSideEffects, dispatchSideEffects) {
+            if (logErrors) { logError(it) }
             onApiError(it, dataTypes)
-        } as P
+        }
     }
 
     /** see multi-dataTypes method for docs */
@@ -148,11 +178,9 @@ abstract class StoreDataAPIController : StoreAPIController {
 
 
 
-    protected open fun <API_RESPONSE: Any?> onApiError(e: Throwable
-            , dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE, StoreDataType<*>) -> Unit>>) {
-
-        dataTypes.forEach { (type, _) ->
-            type.getStore().dispatch(DataAction.setDataLoadingError(type, e))
-        }
-    }
+    protected open fun <API_RESPONSE: Any?> onApiError(
+        e: Throwable
+        , dataTypes: List<Pair<StoreDataType<*>
+        , (API_RESPONSE, StoreDataType<*>) -> Unit>>
+    ) {}
 }

@@ -9,6 +9,25 @@ import io.reactivex.rxjava3.disposables.Disposable
  */
 interface StoreAPIController {
 
+    companion object {
+        fun <API_RESPONSE, P : Promise<API_RESPONSE>> withStoreDispatch(
+            call: P
+            , dispatch: (API_RESPONSE) -> Unit
+            , persistSideEffects: ((API_RESPONSE) -> Unit) = {}
+            , catch: (Throwable) -> Unit
+        ): P {
+
+            @Suppress("UNCHECKED_CAST")
+            return call
+                .then(persistSideEffects)
+                .then(dispatch) //dispatch after persisting so that the persist will reflect the changes
+                // when store listeners receive the update
+                .catch { catch(it) }
+                as P
+        }
+    }
+
+    /** See [withStoreDispatch] for docs */
     fun <API_RESPONSE, P : Promise<API_RESPONSE>> prepare(
             call: P
             , dispatch: (API_RESPONSE) -> Unit
@@ -16,13 +35,9 @@ interface StoreAPIController {
             , logErrors: Boolean = true
         ): P {
 
-        @Suppress("UNCHECKED_CAST")
-        return call
-            .then(persistSideEffects)
-            .then(dispatch) //dispatch after persisting so that the persist will reflect the changes
-                            // when store listeners receive the update
-            .catchIf({logErrors}) { logError(it) }
-        as P
+        return withStoreDispatch(call, dispatch, persistSideEffects) {
+            if (logErrors) { logError(it) }
+        }
     }
 
     /** for tests */
