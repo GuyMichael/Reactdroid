@@ -47,6 +47,7 @@ class CEditText<I : Any>(
         return this.textInputParentRef?.get()
             ?: ViewUtils.findParent(mView, TextInputLayout::class, 3)?.also {
                 this.textInputParentRef = WeakReference(it)
+                //last time checked, it took 2 iterations to find
             }
     }
 }
