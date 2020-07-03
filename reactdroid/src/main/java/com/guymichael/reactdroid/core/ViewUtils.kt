@@ -250,17 +250,20 @@ object ViewUtils {
 
 
     /**
-     * @return found parent if inherits-from/with-same-class-as 'cls' T
+     * @param maxIterations maximum parent-hierarchy steps to search. Min value is `1`
+     * @return found parent if inherits-from/with-same-class-as 'cls' T, or null if not-found/max-iterations-reached
      */
-    fun <T : View> findParent(child: View, cls: KClass<T>): T? {
+    fun <T : View> findParent(child: View, cls: KClass<T>, maxIterations: Int = Int.MAX_VALUE): T? {
         //loop through all parents
         var currentParent = child
+        var i = 0
         do {
             if (currentParent.parent == null || currentParent.parent !is View) {
                 return null
             }
             currentParent = currentParent.parent as View
-        } while (!cls.isInstance(currentParent))
+            i+=1
+        } while (i < maxIterations && !cls.isInstance(currentParent))
 
         @Suppress("UNCHECKED_CAST")
         return currentParent as T
