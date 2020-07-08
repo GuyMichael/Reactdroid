@@ -9,7 +9,7 @@ import androidx.core.util.Pair
 import com.guymichael.apromise.APromise
 import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.reactdroid.core.activity.ComponentActivity
-import com.guymichael.reactdroid.core.post
+import com.guymichael.reactdroid.core.ofPost
 import java.io.Serializable
 
 /** A logic/helper class for opening an [Activity], or better yet, a [ComponentActivity] */
@@ -101,7 +101,7 @@ private fun <T : Activity> prepareActivityResumePromise(
     //decide how/when to notify promise
     @Suppress("UNCHECKED_CAST")
     return if (currentlyOpenedActivity.javaClass == cls) {
-        APromise.post(currentlyOpenedActivity as T)
+        APromise.ofPost(currentlyOpenedActivity as T)
     } else {
         //wait
         ActivityUtils.waitForResume(currentlyOpenedActivity.application, cls)

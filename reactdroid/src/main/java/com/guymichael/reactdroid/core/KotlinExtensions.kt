@@ -67,7 +67,7 @@ fun APromise<*>.execute(component: AComponent<*, *, *>
  * NOTICE: does not yet support cancelling the promise if the view gets destroyed before
  *  the action has been executed. Also meaning that [APromise.finally] will not work when cancelled
  */
-fun <A : Activity> APromise.Companion.post(context: A, delayMs: Long = 0L): APromise<A> {
+fun <A : Activity> APromise.Companion.ofPost(context: A, delayMs: Long = 0L): APromise<A> {
     val activityRef = WeakReference(context)
     val activityName = context.javaClass.simpleName
 
