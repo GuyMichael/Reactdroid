@@ -48,23 +48,22 @@ object ActivityLogic {
         }
 
         //prepare the Promise
-        val promise = prepareActivityResumePromise(context, cls)
+        return prepareActivityResumePromise(context, cls)
+            .doOnExecution {
+                //open activity.
+                // If already open, activity.onNewIntent will be called
+                // thanks to previously set flag FLAG_ACTIVITY_REORDER_TO_FRONT
+                if (forResult_requestCode == null) {
+                    context.startActivity(intent)
+                } else {
+                    context.startActivityForResult(intent, forResult_requestCode)
+                }
 
-        //open activity.
-        // If already open, activity.onNewIntent will be called
-        // thanks to previously set flag FLAG_ACTIVITY_REORDER_TO_FRONT
-        if (forResult_requestCode == null) {
-            context.startActivity(intent)
-        } else {
-            context.startActivityForResult(intent, forResult_requestCode)
-        }
-
-        //animations
-        inOutAnimations?.let { anims ->
-            context.overridePendingTransition(anims.first?:0, anims.second?:0)
-        }
-
-        return promise
+                //animations
+                inOutAnimations?.let { anims ->
+                    context.overridePendingTransition(anims.first?:0, anims.second?:0)
+                }
+            }
     }
 
     @JvmStatic
