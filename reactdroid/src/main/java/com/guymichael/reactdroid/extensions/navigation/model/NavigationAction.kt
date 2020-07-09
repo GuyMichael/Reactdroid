@@ -10,4 +10,5 @@ class NavigationAction<P : OwnProps>(
     , val transitions: Array<Pair<View, String>>?
     , val forResult_requestCode: Int?
     , val showLoader: Boolean
+    , val intentFlags: Int?
 )

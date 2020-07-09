@@ -59,6 +59,7 @@ object DeepLinkLogic {
 
             NavigationLogic.open(page, context, extras
                 , null, null, null, true
+                , null //THINK flags?
             ).thenMap { Unit } //THINK animations
         }
 

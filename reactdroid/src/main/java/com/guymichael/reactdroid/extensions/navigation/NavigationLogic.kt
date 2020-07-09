@@ -25,11 +25,12 @@ object NavigationLogic {
         , transitions: Array<Pair<View, String>>? = null
         , forResult_requestCode: Int? = null
         , showLoader: Boolean = false
+        , intentFlags: Int? = null
     ) : APromise<out ComponentActivity<*>> {
 
         return if (page.allowToOpen()) {
             page.openPage(context
-                , NavigationAction(props, animations, transitions, forResult_requestCode, showLoader)
+                , NavigationAction(props, animations, transitions, forResult_requestCode, showLoader, intentFlags)
             )
         } else {
             APromise.ofReject("${page.getPageName()} is not allowed to be open")
@@ -43,10 +44,11 @@ object NavigationLogic {
         , transitions: Array<Pair<View, String>>? = null
         , forResult_requestCode: Int? = null
         , showLoader: Boolean = false
+        , intentFlags: Int? = null
     ) : APromise<out ComponentActivity<*>> {
 
         return page.mapExtrasToPropsOrNull(extras)
-            ?.let { open(page, context, it, animations, transitions, forResult_requestCode, showLoader) }
+            ?.let { open(page, context, it, animations, transitions, forResult_requestCode, showLoader, intentFlags) }
             ?: return APromise.ofReject("${page.getPageName()} requires non-null props built from Map<String, String> extras")
     }
 
