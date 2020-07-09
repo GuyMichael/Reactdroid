@@ -171,17 +171,42 @@ abstract class Store protected constructor(
         dispatch(Action(key, value))
     }
 
-    fun dispatchMany(vararg actions: Action) {//THINK run on computation
+    fun dispatchMany(vararg actions: Action) {
+        //THINK run on computation
+        //THINK efficiency
 //        log.wLateInit { "dispatch: $action" }
 
         actions.forEach(::dispatch)
     }
 
-    fun dispatchClearState() {
-//        log.wLateInit { "dispatchClearState()" }
+    fun dispatchClearMany(vararg keys: StoreKey) {
+        //THINK efficiency
+        dispatchMany(
+            *keys.map { Action(it, null) }.toTypedArray()
+        )
+    }
+
+    fun dispatchDefaultState() {
+//        log.wLateInit { "dispatchDefaultState()" }
 
         dispatchSubject.onNext {
             mainReducer.getDefaultState()
+        }
+    }
+
+    fun dispatchClearState() {
+//        log.wLateInit { "dispatchClearState()" }
+
+        dispatchSubject.onNext { GlobalState() }
+    }
+
+    fun <T : Reducer> dispatchDefaultState(firstLevelReducer: T) {
+//        log.wLateInit { "dispatchDefaultState(${firstLevelReducer::class.java.simpleName})" }
+
+        dispatchSubject.onNext {
+            val nextState = it.clone()
+            nextState.map[firstLevelReducer::class.java.simpleName] = firstLevelReducer.getDefaultState()
+            nextState//return
         }
     }
 
@@ -190,7 +215,7 @@ abstract class Store protected constructor(
 
         dispatchSubject.onNext {
             val nextState = it.clone()
-            nextState.map[firstLevelReducer::class.java.simpleName] = firstLevelReducer.getDefaultState()
+            nextState.map[firstLevelReducer::class.java.simpleName] = GlobalState()
             nextState//return
         }
     }

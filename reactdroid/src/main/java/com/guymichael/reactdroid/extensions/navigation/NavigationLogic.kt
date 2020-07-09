@@ -5,10 +5,13 @@ import android.view.View
 import androidx.annotation.UiThread
 import androidx.core.util.Pair
 import com.guymichael.apromise.APromise
+import com.guymichael.kotlinreact.BuildConfig
 import com.guymichael.kotlinreact.Logger
 import com.guymichael.kotlinreact.model.OwnProps
+import com.guymichael.reactdroid.core.Utils
 import com.guymichael.reactdroid.extensions.navigation.model.NavigationAction
 import com.guymichael.reactdroid.core.activity.ComponentActivity
+import com.guymichael.reactdroid.core.model.AComponent
 
 object NavigationLogic {
 
@@ -50,6 +53,39 @@ object NavigationLogic {
         return page.mapExtrasToPropsOrNull(extras)
             ?.let { open(page, context, it, animations, transitions, forResult_requestCode, showLoader, intentFlags) }
             ?: return APromise.ofReject("${page.getPageName()} requires non-null props built from Map<String, String> extras")
+    }
+
+    /** Opens a page from a component context. 'component' must have a ComponentActivity parent! */
+    fun open(page: ClientPageIntf, component: AComponent<*, *, *>
+        , props: OwnProps
+        , animations: kotlin.Pair<Int, Int>? = null
+        , transitions: Array<kotlin.Pair<View, String>>? = null
+        , forResult_requestCode: Int? = null
+        , showLoader: Boolean = false
+        , intentFlags: Int? = null
+    ) {
+
+        component.mView.context?.also { context ->
+            Utils.getActivity(context, ComponentActivity::class.java)?.also {
+
+                open(page, it, props
+                    , animations?.let { anims -> androidx.core.util.Pair<Int?, Int?>(anims.first, anims.second) }
+                    , transitions?.map { trans -> androidx.core.util.Pair(trans.first, trans.second) }?.toTypedArray()
+                    , forResult_requestCode
+                    , showLoader
+                    , intentFlags
+                ).execute()
+
+            }} ?: run {
+            Logger.e(NavigationLogic::class, "open(...component) must receive a component with " +
+                    "a ComponentActivity context")
+
+            if (BuildConfig.DEBUG) {
+                throw IllegalArgumentException("NavigationLogic.open(...component) must receive a" +
+                        "component with a ComponentActivity context)"
+                )
+            }
+        }
     }
 
     @UiThread
