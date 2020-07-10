@@ -63,10 +63,10 @@ object NavigationLogic {
         , forResult_requestCode: Int? = null
         , showLoader: Boolean = false
         , intentFlags: Int? = null
-    ) {
+    ) : APromise<out ComponentActivity<*>> {
 
-        component.mView.context?.also { context ->
-            Utils.getActivity(context, ComponentActivity::class.java)?.also {
+        return component.mView.context?.let { context ->
+            Utils.getActivity(context, ComponentActivity::class.java)?.let {
 
                 open(page, it, props
                     , animations?.let { anims -> androidx.core.util.Pair<Int?, Int?>(anims.first, anims.second) }
@@ -74,18 +74,17 @@ object NavigationLogic {
                     , forResult_requestCode
                     , showLoader
                     , intentFlags
-                ).execute()
+                )
 
             }} ?: run {
-            Logger.e(NavigationLogic::class, "open(...component) must receive a component with " +
-                    "a ComponentActivity context")
+                Logger.e(NavigationLogic::class, "open(...component) must receive a component with " +
+                    "a ComponentActivity context"
+                )
 
-            if (BuildConfig.DEBUG) {
-                throw IllegalArgumentException("NavigationLogic.open(...component) must receive a" +
-                        "component with a ComponentActivity context)"
+                return APromise.ofReject("NavigationLogic.open(...component) must receive a" +
+                    "component with a ComponentActivity context)"
                 )
             }
-        }
     }
 
     @UiThread
