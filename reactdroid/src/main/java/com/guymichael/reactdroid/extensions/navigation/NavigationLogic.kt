@@ -89,14 +89,22 @@ object NavigationLogic {
     }
 
     @UiThread
-    fun closePage(page: ClientPageIntf) {
+    fun closePage(page: ClientPageIntf, animations: androidx.core.util.Pair<Int?, Int?>? = null) {
         checkInitOrThrow()
         //close all activities which match this page
         AppForegroundLogic.getActivityRecords(page).forEach { record ->
             if (record.isPageAlive()) {
-                record.activity?.get()?.finish()
+                record.activity?.get()?.also {
+                    it.finish()
+                    it.overridePendingTransition(animations?.first?:0, animations?.second?:0)
+                }
             }
         }
+    }
+
+    @UiThread
+    fun closePage(page: ClientPageIntf, animations: kotlin.Pair<Int, Int>? = null) {
+        closePage(page, animations?.let { androidx.core.util.Pair<Int?, Int?>(it.first, it.second) })
     }
 
     fun isPageOpen(page: ClientPageIntf): Boolean {
