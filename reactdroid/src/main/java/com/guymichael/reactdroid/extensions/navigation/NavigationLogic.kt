@@ -89,7 +89,8 @@ object NavigationLogic {
     }
 
     @UiThread
-    fun closePage(page: ClientPageIntf, animations: androidx.core.util.Pair<Int?, Int?>? = null) {
+    @JvmStatic
+    fun closePage(page: ClientPageIntf, animations: androidx.core.util.Pair<Int?, Int?>?) {
         checkInitOrThrow()
         //close all activities which match this page
         AppForegroundLogic.getActivityRecords(page).forEach { record ->
