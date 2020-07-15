@@ -1,6 +1,8 @@
 package com.guymichael.reactdroid.extensions.animation
 
 import android.view.View
+import android.view.animation.Interpolator
+import android.view.animation.LinearInterpolator
 import androidx.annotation.StringRes
 import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.reactdroid.core.ViewUtils
@@ -28,6 +30,7 @@ fun View.renderVisibility(targetVisibility: Int
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float? = null
+        , interpolator: Interpolator = LinearInterpolator()
         , vararg visibilityBoundViews: View
     ) {
 
@@ -38,6 +41,7 @@ fun View.renderVisibility(targetVisibility: Int
         , animStartDelay = animStartDelay ?: 0
         , animStartVisibility = animStartVisibility
         , animStartAlpha = animStartAlpha
+        , interpolator = interpolator
     )
 }
 
@@ -56,6 +60,7 @@ fun AComponent<*, *, *>.animateVisibilityWithViews(targetVisibility: Int
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float?= null
+        , interpolator: Interpolator = LinearInterpolator()
     ) {
 
     mView.renderVisibility(
@@ -66,6 +71,7 @@ fun AComponent<*, *, *>.animateVisibilityWithViews(targetVisibility: Int
         , animStartVisibility = animStartVisibility
         , animStartAlpha = animStartAlpha
         , visibilityBoundViews = *visibilityBoundViews
+        , interpolator = interpolator
     )
 }
 
@@ -86,6 +92,7 @@ fun AComponent<*, *, *>.animateVisibility(targetVisibility: Int
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float?= null
+        , interpolator: Interpolator = LinearInterpolator()
     ) {
 
     mView.renderVisibility(
@@ -96,6 +103,7 @@ fun AComponent<*, *, *>.animateVisibility(targetVisibility: Int
         , animStartVisibility = animStartVisibility
         , animStartAlpha = animStartAlpha
         , visibilityBoundViews = *(visibilityBoundComponents.map { it.mView }.toTypedArray())
+        , interpolator = interpolator
     )
 }
 
@@ -115,6 +123,7 @@ inline fun <V : View, T> V.applyOrVisibility(input: T?
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float?= null
+        , interpolator: Interpolator = LinearInterpolator()
         , vararg visibilityBoundViews: View
     ) {
 
@@ -127,6 +136,7 @@ inline fun <V : View, T> V.applyOrVisibility(input: T?
     renderVisibility(
         if (hasInput) View.VISIBLE else visibilityIfNull
         , animateVisibility, animDuration, animStartDelay, animStartVisibility, animStartAlpha
+        , interpolator
         , *visibilityBoundViews
     )
 }
@@ -144,6 +154,7 @@ inline fun <V : View, T> V.applyOrGone(input: T?
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float?= null
+        , interpolator: Interpolator = LinearInterpolator()
         , vararg visibilityBoundViews: View
     ) {
 
@@ -153,6 +164,7 @@ inline fun <V : View, T> V.applyOrGone(input: T?
         , animStartDelay
         , animStartVisibility
         , animStartAlpha
+        , interpolator
         , *visibilityBoundViews
     )
 }
@@ -170,6 +182,7 @@ fun <P : BaseListProps, C : BaseListComponent<P, *, *>> C.renderOrGone(props: P?
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float?= null
+        , interpolator: Interpolator = LinearInterpolator()
     ) {
 
     mView.applyOrVisibility(props, View.GONE, { onRender(it) }
@@ -178,6 +191,7 @@ fun <P : BaseListProps, C : BaseListComponent<P, *, *>> C.renderOrGone(props: P?
         , animStartDelay
         , animStartVisibility
         , animStartAlpha
+        , interpolator
     ).also {
 
         //note: the special case with RecyclerComponent, which differs it from just any View for
@@ -216,6 +230,7 @@ fun <P : OwnProps> AComponent<P, *, *>.renderOrGone(props: P?
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float? = null
+        , interpolator: Interpolator = LinearInterpolator()
     ) {
 
     mView.applyOrVisibility(props, View.GONE, { onRender(it) }
@@ -224,6 +239,7 @@ fun <P : OwnProps> AComponent<P, *, *>.renderOrGone(props: P?
         , animStartDelay
         , animStartVisibility
         , animStartAlpha
+        , interpolator
         , *visibilityBoundComponents.map { it.mView }.toTypedArray()
     )
 }
@@ -235,6 +251,7 @@ fun <P : OwnProps> AComponent<P, *, *>.renderOrGoneWithViews(props: P?
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float? = null
+        , interpolator: Interpolator = LinearInterpolator()
     ) {
 
     mView.applyOrVisibility(props, View.GONE, { onRender(it) }
@@ -243,6 +260,7 @@ fun <P : OwnProps> AComponent<P, *, *>.renderOrGoneWithViews(props: P?
         , animStartDelay
         , animStartVisibility
         , animStartAlpha
+        , interpolator
         , *visibilityBoundViews
     )
 }
@@ -254,6 +272,7 @@ fun AComponent<TextProps, *, *>.renderTextOrVisibility(text: CharSequence?
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float? = null
+        , interpolator: Interpolator = LinearInterpolator()
         , vararg visibilityBoundComponents: AComponent<*, *, *>
     ) {
 
@@ -266,6 +285,7 @@ fun AComponent<TextProps, *, *>.renderTextOrVisibility(text: CharSequence?
         , animStartDelay
         , animStartVisibility
         , animStartAlpha
+        , interpolator
         , *visibilityBoundComponents.map { it.mView }.toTypedArray()
     )
 }
@@ -277,6 +297,7 @@ fun AComponent<TextProps, *, *>.renderTextOrGone(text: CharSequence?
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float? = null
+        , interpolator: Interpolator = LinearInterpolator()
     ) {
 
     renderTextOrVisibility(text, View.GONE
@@ -285,6 +306,7 @@ fun AComponent<TextProps, *, *>.renderTextOrGone(text: CharSequence?
         , animStartDelay
         , animStartVisibility
         , animStartAlpha
+        , interpolator
         , *visibilityBoundComponents
     )
 }
@@ -296,6 +318,7 @@ fun AComponent<TextProps, *, *>.renderTextOrInvisible(text: CharSequence?
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float? = null
+        , interpolator: Interpolator = LinearInterpolator()
     ) {
 
     renderTextOrVisibility(text, View.INVISIBLE
@@ -304,6 +327,7 @@ fun AComponent<TextProps, *, *>.renderTextOrInvisible(text: CharSequence?
         , animStartDelay
         , animStartVisibility
         , animStartAlpha
+        , interpolator
         , *visibilityBoundComponents
     )
 }
@@ -314,7 +338,9 @@ fun AComponent<TextProps, *, *>.renderTextOrGone(@StringRes res: Int?
         , animDuration: Long? = null
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
-        , animStartAlpha: Float? = null) {
+        , animStartAlpha: Float? = null
+        , interpolator: Interpolator = LinearInterpolator()
+    ) {
 
     renderTextOrVisibility(res?.let(mView::getText), View.GONE
         , animateVisibility
@@ -322,6 +348,7 @@ fun AComponent<TextProps, *, *>.renderTextOrGone(@StringRes res: Int?
         , animStartDelay
         , animStartVisibility
         , animStartAlpha
+        , interpolator
         , *visibilityBoundComponents
     )
 }
@@ -332,7 +359,9 @@ fun AComponent<TextProps, *, *>.renderTextOrInvisible(@StringRes res: Int?
         , animDuration: Long? = null
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
-        , animStartAlpha: Float? = null) {
+        , animStartAlpha: Float? = null
+        , interpolator: Interpolator = LinearInterpolator()
+    ) {
 
     renderTextOrVisibility(res?.let(mView::getText), View.INVISIBLE
         , animateVisibility
@@ -340,6 +369,7 @@ fun AComponent<TextProps, *, *>.renderTextOrInvisible(@StringRes res: Int?
         , animStartDelay
         , animStartVisibility
         , animStartAlpha
+        , interpolator
         , *visibilityBoundComponents
     )
 }
@@ -351,6 +381,7 @@ fun AComponent<TextProps, *, *>.renderTextRes(@StringRes res: Int
         , animStartDelay: Long? = null
         , animStartVisibility: Int? = null
         , animStartAlpha: Float? = null
+        , interpolator: Interpolator = LinearInterpolator()
     ) {
 
     renderTextOrVisibility(mView.getText(res), mView.visibility
@@ -359,6 +390,7 @@ fun AComponent<TextProps, *, *>.renderTextRes(@StringRes res: Int
         , animStartDelay
         , animStartVisibility
         , animStartAlpha
+        , interpolator
         , *visibilityBoundComponents
     )
 }

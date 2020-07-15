@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import android.view.animation.Interpolator
+import android.view.animation.LinearInterpolator
 import android.widget.HorizontalScrollView
 import android.widget.ScrollView
 import android.widget.TextView
@@ -441,6 +443,7 @@ object ViewUtils {
             , animStartDelay: Long = 0
             , animStartVisibility: Int? = null
             , animStartAlpha: Float? = null
+            , interpolator: Interpolator = LinearInterpolator()
         ) {
 
         views.forEach { it.takeIf { shouldVisibilityUpdate(it, targetVisibility) }?.let { v ->
@@ -456,9 +459,12 @@ object ViewUtils {
 
                     when (targetVisibility) {
                         //THINK prevent re-animation if already animating to same destination? using View TAG?
-                        View.VISIBLE -> AnimUtils.animateFadeIn(v, animDuration, startAlpha, animStartDelay).execute()
-                        View.GONE -> AnimUtils.animateFadeOutAndGone(v, animDuration, startAlpha, animStartDelay, startVisibility).execute()
-                        View.INVISIBLE -> AnimUtils.animateFadeOutAndInvisible(v, animDuration, startAlpha, animStartDelay, startVisibility).execute()
+                        View.VISIBLE -> AnimUtils.animateFadeIn(v, animDuration, startAlpha
+                            , animStartDelay, interpolator).execute()
+                        View.GONE -> AnimUtils.animateFadeOutAndGone(v, animDuration, startAlpha
+                            , animStartDelay, startVisibility, interpolator).execute()
+                        View.INVISIBLE -> AnimUtils.animateFadeOutAndInvisible(v, animDuration, startAlpha
+                            , animStartDelay, startVisibility, interpolator).execute()
                         else -> {}
                     }
 
