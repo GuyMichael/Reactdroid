@@ -21,7 +21,7 @@ internal class ActivitiesMonitor(internal var logLifecycle: Boolean = false)
 
     private val loggerDisposable = if (logLifecycle) {
         observeAppForegroundState().subscribe {
-            Logger.d("${ActivitiesMonitor::class}",
+            Logger.d(ActivitiesMonitor::class,
                 "app is now ${(if (it) "foreground" else "background")}"
             )
         }
