@@ -31,9 +31,7 @@ fun <K, V> Map<K, V>.toImmutableMap(): Map<K, V> {
 }
 
 /** See [StoreDataAPIController.withDataDispatch] for docs */
-inline fun <reified API_RESPONSE : Any, DATA : Any, TYPE: StoreDataType<DATA>>
-        APromise<API_RESPONSE>.withDataDispatch(
-
+inline fun <reified API_RESPONSE : Any> APromise<API_RESPONSE>.withDataDispatch(
     //store/data connection
     dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE, StoreDataType<*>) -> Unit>>
 
