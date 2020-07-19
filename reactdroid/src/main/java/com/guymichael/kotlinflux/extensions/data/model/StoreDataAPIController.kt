@@ -7,7 +7,7 @@ import com.guymichael.kotlinflux.model.actions.DataAction
 import com.guymichael.promise.Promise
 
 /**
- * A binding point between [StoreAPIController] and [StoreDataType], to easily connect API's
+ * A binding point between [StoreAPIController] and [StoreDataType], to easily connect APIs
  * to relevant data schemas
  *
  * Contains simple [Promise] chaining to handle api response (dispatching and persisting)
@@ -25,7 +25,7 @@ abstract class StoreDataAPIController : StoreAPIController {
          * handle the actual logic (of persisting and dispatching to a Store).
          *
          * @param call The API call presented as a [Promise]
-         * @param dataTypes to process the response - dispatch and persist.
+         * @param dataTypesToDispatchers to process the response - dispatch and persist.
          * Each pair is a [StoreDataType] and a consumer to actually dispatch the relevant data-piece to Store,
          * e.g.`type.getStore().dispatch(DataAction.setDataLoaded)
          * @param persistSideEffects with persisting the data (types) done for you,
@@ -39,7 +39,7 @@ abstract class StoreDataAPIController : StoreAPIController {
         @JvmStatic
         fun <API_RESPONSE : Any, P : Promise<API_RESPONSE>> withDataDispatch(
             call: P
-            , dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE, StoreDataType<*>) -> Unit>>
+            , dataTypesToDispatchers: List<Pair<StoreDataType<*>, (API_RESPONSE) -> Unit>>
             , persistSideEffects: ((API_RESPONSE) -> Unit) = {}
             , dispatchSideEffects: ((API_RESPONSE) -> Unit) = {}
             , catch: ((Throwable) -> Unit)? = null
@@ -49,7 +49,7 @@ abstract class StoreDataAPIController : StoreAPIController {
             return StoreAPIController.withStoreDispatch(
                 //on api execution - dispatch data loading state
                 call.doOnExecution {
-                    dataTypes.forEach { (type, _) ->
+                    dataTypesToDispatchers.forEach { (type, _) ->
                         type.getStore().dispatch(DataAction.setDataLoading(type))
                     }
                 } as P
@@ -57,8 +57,8 @@ abstract class StoreDataAPIController : StoreAPIController {
                 //on response - dispatch the data and side effects
                 , { response ->
                     //dispatch data to Store
-                    dataTypes.forEach { (type, dispatcher) ->
-                        dispatcher.invoke(response, type)
+                    dataTypesToDispatchers.forEach { (_, dispatcher) ->
+                        dispatcher.invoke(response)
                     }
 
                     //dispatch side-effects to Store
@@ -70,7 +70,7 @@ abstract class StoreDataAPIController : StoreAPIController {
 
                 //catch & dispatch
                 , { e ->
-                    dataTypes.forEach { (type, _) ->
+                    dataTypesToDispatchers.forEach { (type, _) ->
                         type.getStore().dispatch(DataAction.setDataLoadingError(type, e))
                     }
 
@@ -87,7 +87,7 @@ abstract class StoreDataAPIController : StoreAPIController {
      */
     fun <API_RESPONSE : Any, P : Promise<API_RESPONSE>> prepare(
             call: P
-            , dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE, StoreDataType<*>) -> Unit>>
+            , dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE) -> Unit>>
             , persistSideEffects: ((API_RESPONSE) -> Unit) = {}
             , dispatchSideEffects: ((API_RESPONSE) -> Unit) = {}
             , logErrors: Boolean = true
@@ -110,7 +110,7 @@ abstract class StoreDataAPIController : StoreAPIController {
         , logErrors: Boolean = true
     ): P {
         return prepare(call
-            , listOf(dataType to { res, _ -> dispatchDataLoaded.invoke(res, dataType) })
+            , listOf(dataType to { res -> dispatchDataLoaded.invoke(res, dataType) })
             , persistSideEffects, dispatchSideEffects, logErrors
         )
     }
@@ -126,7 +126,7 @@ abstract class StoreDataAPIController : StoreAPIController {
         , logErrors: Boolean = true
     ): P {
         return prepare(call
-            , listOf(dataType to { res, _ -> mapResponseToData(res, dataType)?.let(::listOf) })
+            , listOf(dataType to { res -> mapResponseToData(res, dataType)?.let(::listOf) })
             , persistSideEffects, dispatchSideEffects, logErrors
         )
     }
@@ -180,7 +180,6 @@ abstract class StoreDataAPIController : StoreAPIController {
 
     protected open fun <API_RESPONSE: Any?> onApiError(
         e: Throwable
-        , dataTypes: List<Pair<StoreDataType<*>
-        , (API_RESPONSE, StoreDataType<*>) -> Unit>>
+        , dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE) -> Unit>>
     ) {}
 }

@@ -33,7 +33,7 @@ fun <K, V> Map<K, V>.toImmutableMap(): Map<K, V> {
 /** See [StoreDataAPIController.withDataDispatch] for docs */
 inline fun <reified API_RESPONSE : Any> APromise<API_RESPONSE>.withDataDispatch(
     //store/data connection
-    dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE, StoreDataType<*>) -> Unit>>
+    dataTypes: List<Pair<StoreDataType<*>, (API_RESPONSE) -> Unit>>
 
     //optionals
     , noinline persistSideEffects: (API_RESPONSE) -> Unit = {}
@@ -66,7 +66,7 @@ inline fun <reified API_RESPONSE : Any, DATA : Any, TYPE: StoreDataType<DATA>>
     return StoreDataAPIController.withDataDispatch(
         this
         , listOf(
-            dataType to { res, _ -> dataType.dispatchLoaded(mapResponseToData(res), merge, persist) }
+            dataType to { res -> dataType.dispatchLoaded(mapResponseToData(res), merge, persist) }
         )
         , persistSideEffects
         , dispatchSideEffects
