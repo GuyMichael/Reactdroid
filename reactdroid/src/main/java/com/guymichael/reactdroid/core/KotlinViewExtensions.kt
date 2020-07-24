@@ -147,7 +147,7 @@ fun AComponent<*, *, *>.renderActivated(active: Boolean) {
 
 fun View.renderBackground(@DrawableRes res: Int?) {
     if (res != null && res != 0) {
-        setBackgroundResource(res)
+        setBackgroundResource(res) //checks for res != prevRes internally
     } else {
         background = null
     }
@@ -155,14 +155,17 @@ fun View.renderBackground(@DrawableRes res: Int?) {
 
 fun View.renderBackgroundColor(color: Int?) {
     if (color != null) {
+        //TODO try to check if current color == 'color'
+//        background?.colorFilter
         setBackgroundColor(color)
     } else {
-        background = null
+        background = null //checks for drawable != prevDrawable internally
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 fun View.renderBackgroundTint(@ColorRes res: Int?) {
+    //THINK try to check if current res == 'res'
     if (res == null) {
         background?.setTintList(null)
     } else {
