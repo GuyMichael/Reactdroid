@@ -284,12 +284,11 @@ object ViewUtils {
         return true
     }
 
-    fun findAnyParent(child: View, possibleParents: List<View>): View? {
+    /** @param childMightBeParent if true, and `child` is in `possibleParents`, it will be returned */
+    fun findAnyParent(child: View, possibleParents: List<View>, childMightBeParent: Boolean): View? {
         return possibleParents.firstOrNull {
-            isParent(
-                child,
-                it
-            )
+            (childMightBeParent && child === it) //check by object ref (not equals() )
+                || isParent(child, it)
         }
     }
 
@@ -370,11 +369,11 @@ object ViewUtils {
      * @param child doesn't have to be a direct child of 'parent'
      */
     fun smoothScrollToChild(parent: RecyclerView, child: View) {
-        findAnyParent(child, parent.children())?.let { recyclerItemParent ->
-        parent.getChildAdapterPosition(recyclerItemParent)
-            .takeIf { it != RecyclerView.NO_POSITION }?.let {
+        findAnyParent(child, parent.children(), true)?.let { directRecyclerChild ->
+        parent.getChildAdapterPosition(directRecyclerChild)
+        .takeIf { it != RecyclerView.NO_POSITION }?.let { directChildPosition ->
 
-            parent.smoothScrollToPosition(it)
+            parent.smoothScrollToPosition(directChildPosition)
         }}
     }
 
