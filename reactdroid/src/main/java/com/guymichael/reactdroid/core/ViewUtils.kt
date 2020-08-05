@@ -324,13 +324,13 @@ object ViewUtils {
      * @param child doesn't have to be a direct child of 'parent'
      * @param gravity to locate the child according to. Correlates to [Gravity.TOP], [Gravity.BOTTOM] or [Gravity.CENTER]/[Gravity.CENTER_VERTICAL]
      */
-    fun smoothScrollToChild(parent: ScrollView, child: View, gravity: Int) {
+    fun smoothScrollToChild(parent: ScrollView, child: View, gravity: Int, offsetYpx: Int = 0) {
         parent.smoothScrollTo(0,
             getScrollChildInParentVerticalOffsetIntl(
                 parent,
                 child,
                 gravity
-            )
+            ) + offsetYpx //THINK take offset only if computed offset != 0
         )
     }
 
@@ -340,13 +340,13 @@ object ViewUtils {
      * @param child doesn't have to be a direct child of 'parent'
      * @param gravity to locate the child according to. Correlates to [Gravity.TOP], [Gravity.BOTTOM] or [Gravity.CENTER]/[Gravity.CENTER_VERTICAL]
      */
-    fun smoothScrollToChild(parent: NestedScrollView, child: View, gravity: Int) {
+    fun smoothScrollToChild(parent: NestedScrollView, child: View, gravity: Int, offsetYpx: Int = 0) {
         parent.smoothScrollTo(0,
             getScrollChildInParentVerticalOffsetIntl(
                 parent,
                 child,
                 gravity
-            )
+            ) + offsetYpx //THINK take offset only if computed offset != 0
         )
     }
 
@@ -356,9 +356,13 @@ object ViewUtils {
      * @param child doesn't have to be a direct child of 'parent'
      * @param gravity to locate the child according to. Correlates to [Gravity.LEFT], [Gravity.RIGHT] or [Gravity.CENTER]/[Gravity.CENTER_HORIZONTAL]
      */
-    fun smoothScrollToChild(parent: HorizontalScrollView, child: View, gravity: Int) {
+    fun smoothScrollToChild(parent: HorizontalScrollView, child: View, gravity: Int, offsetXpx: Int = 0) {
         parent.smoothScrollTo(
-            getScrollChildInParentHorizontalOffsetIntl(parent, child, gravity)
+            getScrollChildInParentHorizontalOffsetIntl(
+                parent,
+                child,
+                gravity
+            ) + offsetXpx //THINK take offset only if computed offset != 0
             , 0
         )
     }
