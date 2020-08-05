@@ -8,5 +8,3 @@ abstract class BaseDialogProps(open val shown: Boolean) : OwnProps() {
         shown
     )
 }
-
-data class SimpleDialogProps(override val shown: Boolean) : BaseDialogProps(shown)
