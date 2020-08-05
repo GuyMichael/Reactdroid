@@ -92,9 +92,9 @@ open class CAlertDialog(
  */
 fun AComponent<*, *, *>.withDialog(
         onDismiss: () -> Unit
+        , dialogBuilder: (AlertDialog.Builder) -> AlertDialog
         , onShow: ((DialogProps) -> Unit)? = null
         , customContent: Lazy<AComponent<DialogProps, *, *>>? = null
-        , dialogBuilder: (AlertDialog.Builder) -> AlertDialog
         , @StyleRes style: Int = 0
     ): CAlertDialog {
 
@@ -111,18 +111,18 @@ fun AComponent<*, *, *>.withDialog(
  */
 fun AComponent<*, *, *>.withDialog(
         onDismiss: () -> Unit
-        , onShow: ((DialogProps) -> Unit)? = null
-        , customContent: (Pair<Int, (View) -> AComponent<DialogProps, *, *>>)? = null
+        , customContent: Pair<Int, (View) -> AComponent<DialogProps, *, *>>
         , dialogBuilder: (AlertDialog.Builder) -> AlertDialog
+        , onShow: ((DialogProps) -> Unit)? = null
         , @StyleRes style: Int = 0
     ): CAlertDialog {
 
     return CAlertDialog(
         Utils.getActivityView(mView) ?: mView
         , onDismiss, onShow
-        , customContent = customContent?.let { lazy { it.second.invoke(
-            LayoutInflater.from(mView.context).inflate(it.first, null)
-        )}}
+        , customContent = lazy { customContent.second.invoke(
+            LayoutInflater.from(mView.context).inflate(customContent.first, null)
+        )}
         , dialogBuilder = dialogBuilder
         , style = style
     )
@@ -138,21 +138,21 @@ fun AComponent<*, *, *>.withDialog(
 fun AComponent<*, *, *>.withAlertDialog(
         onDismiss: () -> Unit
         , onShow: ((DialogProps) -> Unit)? = null
-        , customContent: Lazy<AComponent<DialogProps, *, *>>? = null
         , cancelable: Boolean = false
+        , customContent: Lazy<AComponent<DialogProps, *, *>>? = null
         , @StyleRes style: Int = 0
     ): CAlertDialog {
 
     return withDialog(
         onDismiss
-        , onShow
-        , customContent
         , dialogBuilder = { b ->
             b.setCancelable(cancelable)
             .create().also { d ->
                 d.setCanceledOnTouchOutside(cancelable)
             }
         }
+        , onShow = onShow
+        , customContent = customContent
         , style = style
     )
 }
@@ -166,8 +166,8 @@ fun AComponent<*, *, *>.withAlertDialog(
  */
 fun AComponent<*, *, *>.withAlertDialog(
         onDismiss: () -> Unit
+        , customContent: Pair<Int, (View) -> AComponent<DialogProps, *, *>>
         , onShow: ((DialogProps) -> Unit)? = null
-        , customContent: (Pair<Int, (View) -> AComponent<DialogProps, *, *>>)? = null
         , cancelable: Boolean = false
         , @StyleRes style: Int = 0
     ): CAlertDialog {
@@ -175,9 +175,9 @@ fun AComponent<*, *, *>.withAlertDialog(
     return withAlertDialog(
         onDismiss
         , onShow
-        , customContent = customContent?.let { lazy { it.second.invoke(
-            LayoutInflater.from(mView.context).inflate(it.first, null)
-        )}}
+        , customContent = lazy { customContent.second.invoke(
+            LayoutInflater.from(mView.context).inflate(customContent.first, null)
+        )}
         , cancelable = cancelable
         , style = style
     )
