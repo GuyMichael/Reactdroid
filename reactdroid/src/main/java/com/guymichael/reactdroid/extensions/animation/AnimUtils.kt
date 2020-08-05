@@ -260,24 +260,25 @@ object AnimUtils {
                 || duration == 0L
                 || startAlpha == 1F) {
             //already shown or 1 desired alpha / 0 duration. Make sure alpha is 1 as this method suggests
-            return APromise.ofView(target, true)
-                .then {
+            return APromise.ofViewOrCancel(target, true)
+                .then { view ->
                     //'fillAfter'
-                    it.alpha = 1f
-                    it.visibility = View.VISIBLE
+                    view.alpha = 1f
+                    view.visibility = View.VISIBLE
                 }
         }
 
-        return APromise.ofView(target, true) //delay with promise, so that the starting values will also update delayed
-            .thenAwait{
+        return APromise.of() //THINK delay with promise, so that the starting values will also update delayed
+            .thenAwaitWithViewOrCancel(target, true) { view, _ ->
                 //'fillBefore'
-                it.alpha = startAlpha
-                it.visibility = View.VISIBLE //we must start visible for animation (alpha) to show
+                view.alpha = startAlpha
+                view.visibility = View.VISIBLE //we must start visible for animation (alpha) to show
 
-                promiseOfAnimator(AnimUtils.animateFloat(
-                    it, "alpha", 1f, duration, startDelay, interpolator, false)
-                ).thenViewOrCancel(it)
+                promiseOfAnimator(animateFloat(
+                    view, "alpha", 1f, duration, startDelay, interpolator, false)
+                )
             }
+            .thenMapWithViewOrCancel(target, true) { v, _ -> v }
     }
 
     /** animates alpha to 0. Note: does NOT change visibility!
@@ -291,23 +292,24 @@ object AnimUtils {
         //THINK if the same animation is currently running, the following will cancel it for nothing
         if (startVisibility != View.VISIBLE || duration == 0L || startAlpha == 0F) {
             //already hidden or 0 desired alpha / duration. Make sure alpha is 0 as this method suggests
-            return APromise.ofView(target, true)
-                .then {
+            return APromise.ofViewOrCancel(target, true)
+                .then { view ->
                     //'fillAfter'
-                    it.alpha = 0F
+                    view.alpha = 0F
                 }
         }
 
-        return APromise.ofView(target, true) //delay with promise, so that the starting values will also update delayed
-            .thenAwait {
+        return APromise.of() //THINK delay with promise, so that the starting values will also update delayed
+            .thenAwaitWithViewOrCancel(target, true) { view, _ ->
                 //'fillBefore'
-                it.alpha = startAlpha
-                it.visibility = startVisibility
+                view.alpha = startAlpha
+                view.visibility = startVisibility
 
                 promiseOfAnimator(animateFloat(
-                    it, "alpha", 0f, duration, startDelay, interpolator, false
-                )).thenViewOrCancel(it)
+                    view, "alpha", 0f, duration, startDelay, interpolator, false
+                ))
             }
+            .thenMapWithViewOrCancel(target, true) { v, _ -> v }
     }
 
     /** animates alpha to 0 and sets the target visibility to GONE
@@ -381,19 +383,19 @@ object AnimUtils {
 
         if (target.translationY == toValue) {
             //already there
-            return APromise.ofView(target, true)
+            return APromise.ofViewOrCancel(target, true)
         }
 
-        return APromise.ofView(target, true)
-            .thenAwait {
+        return APromise.of() //THINK delay with promise, so that the starting values will also update delayed
+            .thenAwaitWithViewOrCancel(target, true) { view, _ ->
                 //'fillBefore'
-                it.translationY = fromValue
+                view.translationY = fromValue
 
                 promiseOfAnimator(animateTranslationY(
-                    it, toValue, startDelay, duration, interpolator, false)
+                    view, toValue, startDelay, duration, interpolator, false)
                 )
-                .thenViewOrCancel(it)
             }
+            .thenMapWithViewOrCancel(target, true) { v, _ -> v }
     }
 
     fun animateTranslationY(view: View, value: Float, duration: Long
@@ -559,10 +561,10 @@ private fun <V : View> animateFadeOutAndVisibility(target: V, targetVisibility: 
 
     if (startVisibility != View.VISIBLE || duration == 0L || startAlpha == 0F) {
         //already hidden or 0 alpha / duration. Make sure alpha is 0 as this method suggests
-        return APromise.ofView(target, true).then {
+        return APromise.ofViewOrCancel(target, true).then { view ->
             //'fillAfter'
-            it.visibility = targetVisibility
-            it.alpha = 0F // --> in place of animateFadeOut()
+            view.visibility = targetVisibility
+            view.alpha = 0F // --> in place of animateFadeOut()
         }
     }
 

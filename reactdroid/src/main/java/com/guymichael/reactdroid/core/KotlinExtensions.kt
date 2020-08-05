@@ -36,25 +36,9 @@ fun AComponent<*, *, *>.renderMarginsRes(@DimenRes top: Int? = null, @DimenRes s
     mView.renderMarginsRes(top = top, start = start, bottom = bottom, end = end)
 }
 
-/**
- * Executes the promise on a `component`, giving you control over:
- * * Canceling automatically when `component`'s `Context` (`Activity`) is destroyed
- * * Handling (e.g. `Toast`) errors automatically.
- *
- * Note: if both `autoCancel` and `handleErrorMessage` are `false`, there is no use
- * of this method. Use [execute] instead
- *
- * @param component
- * @param autoCancel see [APromise.executeWhileAlive]. Default is `false`, as you might fetch
- * some data (which can be cached) and you don't want to lose it
- * @param handleErrorMessage see [APromise.setGlobalAutoErrorHandler]. Default is `true`
- */
-fun APromise<*>.execute(component: AComponent<*, *, *>
-        , autoCancel: Boolean = false
-        , handleErrorMessage: Boolean = true)
-    : Disposable {
-
-    return execute(component.mView, autoCancel, handleErrorMessage)
+/** See [APromise.autoCancel] with view */
+fun <T> APromise<T>.autoCancel(component: AComponent<*, *, *>): APromise<T> {
+    return autoCancel(component.mView)
 }
 
 /**
