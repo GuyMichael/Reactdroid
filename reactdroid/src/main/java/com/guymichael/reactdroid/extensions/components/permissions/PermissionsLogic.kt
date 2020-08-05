@@ -149,7 +149,7 @@ object PermissionsLogic {
             requestPermissionsThroughPhoneSettings(context, alwaysDenyPermissions)
                 .letIf({ alwaysDenyPermissions.size < permissionsArr.size }) { promise ->
                     //some permissions were not 'alwaysDeny', we should now check for them as well
-                    promise.thenAwaitWithContextOrCancel(context) { (c, _) ->
+                    promise.thenAwaitWithContextOrCancel(context) { c, _ ->
                         //all 'always denied' permissions granted!
                         // check if there are other, non-always-deny permissions pending
                         requestPermissionsImpl(c
@@ -240,12 +240,12 @@ object PermissionsLogic {
             //finally, dispose the activityResult observer
             { it?.takeIf { !it.isDisposed }?.dispose() }
 
-        ).thenWithContextOrReject(context) {
-            val deniedPermissions = getDeniedPermissions(it.first, permissions)
+        ).thenWithContext(context) { c, _ ->
+            val deniedPermissions = getDeniedPermissions(c, permissions)
             val isSuccess = deniedPermissions.isEmpty()
 
             //refresh 'shouldShowRationale' states
-            onSettingsPermissionResult(it.first, permissions)
+            onSettingsPermissionResult(c, permissions)
 
             //log & reject if not all permissions are granted
             if( !isSuccess) {

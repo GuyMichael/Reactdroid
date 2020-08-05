@@ -5,10 +5,9 @@ import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.kotlinreact.model.ownstate.BooleanState
 import com.guymichael.reactdroid.core.Utils
 import com.guymichael.reactdroid.core.activity.ComponentActivity
-import com.guymichael.reactdroid.core.execute
+import com.guymichael.reactdroid.core.autoCancel
 import com.guymichael.reactdroid.core.model.AComponent
 import com.guymichael.reactdroid.core.model.AHOC
-import com.guymichael.reactdroid.core.renderOrGone
 import com.guymichael.reactdroid.extensions.animation.renderOrGone
 
 class WithPermissions<COMPONENT_PROPS : OwnProps, V : View, C : AComponent<COMPONENT_PROPS, *, V>>(
@@ -35,7 +34,8 @@ class WithPermissions<COMPONENT_PROPS : OwnProps, V : View, C : AComponent<COMPO
                     //e is (probably) a PermissionsDeniedException
                     props.initial_actionOnDenied.invoke(e, this)
                 }
-                .execute(this)
+                .autoCancel(this)
+                .execute()
         }
     }
 
