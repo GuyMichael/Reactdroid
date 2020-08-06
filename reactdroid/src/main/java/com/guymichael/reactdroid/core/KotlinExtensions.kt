@@ -6,8 +6,9 @@ import android.view.ViewGroup
 import androidx.annotation.DimenRes
 import androidx.annotation.StringRes
 import com.guymichael.apromise.APromise
+import com.guymichael.apromise.ViewUtils
+import com.guymichael.promise.Logger
 import com.guymichael.reactdroid.core.model.AComponent
-import io.reactivex.rxjava3.disposables.Disposable
 import java.lang.ref.WeakReference
 
 fun AComponent<*, *, *>.renderFullWidth(fullWidth: Boolean) {
@@ -48,12 +49,32 @@ fun <T> APromise<T>.withGlobalErrorHandling(component: AComponent<*, *, *>): APr
     } ?: APromise.ofReject("null activity for component ${component.javaClass.simpleName}")
 }
 
+
+fun <C : AComponent<*, *, *>> WeakReference<C>.getIfAlive(requireMounted: Boolean): C? {
+    return this.get()?.takeIf { ViewUtils.isAlive(it.mView, requireMounted) }
+}
+
+/** skips (only) this consumer if the component or its context became null, or component isn't mounted */
+fun <T, C : AComponent<*, *, *>> APromise<T>.thenWithComponent(
+        component: C
+        , requireMounted: Boolean = true
+        , consumer: (C, T) -> Unit
+    ): APromise<T> {
+
+    val componentRef = WeakReference(component)
+
+    return then {
+        componentRef.getIfAlive(requireMounted)?.let { v ->
+            consumer.invoke(v, it)
+        }
+        //or skip
+        ?: Logger.d(this.javaClass, "thenWithComponent - skipping consumer - null component")
+    }
+}
+
 /**
  * Uses the Activity [View]'s [View.post] (or [View.postDelayed]) and converts it to a promise.
- * This is somewhat same as using [APromise.executeWhileAlive] and [APromise.ofDelay]
- * but uses Android/View infrastructure instead:
- * Easily resolve the promise **at end of execution queue** (delay = 0), while breaking
- * if the view is destroyed.
+ * This is somewhat same as using [APromise.ofDelay] but uses Android/View infrastructure instead
  *
  * NOTICE: does not yet support cancelling the promise if the view gets destroyed before
  *  the action has been executed. Also meaning that [APromise.finally] will not work when cancelled
