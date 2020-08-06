@@ -6,17 +6,18 @@ import android.view.View
 import androidx.annotation.StyleRes
 import androidx.appcompat.app.AlertDialog
 import com.guymichael.kotlinreact.model.EmptyOwnState
+import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.reactdroid.core.Utils
 import com.guymichael.reactdroid.core.model.AComponent
 
-open class CAlertDialog(
+open class CAlertDialog<CUSTOM_CONTENT_PROPS : OwnProps>(
         bindToParent: View
         , onDismiss: () -> Unit
-        , onShow: ((DialogProps) -> Unit)? = null
-        , customContent: Lazy<AComponent<DialogProps, *, *>>? = null
+        , onShow: ((AlertDialogProps<CUSTOM_CONTENT_PROPS>) -> Unit)? = null
+        , customContent: Lazy<AComponent<CUSTOM_CONTENT_PROPS, *, *>>? = null
         , dialogBuilder: (AlertDialog.Builder) -> AlertDialog
         , @StyleRes style: Int = 0
-    ) : BaseAlertDialogComponent<DialogProps, EmptyOwnState, AlertDialog>(
+    ) : BaseAlertDialogComponent<CUSTOM_CONTENT_PROPS, AlertDialogProps<CUSTOM_CONTENT_PROPS>, EmptyOwnState, AlertDialog>(
         lazy {
             ModalDialog.of(
                 bindToParent.context!! //THINK null context
@@ -37,8 +38,8 @@ open class CAlertDialog(
     constructor(
         bindToParent: AComponent<*, *, *>
         , onDismiss: () -> Unit
-        , onShow: ((DialogProps) -> Unit)? = null
-        , customContent: Lazy<AComponent<DialogProps, *, *>>? = null
+        , onShow: ((AlertDialogProps<CUSTOM_CONTENT_PROPS>) -> Unit)? = null
+        , customContent: Lazy<AComponent<CUSTOM_CONTENT_PROPS, *, *>>? = null
         , dialogBuilder: (AlertDialog.Builder) -> AlertDialog
         , @StyleRes style: Int = 0
     ): this(bindToParent.mView, onDismiss, onShow, customContent, dialogBuilder, style)
@@ -72,7 +73,7 @@ open class CAlertDialog(
         }
     }
 
-    override fun createInitialState(props: DialogProps) = EmptyOwnState
+    override fun createInitialState(props: AlertDialogProps<CUSTOM_CONTENT_PROPS>) = EmptyOwnState
 }
 
 
@@ -85,18 +86,18 @@ open class CAlertDialog(
 
 /* export as methods */
 
-/** Creates and binds a dialog to the activity of this component.
+/** Creates and binds a dialog with custom content, to the activity of this component.
  *
  * @param onDismiss use to update the dialog 'shown' state (e.g. [AComponent.setState])
  * @param customContent lazy component to set as the dialog's custom view
  */
-fun AComponent<*, *, *>.withDialog(
-        onDismiss: () -> Unit
-        , dialogBuilder: (AlertDialog.Builder) -> AlertDialog
-        , onShow: ((DialogProps) -> Unit)? = null
-        , customContent: Lazy<AComponent<DialogProps, *, *>>? = null
+fun <CUSTOM_CONTENT_PROPS : OwnProps> AComponent<*, *, *>.withAlertDialog(
+        dialogBuilder: (AlertDialog.Builder) -> AlertDialog
+        , customContent: Lazy<AComponent<CUSTOM_CONTENT_PROPS, *, *>>
+        , onDismiss: () -> Unit
+        , onShow: ((AlertDialogProps<CUSTOM_CONTENT_PROPS>) -> Unit)? = null
         , @StyleRes style: Int = 0
-    ): CAlertDialog {
+    ): CAlertDialog<CUSTOM_CONTENT_PROPS> {
 
     return CAlertDialog(
         Utils.getActivityView(mView) ?: mView
@@ -109,13 +110,13 @@ fun AComponent<*, *, *>.withDialog(
  * @param onDismiss use to update the dialog 'shown' state (e.g. [AComponent.setState])
  * @param customContent layoutRes to component creator, for the dialog's custom view
  */
-fun AComponent<*, *, *>.withDialog(
-        onDismiss: () -> Unit
-        , customContent: Pair<Int, (View) -> AComponent<DialogProps, *, *>>
-        , dialogBuilder: (AlertDialog.Builder) -> AlertDialog
-        , onShow: ((DialogProps) -> Unit)? = null
+fun <CUSTOM_CONTENT_PROPS : OwnProps> AComponent<*, *, *>.withAlertDialog(
+        dialogBuilder: (AlertDialog.Builder) -> AlertDialog
+        , customContent: Pair<Int, (View) -> AComponent<CUSTOM_CONTENT_PROPS, *, *>>
+        , onDismiss: () -> Unit
+        , onShow: ((AlertDialogProps<CUSTOM_CONTENT_PROPS>) -> Unit)? = null
         , @StyleRes style: Int = 0
-    ): CAlertDialog {
+    ): CAlertDialog<CUSTOM_CONTENT_PROPS> {
 
     return CAlertDialog(
         Utils.getActivityView(mView) ?: mView
@@ -131,26 +132,43 @@ fun AComponent<*, *, *>.withDialog(
 /** Creates and binds a dialog to the activity of this component.
  *
  * @param onDismiss use to update the dialog 'shown' state (e.g. [AComponent.setState])
+ */
+fun AComponent<*, *, *>.withAlertDialog(
+    dialogBuilder: (AlertDialog.Builder) -> AlertDialog
+    , onDismiss: () -> Unit
+    , onShow: ((AlertDialogProps<OwnProps>) -> Unit)? = null
+    , @StyleRes style: Int = 0
+): CAlertDialog<OwnProps> {
+
+    return CAlertDialog(
+        Utils.getActivityView(mView) ?: mView
+        , onDismiss, onShow, null, dialogBuilder, style
+    )
+}
+
+/** Creates and binds a dialog to the activity of this component.
+ *
+ * @param onDismiss use to update the dialog 'shown' state (e.g. [AComponent.setState])
  * @param customContent lazy component to set as the dialog's custom view
  * @param cancelable sets the following:
  * [AlertDialog.Builder.setCancelable], [AlertDialog.setCanceledOnTouchOutside]
  */
-fun AComponent<*, *, *>.withAlertDialog(
+fun <CUSTOM_CONTENT_PROPS : OwnProps> AComponent<*, *, *>.withAlertDialog(
         onDismiss: () -> Unit
-        , onShow: ((DialogProps) -> Unit)? = null
+        , customContent: Lazy<AComponent<CUSTOM_CONTENT_PROPS, *, *>>
+        , onShow: ((AlertDialogProps<CUSTOM_CONTENT_PROPS>) -> Unit)? = null
         , cancelable: Boolean = false
-        , customContent: Lazy<AComponent<DialogProps, *, *>>? = null
         , @StyleRes style: Int = 0
-    ): CAlertDialog {
+    ): CAlertDialog<CUSTOM_CONTENT_PROPS> {
 
-    return withDialog(
-        onDismiss
-        , dialogBuilder = { b ->
+    return withAlertDialog(
+        dialogBuilder = { b ->
             b.setCancelable(cancelable)
             .create().also { d ->
                 d.setCanceledOnTouchOutside(cancelable)
             }
         }
+        , onDismiss = onDismiss
         , onShow = onShow
         , customContent = customContent
         , style = style
@@ -164,21 +182,50 @@ fun AComponent<*, *, *>.withAlertDialog(
  * @param cancelable sets the following:
  * [AlertDialog.Builder.setCancelable], [AlertDialog.setCanceledOnTouchOutside]
  */
-fun AComponent<*, *, *>.withAlertDialog(
+fun <CUSTOM_CONTENT_PROPS : OwnProps> AComponent<*, *, *>.withAlertDialog(
         onDismiss: () -> Unit
-        , customContent: Pair<Int, (View) -> AComponent<DialogProps, *, *>>
-        , onShow: ((DialogProps) -> Unit)? = null
+        , customContent: Pair<Int, (View) -> AComponent<CUSTOM_CONTENT_PROPS, *, *>>
+        , onShow: ((AlertDialogProps<CUSTOM_CONTENT_PROPS>) -> Unit)? = null
         , cancelable: Boolean = false
         , @StyleRes style: Int = 0
-    ): CAlertDialog {
+    ): CAlertDialog<CUSTOM_CONTENT_PROPS> {
 
     return withAlertDialog(
         onDismiss
-        , onShow
         , customContent = lazy { customContent.second.invoke(
             LayoutInflater.from(mView.context).inflate(customContent.first, null)
         )}
+        , onShow = onShow
         , cancelable = cancelable
+        , style = style
+    )
+}
+
+/** Creates and binds a dialog to the activity of this component.
+ *
+ * @param onDismiss use to update the dialog 'shown' state (e.g. [AComponent.setState])
+ * @param customContent lazy component to set as the dialog's custom view
+ * @param cancelable sets the following:
+ * [AlertDialog.Builder.setCancelable], [AlertDialog.setCanceledOnTouchOutside]
+ */
+fun AComponent<*, *, *>.withAlertDialog(
+        onDismiss: () -> Unit
+        , onShow: ((AlertDialogProps<OwnProps>) -> Unit)? = null
+        , cancelable: Boolean = false
+        , @StyleRes style: Int = 0
+    ): CAlertDialog<OwnProps> {
+
+    return CAlertDialog(
+        Utils.getActivityView(mView) ?: mView
+        , onDismiss
+        , onShow
+        , null
+        , dialogBuilder = { b ->
+            b.setCancelable(cancelable)
+                .create().also { d ->
+                    d.setCanceledOnTouchOutside(cancelable)
+                }
+        }
         , style = style
     )
 }

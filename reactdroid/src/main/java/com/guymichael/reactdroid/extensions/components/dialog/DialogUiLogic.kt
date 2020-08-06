@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog
 import com.guymichael.apromise.APromise
 import com.guymichael.kotlinreact.Logger
 import com.guymichael.kotlinreact.R
+import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.reactdroid.core.viewVisibilityOf
 import com.guymichael.reactdroid.extensions.animation.renderVisibility
 
@@ -78,10 +79,10 @@ internal fun renderText(
     }
 }
 
-internal fun CAlertDialog.renderBtn(
+internal fun <CUSTOM_CONTENT_PROPS : OwnProps> CAlertDialog<CUSTOM_CONTENT_PROPS>.renderBtn(
         btn: Button?
         , value: CharSequence?
-        , onClick: ((props: DialogProps) -> APromise<*>?)? = null
+        , onClick: ((props: AlertDialogProps<CUSTOM_CONTENT_PROPS>) -> APromise<*>?)? = null
     ) {
 
     btn?.takeIf { it.text?.toString() != value?.toString() }?.also {

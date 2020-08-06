@@ -37,8 +37,15 @@ fun AComponent<*, *, *>.renderMarginsRes(@DimenRes top: Int? = null, @DimenRes s
 }
 
 /** See [APromise.autoCancel] with view */
-fun <T> APromise<T>.autoCancel(component: AComponent<*, *, *>): APromise<T> {
+fun <T> APromise<T>.withAutoCancel(component: AComponent<*, *, *>): APromise<T> {
     return autoCancel(component.mView)
+}
+
+/** See [APromise.Companion.setGlobalAutoErrorHandler]  */
+fun <T> APromise<T>.withGlobalErrorHandling(component: AComponent<*, *, *>): APromise<T> {
+    return Utils.getActivity(component.mView)?.let {
+        autoHandleErrorMessage(it)
+    } ?: APromise.ofReject("null activity for component ${component.javaClass.simpleName}")
 }
 
 /**

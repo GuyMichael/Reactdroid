@@ -2,8 +2,10 @@ package com.guymichael.reactdroid.extensions.components.dialog
 
 import android.view.View
 import androidx.appcompat.app.AlertDialog
+import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.reactdroid.core.model.AComponent
 import com.guymichael.kotlinreact.model.OwnState
+import com.guymichael.reactdroid.core.renderOrGone
 
 /**
  * @param bindToParent A parent [View] to bind the dialog to its lifecycle.
@@ -11,13 +13,19 @@ import com.guymichael.kotlinreact.model.OwnState
  *
  * @param onDismiss callback for when the dialog is dismissed but `props` state is `shown`, e.g. by the user.
  * You should then update the `props` (call [onRender] with `shown = false`) to align with actual dialog state
+ *
+ * @param mCustomInnerContent content inside AlertDialog, below the 'message' and above the buttons section.
  */
-abstract class BaseAlertDialogComponent<P : BaseDialogProps, S : OwnState, D : AlertDialog>(
+abstract class BaseAlertDialogComponent
+<CUSTOM_CONTENT_PROPS : OwnProps, P : BaseAlertDialogProps<CUSTOM_CONTENT_PROPS>, S : OwnState, D : AlertDialog>
+    (
         dialog: Lazy<D>
         , bindToParent: View
         , onDismiss: () -> Unit
         , onShow: ((P) -> Unit)? = null
-        , private val mCustomInnerContent: Lazy<AComponent<P, *, *>>? = null //different usage than super's
+        , private val mCustomInnerContent: Lazy<AComponent<CUSTOM_CONTENT_PROPS, *, *>>? = null
+            //different from super class's 'mCustomContent', as it sets the content inside the AlertDialog,
+            //instead of replacing the whole dialog view (as super's 'mCustomContent' does)
     ) : BaseDialogComponent<P, S, D>(dialog, bindToParent, onDismiss, onShow, null) {
 
     /**
@@ -27,10 +35,12 @@ abstract class BaseAlertDialogComponent<P : BaseDialogProps, S : OwnState, D : A
      * @param onDismiss callback for when the dialog is dismissed but props state is `shown`, e.g. by the user.
      * You should then update the `props` (call [onRender] with `shown = false`) to align with actual dialog state
      */
-    constructor(dialog: Lazy<D>, bindToParent: AComponent<*, *, *>
-            , onDismiss: () -> Unit, onShow: ((P) -> Unit)? = null
-            , customContent: Lazy<AComponent<P, *, *>>? = null)
-        : this(dialog, bindToParent.mView, onDismiss, onShow, customContent)
+    constructor(dialog: Lazy<D>
+        , bindToParent: AComponent<*, *, *>
+        , onDismiss: () -> Unit
+        , onShow: ((P) -> Unit)? = null
+        , customContent: Lazy<AComponent<CUSTOM_CONTENT_PROPS, *, *>>? = null
+    ): this(dialog, bindToParent.mView, onDismiss, onShow, customContent)
 
 
     override fun renderDialogContent(dialog: D, beforeFirstShow: Boolean) {
@@ -42,7 +52,7 @@ abstract class BaseAlertDialogComponent<P : BaseDialogProps, S : OwnState, D : A
                 dialog.setView(customContentComponent.mView)
             }
 
-            customContentComponent.onRender(props)
+            customContentComponent.renderOrGone(props.customContentProps)
         }
     }
 }

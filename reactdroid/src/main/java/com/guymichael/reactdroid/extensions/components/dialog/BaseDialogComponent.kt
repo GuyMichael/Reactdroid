@@ -17,7 +17,7 @@ abstract class BaseDialogComponent<P : BaseDialogProps, S : OwnState, D : Dialog
         , bindToParent: View
         , private val onDismiss: () -> Unit
         , private val onShow: ((P) -> Unit)? = null
-        , /** calls [Dialog.setContentView] which sets the screen content to an explicit view */
+        , /** calls [Dialog.setContentView] which sets/replaces the whole dialog/screen-content to an explicit view */
           private val mCustomContent: Lazy<AComponent<P, *, *>>?
     ) : AComponent<P, S, View>(bindToParent) {
 
@@ -80,7 +80,7 @@ abstract class BaseDialogComponent<P : BaseDialogProps, S : OwnState, D : Dialog
 
     /* Privates */
 
-    private fun onBindDialogListeners(dialog: D) {
+    private fun bindDialogListeners(dialog: D) {
         //wait for dismiss to align props. Also used when activity is destroyed
         try {
             dialog.setOnDismissListener {
@@ -100,7 +100,7 @@ abstract class BaseDialogComponent<P : BaseDialogProps, S : OwnState, D : Dialog
 
     private fun renderOnFirstShow() {
         mDialog.value.also { d ->                       //initializes the dialog (lazy)
-            onBindDialogListeners(d)                    //bind listeners
+            bindDialogListeners(d)                    //bind listeners
 
             renderDialogContent(d, true)   //callback for extending classes
             mCustomContent?.also {
