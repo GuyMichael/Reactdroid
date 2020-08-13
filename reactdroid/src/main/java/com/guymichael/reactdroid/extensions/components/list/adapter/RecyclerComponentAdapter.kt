@@ -4,6 +4,7 @@ import android.view.*
 import androidx.annotation.DimenRes
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.*
+import com.guymichael.kotlinreact.Logger
 import com.guymichael.kotlinreact.R
 import com.guymichael.kotlinreact.model.OwnProps
 //import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -728,7 +729,12 @@ open class RecyclerComponentAdapter constructor(
     fun <P : OwnProps> onItemClick(cls: Class<P>, listener: (P, position: Int) -> Boolean) : RecyclerComponentAdapter {
         this.customPerClassClickListeners[cls] = { item, position ->
             @Suppress("UNCHECKED_CAST")
-            (item.props as? P)?.let { props -> listener(props, position) } ?: false
+            try {
+                (item.props as? P)?.let { props -> listener(props, position) } ?: false
+            } catch (e: ClassCastException) {
+                //THINK know the type before-hand
+                false
+            }
         }
 
         return this

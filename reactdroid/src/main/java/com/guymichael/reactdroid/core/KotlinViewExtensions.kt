@@ -1,5 +1,6 @@
 package com.guymichael.reactdroid.core
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Build
 import android.view.View
@@ -160,6 +161,16 @@ fun View.renderBackgroundColor(color: Int?) {
         setBackgroundColor(color)
     } else {
         background = null //checks for drawable != prevDrawable internally
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.M)
+fun TextView.renderDrawableTint(@ColorRes res: Int?) {
+    //THINK try to check if current res == 'res'
+    compoundDrawableTintList = if (res == null) {
+        null
+    } else {
+        ColorStateList.valueOf(getColor(res))
     }
 }
 
