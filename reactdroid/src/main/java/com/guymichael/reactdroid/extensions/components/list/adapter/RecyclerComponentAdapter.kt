@@ -732,7 +732,7 @@ open class RecyclerComponentAdapter constructor(
             try {
                 (item.props as? P)?.let { props -> listener(props, position) } ?: false
             } catch (e: ClassCastException) {
-                //THINK know the type before-hand
+                //THINK know the type before-hand, e.g. reified (not working because of customPerClassClickListeners being lazy?)
                 false
             }
         }
