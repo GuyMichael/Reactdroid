@@ -297,7 +297,7 @@ open class RecyclerComponentAdapter constructor(
      * @param listener to get notified when visibility state is about to change and be able to prevent it.
      */
     @JvmOverloads
-    fun setEmptyView(emptyView: View?, updateNow: Boolean = true, listener: OnEmptyViewStateChangeListener?) {
+    fun setEmptyView(emptyView: View?, updateNow: Boolean = true, listener: OnEmptyViewStateChangeListener? = null) {
         if (this.emptyView != null && this.emptyView !== emptyView) {
             //assume previous view should now be gone
             this.emptyView!!.visibility = View.GONE
