@@ -52,8 +52,8 @@ open class CAlertDialog<CUSTOM_CONTENT_PROPS : OwnProps>(
     private fun renderAlertDialog(dialog: AlertDialog) {
         renderText(getTitleView(dialog), props.title)
         renderText(getMessageView(dialog), props.message)
-        renderBtn(getOkBtn(dialog), props.okBtn?.first, props.okBtn?.second)
-        renderBtn(getCancelBtn(dialog), props.cancelBtn?.first, props.cancelBtn?.second)
+        renderBtn(getOkBtn(dialog), props.positiveBtn?.first, props.positiveBtn?.second)
+        renderBtn(getCancelBtn(dialog), props.negativeBtn?.first, props.negativeBtn?.second)
         renderBtn(getNeutralBtn(dialog), props.neutralBtn?.first, props.neutralBtn?.second)
     }
 
