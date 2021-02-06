@@ -19,7 +19,7 @@ standardized coding, and predictable, bug free app flow with very fast developme
 
 To import project using Gradle:
 ```kotlin
-implementation 'com.github.GuyMichael:ReactiveApp:0.0.4'
+implementation 'com.github.GuyMichael:Reactdroid:0.1.81'
 ``` 
 
 Below (very soon) is a simple example of how to wrap an Android `View` with AComponent:
