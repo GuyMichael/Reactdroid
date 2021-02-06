@@ -23,13 +23,35 @@ To import project using Gradle:
 implementation 'com.github.GuyMichael:Reactdroid:0.1.81'
 ``` 
 
-Below (very soon) is a simple example of how to wrap an Android `View` with AComponent:
+## Quick Examples
+We will start with quick examples to showcase the style.
+Will be followed by a deeper explanation of the architecture.
+Hint: the environment is similar to React.js and Redux.
+
+Below is how to wrap an Android `View`s with AComponents,
+from inside an Activity, Fragment, View or (preferably) another AComponent.
+It makes use of Kotlin Extensions:
 
 ```kotlin
+//bind views to components.
 val cText = withText(R.id.textView)
-val cInput = withIntInput(R.id.editText)
 val cBtn = withBtn(R.id.button)
 val cList = withList(R.id.recyclerView)
+
+//inside the parent component's render method,
+// and only here(!) we call 'onRender' for all children.
+override fun render() {
+    val state = this.state
+    
+    //standard usage
+    cText.onRender(TextProps(state.txt))
+    
+    //OR utility extension
+    cText.renderText(state.txt)
+    
+    //OR utility to handle hide when text is null
+    cText.renderTextOrGone(state.txt)
+}
 ```
 
 
