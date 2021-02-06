@@ -26,7 +26,10 @@ implementation 'com.github.GuyMichael:Reactdroid:0.1.81'
 Below (very soon) is a simple example of how to wrap an Android `View` with AComponent:
 
 ```kotlin
-
+val cText = withText(R.id.textView)
+val cInput = withIntInput(R.id.editText)
+val cBtn = withBtn(R.id.button)
+val cList = withList(R.id.recyclerView)
 ```
 
 
