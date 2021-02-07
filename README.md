@@ -106,8 +106,8 @@ override fun render() {
 
 
 //an example of a NetflixTitleItem component.
-Except for a layout xml file, this is the only
-code you need to render lists in Reactdroid
+//Except for a layout xml file, this is the only
+//code you need to render lists in Reactdroid
 
 class NetflixTitleItem(v: View) : ASimpleComponent<DataProps<NetflixTitleData>>(v) {
 
