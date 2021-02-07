@@ -132,7 +132,7 @@ private val cInput = withStringInput(R.id.editText) {
 override fun render() {
     cInput.onRender(this.state.inputTxt)
 }
-'''
+```
 
 ### Store and global app state
 
