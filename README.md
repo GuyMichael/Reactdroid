@@ -23,20 +23,20 @@ To import project using Gradle:
 implementation 'com.github.GuyMichael:Reactdroid:0.1.81'
 ``` 
 
+
 ## Quick Examples
 We will start with quick examples to showcase the style.
 Will be followed by a deeper explanation of the architecture.
 Hint: the environment is similar to React.js and Redux.
 
-Below is how to wrap an Android `View`s with AComponents,
-from inside an Activity, Fragment, View or (preferably) another AComponent.
+Below is how to wrap an Android `TextView` with an AComponent,
+specifically, ATextComponent, from inside an Activity,
+Fragment, View or (preferably) another AComponent.
 It makes use of Kotlin Extensions:
 
 ```kotlin
 //bind views to components.
 val cText = withText(R.id.textView)
-val cBtn = withBtn(R.id.button)
-val cList = withList(R.id.recyclerView)
 
 //inside the parent component's render method,
 // and only here(!) we call 'onRender' for all children.
@@ -54,6 +54,31 @@ override fun render() {
 }
 ```
 
+Here is how a button looks like:
+
+```kotlin
+val cBtn = withBtn(R.id.button) {
+    //onClick update state
+    this.setState(MyState(this.state.counter+1))
+}
+
+override fun render() {
+    val state = this.state
+    
+    cBtn.renderText(
+        if (state.counter > 0)
+          "ACTIVE" 
+        else "DISABLED"
+    )
+    
+    //normally you won't need to use the View directly, 
+    // as the props and utility methods are suitable for
+    // most cases. But for the sake of this example,
+    // let's use the underlying View to disable the button.
+    cBtn.mView.setEnabled(state.counter > 0)
+}
+val cList = withList(R.id.recyclerView)
+```
 
 
 
