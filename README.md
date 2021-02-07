@@ -82,8 +82,6 @@ A (RecyclerView) list:
 val cList = withList(R.id.recyclerView)
 
 override fun render() {
-    val state = this.state
-    
     //We map some Netflix titles (e.g. movies)
     // from our state to the ListItemProps for each item.
     // ListItemProps contains everything for the underlying
@@ -94,7 +92,7 @@ override fun render() {
     // You can use as many view types and layouts as you like,
     // as well as change them between renders.
     cList.onRender(ListProps(
-        state.netflixTitles
+        this.state.netflixTitles
         ?.map { ListItemProps(
             //id.     layout.                 item props.    item component(view)
             it.title, R.layout.netflix_title, DataProps(it), ::NetflixTitleItem
@@ -121,6 +119,20 @@ class NetflixTitleItem(v: View) : ASimpleComponent<DataProps<NetflixTitleData>>(
 }
 ```
 
+
+An input (EditText). A String input in this case,
+but you can use an Int input to automatically parse
+input as numbers to your state.
+```kotlin
+private val cInput = withStringInput(R.id.editText) {
+    //user changed EditText's text. Update state to re-render
+    setState(MyState(inputTxt = it))
+}
+
+override fun render() {
+    cInput.onRender(this.state.inputTxt)
+}
+'''
 
 ### Store and global app state
 
