@@ -121,8 +121,8 @@ class NetflixTitleItem(v: View) : ASimpleComponent<DataProps<NetflixTitleData>>(
 
 
 An input (EditText). A String input in this case,
-but you can use an Int input to automatically parse
-input as numbers to your state.
+but you can use an Int input to automatically
+parse input as numbers to your state.
 ```kotlin
 private val cInput = withStringInput(R.id.editText) {
     //user changed EditText's text. Update state to re-render
