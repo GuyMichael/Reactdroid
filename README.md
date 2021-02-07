@@ -33,7 +33,6 @@ Below is how to wrap an Android `TextView` with an AComponent,
 specifically, ATextComponent, from inside an Activity,
 Fragment, View or (preferably) another AComponent.
 It makes use of Kotlin Extensions:
-
 ```kotlin
 //bind views to components.
 val cText = withText(R.id.textView)
@@ -54,8 +53,7 @@ override fun render() {
 }
 ```
 
-Here is how a button looks like:
-
+Here is how does a button look like:
 ```kotlin
 val cBtn = withBtn(R.id.button) {
     //onClick update state
@@ -77,9 +75,51 @@ override fun render() {
     // let's use the underlying View to disable the button.
     cBtn.mView.setEnabled(state.counter > 0)
 }
-val cList = withList(R.id.recyclerView)
 ```
 
+A (RecyclerView) list:
+```kotlin
+val cList = withList(R.id.recyclerView)
+
+override fun render() {
+    val state = this.state
+    
+    //We map some Netflix titles (e.g. movies)
+    // from our state to the ListItemProps for each item.
+    // ListItemProps contains everything for the underlying
+    // adapter to know what to render. There is absolutely
+    // no need to have a custom adapter or view holder.
+    // you need 2 things: an item layout xml file and
+    // a custom AComponent class to render item's content.
+    // You can use as many view types and layouts as you like,
+    // as well as change them between renders.
+    cList.onRender(ListProps(
+        state.netflixTitles
+        ?.map { ListItemProps(
+            //id.     layout.                 item props.    item component(view)
+            it.title, R.layout.netflix_title, DataProps(it), ::NetflixTitleItem
+        )}
+        ?.sortedBy { it.props.data.title }
+        ?: emptyList()
+    ))
+}
+
+
+//an example of a NetflixTitleItem component.
+Except for a layout xml file, this is the only
+code you need to render lists in Reactdroid
+
+class NetflixTitleItem(v: View) : ASimpleComponent<DataProps<NetflixTitleData>>(v) {
+
+    private val cTxtName = v.withText(R.id.netflix_title_name)
+
+    override fun render() {
+        props.data.also { title ->
+            cTxtName.renderText(title.name)
+        }
+    }
+}
+```
 
 
 ### Store and global app state
