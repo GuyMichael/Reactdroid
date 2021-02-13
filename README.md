@@ -28,7 +28,7 @@ implementation 'com.github.GuyMichael:Reactdroid:0.1.81'
 We will start with quick examples to showcase the style which
 will be followed by a quick start guide.
 For a deeper explanation of the architecture, please read these [Medium articles](https://medium.com/@gguymi/587726a5045f)
-Hint: the environment is similar to React.js and Redux.
+Hint: the environment is similar to [React.js](https://reactjs.org/tutorial/tutorial.html#what-is-react) and [Redux](https://redux.js.org/introduction/core-concepts#core-concepts).
 
 Below is how to wrap an Android `TextView` with an AComponent,
 specifically, ATextComponent, from inside an Activity,
