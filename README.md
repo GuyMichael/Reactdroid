@@ -18,19 +18,20 @@ The flux core also uses RxKotlin for Store management.
 The Android layer on top contains Android component implementations,
 such as List, Text and more, and uses RxAndroid, mainly to support Android's main thread capabilities.
 
-To import project using Gradle:
-```kotlin
-implementation 'com.github.GuyMichael:Reactdroid:0.1.81'
-``` 
-
-
-## Quick Examples
-We will start with quick examples to showcase the style which
-will be followed by a quick start guide.
+This *readme* file contains a quick and simple overview to using this library.
 For a deeper explanation of the architecture, please read these [Medium articles](https://medium.com/@gguymi/587726a5045f)
 Hint: the environment is similar to [React.js](https://reactjs.org/tutorial/tutorial.html#what-is-react) and [Redux](https://redux.js.org/introduction/core-concepts#core-concepts).
 
-Below is how to wrap an Android `TextView` with an AComponent,
+To import the project using Gradle:
+```kotlin
+implementation 'com.github.GuyMichael:Reactdroid:0.1.81'
+```
+
+We will start with some quick UI component examples to showcase the style of this library.
+It will be followed by a quick start guide.
+
+### Components Core ('React' - like) - Simple Usage Examples
+Below is an example showcasing how to wrap an Android `TextView` with an AComponent,
 specifically, ATextComponent, from inside an Activity,
 Fragment, View or (preferably) another AComponent.
 It makes use of Kotlin Extensions:
@@ -135,7 +136,55 @@ override fun render() {
 }
 ```
 
-### Store and global app state
+### Flux core ('Redux' - like) - Store and global app state
+Below is how to define a *global* application *state* by creating a *Store* that manages it:
+```kotlin
+object MainStore : AndroidStore(combineReducers(
+    MainDataReducer, FeatureReducerA, FeatureReducerB
+))
+```
+The app *state* consists of many *reducers*. Each *reducer* holds and manages
+some part of the whole *state* and, each part, consists of enum keys that may hold some value.
+It is most easy to think of a reducer as a mapping of (state) keys to objects - `Map<String, Object>`
+and so the whole *app state* can be thought of as a mapping of *reducers* to their own `map`s - *Map<Reducer, Map<String, Object>>*.
+Below is how we define a basic *reducer*:
+```kotlin
+object FeatureReducerA : Reducer() {
+    override fun getSelfDefaultState() = GlobalState(
+        FeatureReducerAReducerKey.isFeatureEnabled to true
+    )
+}
+
+//and below is a way to define the *reducer*'s keys.
+//note: future versions will hopefully make use of Kotlin's Sealed classes
+// to eliminate the need for using enums in Android and help with having *typed* keys
+enum class FeatureReducerAReducerKey : StoreKey {
+    isFeatureEnabled    //should hold a Boolean
+    ;
+
+    override fun getName() = this.name
+    override fun getReducer() = FeatureReducerA
+}
+```
+
+Now we have a *global* app *state*! Let's see how we can *dispatch* actions to change it.
+We just need to provide the (reducer) key to update and the (new) value:
+```kotlin
+MainStore.dispatch(FeatureReducerAReducerKey.isFeatureEnabled, false)
+```
+
+Only thing missing is a way to *listen* to *state* changes so UI *Components* will 'know' when
+to (re) *render*:
+
+```kotlin
+val 
+```
+
+That's a basic example, but it explains exactly how this Flux architecture works.
+You *dispatch* some *Action* to the (global) *Store* (e.g. from your Button *Component*)
+and the *Store* handles the update for you, simple as that.
+
+### Quick Start
 
 
 
