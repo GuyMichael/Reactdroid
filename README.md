@@ -137,6 +137,12 @@ override fun render() {
 ```
 
 ### Flux core ('Redux' - like) - Store and global app state
+A *Store* is basically a *global* app *state* handler which UI *components* can use to update
+the app state (an action that is called to *Dispatch*). When that *state* is updated,
+the *Store* notifies all connected UI *components* to 'tell' them to (re) *render* (update the UI).
+This way the data flow in the app is uni-directional and also very simple:
+**AComponent** -> (dispatches *Action* - an update request) -> **Store** updates the *GlobalState* -> notifies back to (all) **AComponent**(s)
+
 Below is how to define a *global* application *state* by creating a *Store* that manages it:
 ```kotlin
 object MainStore : AndroidStore(combineReducers(
