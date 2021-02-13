@@ -30,7 +30,8 @@ implementation 'com.github.GuyMichael:Reactdroid:0.1.81'
 We will start with some quick UI component examples to showcase the style of this library.
 It will be followed by a quick start guide.
 
-### Components Core ('React' - like) - Simple Usage Examples
+
+## Components Core ('React' - like) - Simple Usage Examples
 Below is an example showcasing how to wrap an Android `TextView` with an AComponent,
 specifically, ATextComponent, from inside an Activity,
 Fragment, View or (preferably) another AComponent.
@@ -136,7 +137,8 @@ override fun render() {
 }
 ```
 
-### Flux core ('Redux' - like) - Store and global app state
+
+## Flux core ('Redux' - like) - Store and global app state
 A *Store* is basically a *global* app *state* handler which UI *components* can use to update
 the app state (an action that is called to *Dispatch*). When that *state* is updated,
 the *Store* notifies all connected UI *components* to 'tell' them to (re) *render* (update the UI).
