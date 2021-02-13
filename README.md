@@ -189,11 +189,17 @@ that handles everything for you. Technically speaking, that (other) *component* 
 val myAComponent: AComponent<...>
 ...
 val connectedComponent = connect(
-    myAComponent        // AComponent to connect (by encapsulation)
+    // AComponent to connect (by encapsulation)
+    myAComponent
+    
+    //mapStateToProps -> a function that converts the whole GlobalState
+    // to the AComponent's props
     , { globalState -> MyComponentProps(
             isFeatureEnabled = state.get(FeatureReducerAReducerKey.isFeatureEnabled)
       )}
-    , { MainStore }     // Store supplier
+      
+     // Store supplier
+    , { MainStore }
 )
 
 //from now on, 'myAComponent' we be re-rendered whenever FeatureReducerAReducerKey.isFeatureEnabled's value is changed
