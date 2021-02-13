@@ -93,12 +93,12 @@ override fun render() {
     // as well as change them between renders.
     cList.onRender(ListProps(
         this.state.netflixTitles
-        ?.map { ListItemProps(
-            //id.     layout.                 item props.    item component(view)
-            it.title, R.layout.netflix_title, DataProps(it), ::NetflixTitleItem
-        )}
-        ?.sortedBy { it.props.data.title }
-        ?: emptyList()
+            ?.map { ListItemProps(
+                //id.     layout.                 item props.    item component(view)
+                it.title, R.layout.netflix_title, DataProps(it), ::NetflixTitleItem
+            )}
+            ?.sortedBy { it.props.data.title }
+            ?: emptyList()
     ))
 }
 
