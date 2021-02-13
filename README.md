@@ -182,18 +182,31 @@ MainStore.dispatch(FeatureReducerAReducerKey.isFeatureEnabled, false)
 ```
 
 Only thing missing is a way to *listen* to *state* changes so UI *Components* will 'know' when
-to (re) *render*:
+to (re) *render*. Connecting to *Store* is done by encapsulating an *AComponent* inside another, special *component*
+that handles everything for you. Technically speaking, that (other) *component* is a [*HOC* - High Order Component](https://reactjs.org/docs/higher-order-components.html). Below is how you can connect an *AComponent* to the *Store*:
 
 ```kotlin
-val 
+val myAComponent: AComponent<...>
+...
+val connectedComponent = connect(
+    myAComponent        // AComponent to connect (by encapsulation)
+    , { globalState -> MyComponentProps(
+            isFeatureEnabled = state.get(FeatureReducerAReducerKey.isFeatureEnabled)
+      )}
+    , { MainStore }     // Store supplier
+)
+
+//from now on, 'myAComponent' we be re-rendered whenever FeatureReducerAReducerKey.isFeatureEnabled's value is changed
 ```
 
 That's a basic example, but it explains exactly how this Flux architecture works.
 You *dispatch* some *Action* to the (global) *Store* (e.g. from your Button *Component*)
-and the *Store* handles the update for you, simple as that.
+and the *Store* handles the update for you, telling your *component* when to (re) *render*.
+simple as that.
+
 
 ### Quick Start
-
+The best way to start using this architecture is to look at the [working example's Readme](https://github.com/GuyMichael/ReactiveAppExample)
 
 
 R8 / ProGuard
