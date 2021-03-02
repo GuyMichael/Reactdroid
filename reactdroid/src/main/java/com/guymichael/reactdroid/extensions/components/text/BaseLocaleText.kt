@@ -8,7 +8,7 @@ import com.guymichael.reactdroid.core.model.AComponent
 abstract class BaseLocaleText<P : BaseTextProps, S : OwnState, T : AComponent<P, *, TextView>>(v: LinearLayout)
         : AComponent<P, S, LinearLayout>(v) {
 
-    protected val cText: T = onBindTextView(findTextView())
+    protected val cText: T = onBindTextView(findTextView()) //THINK call non-final function
 
     init {
         v.orientation = LinearLayout.HORIZONTAL

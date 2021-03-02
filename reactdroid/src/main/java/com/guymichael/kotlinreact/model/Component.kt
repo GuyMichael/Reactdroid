@@ -5,7 +5,17 @@ import com.guymichael.kotlinreact.BuildConfig
 import com.guymichael.kotlinreact.Utils
 import com.guymichael.kotlinreact.letIfTrue
 
-//won't be rendered until the first call to onRender(nextProps)
+/*
+ * This is the backbone of the kotlinreact and the most basic model.
+ * It will be implemented by platform-specific Components.
+ * Note: it won't be rendered until the first call to onRender(nextProps)
+ * Note2: the reason it is not an abstract class, which would've been the better
+ * option, is because we need to 'convert' platform-specific base-classes to components,
+ * such as Android's Activity and Fragment classes - it is not possible to extend 2
+ * base classes, sadly.
+ * If the usage behavior of this library will justify this - we could split this class
+ * into 2 and duplicate logic into any (base) class that extends it (e.g. ComponentActivity in Android)
+ */
 interface Component<P : OwnProps, S : OwnState> {
     /** **CONTRACT:**
      * 1. DO NOT set yourself! Never!
@@ -20,13 +30,14 @@ interface Component<P : OwnProps, S : OwnState> {
     var props : P //THINK protected (against outside setters)
     //THINK what if not defined as lateinit ? This will break the first render logic! We assume props aren't initiatlized before first render
 
+    //re-render between (non-first) mounts
     val forceReRenderOnRemount: Boolean
 
     /** **CONTRACT:**
      * 1. DO NOT set yourself! Never!
      * 2. Just override and define as 'var' and init with `false`
      * */
-    var reRenderOnRemountDueToNewProps: Boolean//if props have been updated during unmount period
+    var reRenderOnRemountDueToNewProps: Boolean//re-render if props have been updated during unmount period
 
     /* To override (or optional) */
 
@@ -114,13 +125,14 @@ interface Component<P : OwnProps, S : OwnState> {
             @Suppress("UNCHECKED_CAST")
             onRender(nextProps as P)
         } catch (e: ClassCastException) {
+            //re-throw
             throw IllegalArgumentException("onRenderOrThrow() : nextProps do not match this Component's props type")
         }
     }
 
     /** **CONTRACT:** DO NOT override, call to update this Component's OwnState.
      * You must never call this method before component is mounted - just implement [createInitialState] */
-    //TODO use rx to combine emittions with onRender()
+    //TODO use rx to combine emissions with onRender()
     fun setState(nextState: S) {
 //        Logger.w(getDisplayName(), "setState called: $nextState")
         when {
@@ -176,7 +188,7 @@ interface Component<P : OwnProps, S : OwnState> {
 
     /* Privates */
 
-    //TODO use rx to combine emittions with setState()
+    //TODO use rx to combine emissions with setState()
     private fun onRenderImpl(nextProps: P, forceUpdate: Boolean) {
         when {
             //first render call
