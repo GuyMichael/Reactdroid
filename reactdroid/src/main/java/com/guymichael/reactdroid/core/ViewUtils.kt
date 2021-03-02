@@ -268,7 +268,7 @@ object ViewUtils {
         } while (i < maxIterations && !cls.isInstance(currentParent))
 
         @Suppress("UNCHECKED_CAST")
-        return currentParent as T
+        return currentParent as? T? //THINK improve method to not cast 2nd time (vs. isInstance)
     }
 
     fun isParent(child: View, possibleParent: View): Boolean {
