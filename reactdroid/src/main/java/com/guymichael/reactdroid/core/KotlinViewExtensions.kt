@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.*
 import androidx.core.content.ContextCompat
@@ -12,6 +13,7 @@ import com.guymichael.apromise.APromise
 import com.guymichael.kotlinreact.Logger
 import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.reactdroid.core.model.AComponent
+import com.guymichael.reactdroid.extensions.components.text.TextUtils
 import io.reactivex.rxjava3.disposables.Disposable
 
 inline fun <T, S> T.runNotNull(s: S?, crossinline block: T.(S) -> T): T {
@@ -215,6 +217,39 @@ fun View.renderMarginsRes(@DimenRes top: Int? = null, @DimenRes start: Int? = nu
     renderMarginsPx(top = top?.let { getDimenPx(it) }, start = start?.let { getDimenPx(it) }
         , bottom = bottom?.let { getDimenPx(it) }, end = end?.let { getDimenPx(it) }
     )
+}
+
+fun View.findView(@IdRes id: Int): View {
+    return findViewById(id)
+}
+
+fun View.findViewOrNull(@IdRes id: Int): View? {
+    return try {
+        findViewById(id)
+    } catch(e: Throwable) {
+        null
+    }
+}
+
+fun AComponent<*, *, *>.findView(@IdRes id: Int): View {
+    return mView.findViewById(id)
+}
+
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+fun ImageView.renderTint(@ColorRes res: Int?) {
+    if (res == null) {
+        drawable?.setTintList(null)
+    } else {
+        drawable?.setTint(getColor(res))
+    }
+}
+
+inline fun <reified V : View> AComponent<*, *, *>.findLayout(@IdRes id: Int): V {
+    return mView.findViewById(id)
+}
+
+fun AComponent<*, *, *>.showKeyboard(delay: Long = 0) {
+    TextUtils.showKeyboard(this, delay)
 }
 
 fun View.isVisible(): Boolean {
