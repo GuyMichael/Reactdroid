@@ -145,76 +145,79 @@ override fun render() {
 
 
 ### Flux core ('Redux' - like) - Overview - Store and global app state
-A *Store* is basically a *global* app *state* handler which UI *components* can use to update
-the app state (an action that is called to *Dispatch*). When that *state* is updated,
-the *Store* notifies all connected UI *components* to 'tell' them to (re) *render* (update the UI).
+A *Store* is basically a *global* app *state* handler which UI _Components_ can use to update
+the app state (using a *Dispatch* call). When that *state* is updated,
+the *Store* notifies all _connected_ *Components* to 'tell' them to (re) *render* (update the UI).
 This way the data flow in the app is uni-directional and also very simple:
-**AComponent** -> (dispatches *Action* - an update request) -> **Store** updates the *GlobalState* -> notifies back to (all) **AComponent**(s)
+**AComponent** -> (_Dispatches_ update *Action*) -> **Store** updates its *GlobalState* -> notifies back to (all _connected_) **AComponent**(s)
 
 Below is how to define a *global* application *state* by creating a *Store* that manages it:
 ```kotlin
 object MainStore : AndroidStore(combineReducers(
-    MainDataReducer, FeatureReducerA, FeatureReducerB
+    MainDataReducer, FeatureAReducer, FeatureBReducer
 ))
 ```
-The app *state* consists of many *reducers*. Each *reducer* holds and manages
-some part of the whole *state* and, each part, consists of enum keys that may hold some value.
-It is most easy to think of a reducer as a mapping of (state) keys to objects - `Map<String, Object>`
-and so the whole *app state* can be thought of as a mapping of *reducers* to their own `map`s - *Map<Reducer, Map<String, Object>>*.
+The app's *GlobalState* consists of many *Reducers*. Each *reducer* holds and manages
+some part of the whole *state* and, each part, consists of _enum_ keys that _map_ to some _value_.
+It is most easy to think of a _Reducer_ as a _mapping_ of (_state_) keys to _Objects_ - `Map<String, Any?>`.
+And so, the whole *GlobalState* can be thought of as a mapping of *Reducers* to their own `map`s - *Map<Reducer, Map<String, Any?>>*.
 Below is how we define a basic *reducer*:
 ```kotlin
-object FeatureReducerA : Reducer() {
+object FeatureAReducer : Reducer() {
     override fun getSelfDefaultState() = GlobalState(
-        FeatureReducerAReducerKey.isFeatureEnabled to true
+        //define the initial state of given keys - for when the app starts
+        FeatureAReducerKey.isFeatureEnabled to true
     )
 }
+```
 
-//and below is a way to define the *reducer*'s keys.
-//note: future versions will hopefully make use of Kotlin's Sealed classes
-// to eliminate the need for using enums in Android and help with having *typed* keys
-enum class FeatureReducerAReducerKey : StoreKey {
-    isFeatureEnabled    //should hold a Boolean
+Below is a way to define the *reducer*'s keys.
+Note: future versions will hopefully make use of _Kotlin_'s _Sealed_ _classes_, to eliminate the need
+for using _enums_ in _Android_ and help with having *typed* keys.
+```kotlin
+enum class FeatureAReducerKey : StoreKey {
+    isFeatureEnabled    //should map to a Boolean
     ;
 
     override fun getName() = this.name
-    override fun getReducer() = FeatureReducerA
+    override fun getReducer() = FeatureAReducer
 }
 ```
 
-Now we have a *global* app *state*! Let's see how we can *dispatch* actions to change it.
-We just need to provide the (reducer) key to update and the (new) value:
+Now we have a *global* app *state*! Let's see how we can *Dispatch* 'actions' to change it.
+We just need to provide the (_reducer_) key to update, and the (new) value:
 ```kotlin
-MainStore.dispatch(FeatureReducerAReducerKey.isFeatureEnabled, false)
+MainStore.dispatch(FeatureAReducerKey.isFeatureEnabled, false)
 ```
 
-Only thing missing is a way to *listen* to *state* changes so UI *Components* will 'know' when
-to (re) *render*. Connecting to *Store* is done by encapsulating an *AComponent* inside another, special *component*
-that handles everything for you. Technically speaking, that (other) *component* is a [*HOC* - High Order Component](https://reactjs.org/docs/higher-order-components.html). Below is how you can connect an *AComponent* to the *Store*:
+Only thing missing is a way to listen (_connect_) to *state* changes so that *Components* will 'know' when
+to (re) *render*. _Connecting_ to *Store* is done by encapsulating an *AComponent* inside another one - a special *Component*
+that handles everything for you. Technically speaking, that (other) *Component* is a [*HOC* - High Order Component](https://reactjs.org/docs/higher-order-components.html).
+Below is how you can _connect_ an *AComponent* to the *Store*:
 
 ```kotlin
-val myAComponent: AComponent<...>
-...
+val mComponent: AComponent<...>
+
 val connectedComponent = connect(
-    // AComponent to connect (by encapsulation)
-    myAComponent
+    mComponent
     
-    //mapStateToProps -> a function that converts the whole GlobalState
-    // to the AComponent's props
+    //mapStateToProps -> a function that creates your Component's 'props' from the whole GlobalState
     , { globalState -> MyComponentProps(
-            isFeatureEnabled = state.get(FeatureReducerAReducerKey.isFeatureEnabled)
+            isFeatureEnabled = state.get(FeatureAReducerKey.isFeatureEnabled)
       )}
       
      // Store supplier
     , { MainStore }
 )
 
-//from now on, 'myAComponent' we be re-rendered whenever FeatureReducerAReducerKey.isFeatureEnabled's
+//from now on, `mComponent` will be (re) _rendered_ whenever `FeatureAReducerKey.isFeatureEnabled`'s
 value is changed.
 ```
 
-That's a basic example, but it explains exactly how this Flux architecture works.
-You *dispatch* some *Action* to the (global) *Store* (e.g. from your Button *Component*)
-and the *Store* handles the update for you, telling your *component* when to (re) *render*.
+That's a basic example, but it explains exactly how this _Flux_ architecture works.
+You *Dispatch* some *Action* to the *Store* (e.g. from your _Button_ *Component*)
+and the *Store* handles the update for you, telling your *Component* _when_ to (re) *render*.
+The `mapStateToProps` you provide to `connect()` tells your _Component_ _what_ to _render_.
 simple as that.
 
 
