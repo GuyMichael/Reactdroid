@@ -55,28 +55,28 @@ val cText = withText(R.id.textView)       //cText stands for 'componentText'
 //inside the parent component's render method,
 // and only here(!) we call 'onRender' for all children.
 override fun render() {
-    val state = this.ownState
+    val props = this.props
     
     //standard usage
-    cText.onRender(TextProps(state.txt))
+    cText.onRender(TextProps(props.childTxt))
     
     //OR utility extension
-    cText.renderText(state.txt)
+    cText.renderText(props.childTxt)
     
     //OR utility to handle hide when text is null
-    cText.renderTextOrGone(state.txt)
+    cText.renderTextOrGone(props.childTxt)
 }
 ```
 
-Here is how does a button look like:
+Here is what does a button look like:
 ```kotlin
 val cBtn = withBtn(R.id.button) {
-    //onClick update state
+    //onClick - update (own, internal) state
     this.setState(MyState(this.state.counter+1))
 }
 
 override fun render() {
-    val state = this.state
+    val state = this.ownState
     
     cBtn.renderText(
         if (state.counter > 0)
@@ -92,55 +92,49 @@ override fun render() {
 }
 ```
 
-A (RecyclerView) list:
+A (RecyclerView) list, to show _Netflix_ titles/movies:
 ```kotlin
 val cList = withList(R.id.recyclerView)
 
 override fun render() {
-    //We map some Netflix titles (e.g. movies)
-    // from our state to the ListItemProps for each item.
-    // ListItemProps contains everything for the underlying
-    // adapter to know what to render. There is absolutely
-    // no need to have a custom adapter or view holder.
-    // you need 2 things: an item layout xml file and
-    // a custom AComponent class to render item's content.
-    // You can use as many view types and layouts as you like,
-    // as well as change them between renders.
-    cList.onRender(ListProps(
-        this.state.netflixTitles
+    cList.onRender( ListProps(
+        this.props.netflixTitles
             ?.map { ListItemProps(
-                //id.     layout.                 item props.    item component(view)
+                //id.     layout.                 item props.    item AComponent creator
                 it.title, R.layout.netflix_title, DataProps(it), ::NetflixTitleItem
             )}
+            
             ?.sortedBy { it.props.data.title }
             ?: emptyList()
     ))
 }
+```
+Note: `ListItemProps` contains everything for the underlying _Adapter_ to know what to _render_.
+      There is absolutely no need to have a custom _Adapter_ or _ViewHolder_(!).
+      You need 2 things: an 'item' layout (xml file) and an 'item' _AComponent_ to wrap it.
+      You can use as many _View_ types and layouts as you like, as well as change them between _renders_.
 
 
-//an example of a NetflixTitleItem component.
-//Except for a layout xml file, this is the only
-//code you need to render lists in Reactdroid
+Below is an example of a _NetflixTitleItem_ _AComponent_.
+Except for a layout xml file, this is the only code you need to _render_ lists in _Reactdroid_:
 
-class NetflixTitleItem(v: View) : ASimpleComponent<DataProps<NetflixTitleData>>(v) {
+```kotlin
+class NetflixTitleItem(v: View) : ASimpleComponent< DataProps<NetflixTitle> >(v) {
 
     private val cTxtName = v.withText(R.id.netflix_title_name)
 
     override fun render() {
-        props.data.also { title ->
-            cTxtName.renderText(title.name)
-        }
+        cTxtName.renderText(this.props.data.title.name)
     }
 }
 ```
 
 
-An input (EditText). A String input in this case,
-but you can use an Int input to automatically
-parse input as numbers to your state.
+Here is a text input (_EditText_ wrapper). A _String_ input in this case,
+but you can use an _Int_ input for example - to automatically parse input as numbers into your _state_.
 ```kotlin
 private val cInput = withStringInput(R.id.editText) {
-    //user changed EditText's text. Update state to re-render
+    //user changed EditText's text. Update (own) state to re-render
     setState(MyState(inputTxt = it))
 }
 
@@ -150,7 +144,7 @@ override fun render() {
 ```
 
 
-### Flux core ('Redux' - like) - Store and global app state
+### Flux core ('Redux' - like) - Overview - Store and global app state
 A *Store* is basically a *global* app *state* handler which UI *components* can use to update
 the app state (an action that is called to *Dispatch*). When that *state* is updated,
 the *Store* notifies all connected UI *components* to 'tell' them to (re) *render* (update the UI).
