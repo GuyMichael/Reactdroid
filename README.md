@@ -8,19 +8,21 @@ Reactdroid makes it extremely easy to build a modern app. With
 clear contracts between components, clear and easy managed app state,
 standardized coding, and predictable, bug free app flow with very fast development times.
 
-While it is currently built for Android, it's core is pure kotlin (and RxKotlin)
-and is destined to be separated from this project, to serve iOS (ReactIOs) as well, 
-using Kotlin Multiplatform abilities.
-Any developer that would like to take part in this project, please contact me. 
+_Note: while it is currently built for _Android_, it's core is pure _Kotlin_ (and _RxKotlin_)
+      and is destined to be separated from this project, to serve _iOS_ (_ReactIOs_) as well,
+      using [_Kotlin_ _Multiplatform_](https://kotlinlang.org/lp/mobile/).
+      **Any developer that would like to take part in this project, please contact me.**
+      The _MVI_ core is built using pure _Kotlin_.
+      The _Flux_ core also uses _RxKotlin_ for _Store_ management.
+      The _Android_ layer on top contains _Android_ UI _Component_ implementations,
+      such as _List_, _Text_ and more, and uses _RxAndroid_, mainly to support _Android_'s _MainThread_._
 
-The MVI core is built using pure Kotlin.
-The flux core also uses RxKotlin for Store management.
-The Android layer on top contains Android component implementations,
-such as List, Text and more, and uses RxAndroid, mainly to support Android's main thread capabilities.
 
-This *readme* file contains a quick and simple overview to using this library.
+## Quick Start
+For a fully working app which uses this library, [just go here](https://github.com/GuyMichael/ReactiveAppExample)
+
 For a deeper explanation of the architecture, please read these [Medium articles](https://medium.com/@gguymi/587726a5045f)
-Hint: the environment is similar to [React.js](https://reactjs.org/tutorial/tutorial.html#what-is-react) and [Redux](https://redux.js.org/introduction/core-concepts#core-concepts).
+_TL;DR_: it is similar to [React](https://reactjs.org/tutorial/tutorial.html#what-is-react) and [Redux](https://redux.js.org/introduction/core-concepts#core-concepts).
 
 To import the project using Gradle:
 ```kotlin
@@ -30,8 +32,7 @@ implementation 'com.github.GuyMichael:Reactdroid:0.1.81'
 We will start with some quick UI component examples to showcase the style of this library.
 It will be followed by a quick start guide.
 
-
-## Components Core ('React' - like) - Simple Usage Examples
+### Components Core ('React' - like) - Simple Usage Examples
 Below is an example showcasing how to wrap an Android `TextView` with an AComponent,
 specifically, ATextComponent, from inside an Activity,
 Fragment, View or (preferably) another AComponent.
@@ -138,7 +139,7 @@ override fun render() {
 ```
 
 
-## Flux core ('Redux' - like) - Store and global app state
+### Flux core ('Redux' - like) - Store and global app state
 A *Store* is basically a *global* app *state* handler which UI *components* can use to update
 the app state (an action that is called to *Dispatch*). When that *state* is updated,
 the *Store* notifies all connected UI *components* to 'tell' them to (re) *render* (update the UI).
@@ -202,7 +203,8 @@ val connectedComponent = connect(
     , { MainStore }
 )
 
-//from now on, 'myAComponent' we be re-rendered whenever FeatureReducerAReducerKey.isFeatureEnabled's value is changed
+//from now on, 'myAComponent' we be re-rendered whenever FeatureReducerAReducerKey.isFeatureEnabled's
+value is changed.
 ```
 
 That's a basic example, but it explains exactly how this Flux architecture works.
@@ -210,9 +212,6 @@ You *dispatch* some *Action* to the (global) *Store* (e.g. from your Button *Com
 and the *Store* handles the update for you, telling your *component* when to (re) *render*.
 simple as that.
 
-
-### Quick Start
-The best way to start using this architecture is to look at the [working example's Readme](https://github.com/GuyMichael/ReactiveAppExample)
 
 
 R8 / ProGuard
