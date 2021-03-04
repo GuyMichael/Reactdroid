@@ -1,10 +1,10 @@
 Reactdroid
 =====
 
-Reactdroid is a reactive component-based MVI architecture, along with a flux, global-state architecture (2 library cores).
+_Reactdroid_ is a reactive component-based MVI architecture, along with a _Flux_, global-state architecture (2 library cores).
 It is a comprehensive architecture to creating modern mobile apps.
 
-Reactdroid makes it extremely easy to build a modern app. With
+_Reactdroid_ makes it extremely easy to build a modern app. With
 clear contracts between components, clear and easy managed app state,
 standardized coding, and predictable, bug free app flow with very fast development times.
 
