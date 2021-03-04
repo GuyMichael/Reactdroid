@@ -151,32 +151,35 @@ the *Store* notifies all _connected_ *Components* to 'tell' them to (re) *render
 This way the data flow in the app is uni-directional and also very simple:
 **AComponent** -> (_Dispatches_ update *Action*) -> **Store** updates its *GlobalState* -> notifies back to (all _connected_) **AComponent**(s)
 
-Below is how to define a *global* application *state* by creating a *Store* that manages it:
+Here is how to define a *global* application *state*, by creating a *Store*:
 ```kotlin
 object MainStore : AndroidStore(combineReducers(
-    MainDataReducer, FeatureAReducer, FeatureBReducer
+    FeatureAReducer                                 //you may add for example: MainDataReducer, FeatureBReducer...
 ))
 ```
-The app's *GlobalState* consists of many *Reducers*. Each *reducer* holds and manages
-some part of the whole *state* and, each part, consists of _enum_ keys that _map_ to some _value_.
+As you can see, the app's *GlobalState* consists of (possibly many) *Reducers*. Each *Reducer* holds and manages
+some part of the whole *GlobalState* and, each part, consists of _enum_ keys that each _maps_ to some specific _value_.
 It is most easy to think of a _Reducer_ as a _mapping_ of (_state_) keys to _Objects_ - `Map<String, Any?>`.
-And so, the whole *GlobalState* can be thought of as a mapping of *Reducers* to their own `map`s - *Map<Reducer, Map<String, Any?>>*.
-Below is how we define a basic *reducer*:
+And so, the whole *GlobalState* can be thought of as a _mapping_ of *Reducers* to their own `map`s - *Map<Reducer, Map<String, Any?>>*.
+
+Let's use the `withText()` (_TextComponent_) example from above, but this time we will _connect_ its text to the _Store_,
+instead of taking it from its 'parent' _props_.
+
+Below is how we define a basic *Reducer*:
 ```kotlin
 object FeatureAReducer : Reducer() {
     override fun getSelfDefaultState() = GlobalState(
         //define the initial state of given keys - for when the app starts
-        FeatureAReducerKey.isFeatureEnabled to true
+        FeatureAReducerKey.childTxt to "Initial Text"
     )
 }
-```
 
-Below is a way to define the *reducer*'s keys.
-Note: future versions will hopefully make use of _Kotlin_'s _Sealed_ _classes_, to eliminate the need
-for using _enums_ in _Android_ and help with having *typed* keys.
-```kotlin
+
+//define the FeatureAReducer keys
+// Note: future versions will hopefully make use of Kotlin's Sealed classes, to eliminate the need
+//       for using enums in Android and help with having typed keys.
 enum class FeatureAReducerKey : StoreKey {
-    isFeatureEnabled    //should map to a Boolean
+    childTxt    //should map to a String
     ;
 
     override fun getName() = this.name
@@ -187,32 +190,66 @@ enum class FeatureAReducerKey : StoreKey {
 Now we have a *global* app *state*! Let's see how we can *Dispatch* 'actions' to change it.
 We just need to provide the (_reducer_) key to update, and the (new) value:
 ```kotlin
-MainStore.dispatch(FeatureAReducerKey.isFeatureEnabled, false)
+MainStore.dispatch(FeatureAReducerKey.childTxt, "Some other text")
 ```
 
 Only thing missing is a way to listen (_connect_) to *state* changes so that *Components* will 'know' when
 to (re) *render*. _Connecting_ to *Store* is done by encapsulating an *AComponent* inside another one - a special *Component*
 that handles everything for you. Technically speaking, that (other) *Component* is a [*HOC* - High Order Component](https://reactjs.org/docs/higher-order-components.html).
-Below is how you can _connect_ an *AComponent* to the *Store*:
+
+Let's _connect_ that *TextComponent* to the *Store*:
 
 ```kotlin
-val mComponent: AComponent<...>
+val cText: withText(R.id.textView)
 
-val connectedComponent = connect(
-    mComponent
+val connectedCText = connect(
+    cText
     
-    //mapStateToProps -> a function that creates your Component's 'props' from the whole GlobalState
-    , { globalState -> MyComponentProps(
-            isFeatureEnabled = state.get(FeatureAReducerKey.isFeatureEnabled)
+    //mapStateToProps -> a function that creates 'props' from the whole 'GlobalState'
+    , { globalState -> TextProps(
+          state.get(FeatureAReducerKey.childTxt)
       )}
       
      // Store supplier
     , { MainStore }
 )
-
-//from now on, `mComponent` will be (re) _rendered_ whenever `FeatureAReducerKey.isFeatureEnabled`'s
-value is changed.
 ```
+From now on, `cText` will be (re) _rendered_ whenever `FeatureAReducerKey.childTxt`'s value is changed.
+
+_Note: it's encouraged to define the 'connection' inside a Component's 'companion object' - this way,
+when you write some custom Component, you also define how to connect to it, in the same file.
+This is how it will look like:_
+```kotlin
+class MyComponent : ASimpleComponent<MyProps>() {
+    override fun render() {
+        //update the UI
+    }
+
+    companion object {
+        fun connected(c: MyComponent): AComponent<EmptyProps> {
+            return connect(c, ::mapStateToProps, { MainStore })
+        }
+    }
+}
+
+
+private fun mapStateToProps(s: GlobalState, p: EmptyProps): MyProps {
+    return MyProps(...) //create from 's'
+}
+```
+And now using the _connected_ version of your _MyComponent_ is super easy:
+```kotlin
+    private val connectedMyComponent = MyComponent.connected(withMyComponent(R.id.my_component_layout))
+
+    override fun render() {
+        connectedMyComponent.onRender()
+        //Note: no need to provide 'MyProps'.
+        //      the 'connected' component's 'api props' are of type 'EmptyProps' -
+        //      it provides the inner component ('MyComponent') with its actual props ('MyProps'),
+        //      by using the Store/GlobalState (mapStateToProps)
+    }
+```
+
 
 That's a basic example, but it explains exactly how this _Flux_ architecture works.
 You *Dispatch* some *Action* to the *Store* (e.g. from your _Button_ *Component*)
