@@ -92,7 +92,7 @@ override fun render() {
 }
 ```
 
-A (RecyclerView) list, to show _Netflix_ titles/movies:
+A (_RecyclerView_ wrapper) list, to show _Netflix_ titles/movies:
 ```kotlin
 val cList = withList(R.id.recyclerView)
 
@@ -109,10 +109,10 @@ override fun render() {
     ))
 }
 ```
-Note: `ListItemProps` contains everything for the underlying _Adapter_ to know what to _render_.
+_Note: `ListItemProps` contains everything for the underlying _Adapter_ to know what to _render_.
       There is absolutely no need to have a custom _Adapter_ or _ViewHolder_(!).
       You need 2 things: an 'item' layout (xml file) and an 'item' _AComponent_ to wrap it.
-      You can use as many _View_ types and layouts as you like, as well as change them between _renders_.
+      You can use as many _View_ types and layouts as you like, as well as change them between _renders_._
 
 
 Below is an example of a _NetflixTitleItem_ _AComponent_.
