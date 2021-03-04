@@ -29,22 +29,33 @@ To import the project using Gradle:
 implementation 'com.github.GuyMichael:Reactdroid:0.1.84'
 ```
 
-We will start with some quick UI component examples to showcase the style of this library.
-It will be followed by a quick start guide.
+Below are some (UI) _Component_ examples and explanation to showcase the style of this library.
 
-### Components Core ('React' - like) - Simple Usage Examples
-Below is an example showcasing how to wrap an Android `TextView` with an AComponent,
-specifically, ATextComponent, from inside an Activity,
-Fragment, View or (preferably) another AComponent.
-It makes use of Kotlin Extensions:
+### Components Core ('React' - like) - Overview
+Basically, the whole architecture is based on the _Component_ _class_, that makes it easier to code UI,
+as everything UI is located inside 1 method only - `render()`.
+A _Component_'s 'API' is defined simply by an (complex) _Object_ - `OwnProps`.
+By passing (particular-type) `OwnProps` to some _Component_, you control it and tell it _when_ and _what_ to _render_.
+Simply put - if the new _props_ differ from the previous ones a _Component_ already has - it will (re) _render_.
+
+An _AComponent_ is the _Android_'s implementation of the _Component_ model.
+An _AComponent_ wraps an _Android View_ and controlls it.
+_Note: there are also _ComponentActivity_ and _ComponentFragment_ which are extensions to the _Android_ models,
+      to 'convert' their usage to a _Component_-like one. But you should avoid using them, if possible - 
+      you should just wrap your whole _Activity/Fragment_'s layout with an _AComponent_._
+
+#### AComponents - Examples
+Below is an example showcasing how to wrap an _Android_ `TextView` with an _AComponent_,
+specifically, _ATextComponent_, from inside another _AComponent_.
+_Note: `withText()` makes use of _Kotlin Extensions_._
 ```kotlin
 //bind views to components.
-val cText = withText(R.id.textView)
+val cText = withText(R.id.textView)       //cText stands for 'componentText'
 
 //inside the parent component's render method,
 // and only here(!) we call 'onRender' for all children.
 override fun render() {
-    val state = this.state
+    val state = this.ownState
     
     //standard usage
     cText.onRender(TextProps(state.txt))
