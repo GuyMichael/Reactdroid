@@ -26,7 +26,7 @@ _TL;DR_: it is similar to [React](https://reactjs.org/tutorial/tutorial.html#wha
 
 To import the project using Gradle:
 ```kotlin
-implementation 'com.github.GuyMichael:Reactdroid:0.1.81'
+implementation 'com.github.GuyMichael:Reactdroid:0.1.84'
 ```
 
 We will start with some quick UI component examples to showcase the style of this library.
