@@ -8,7 +8,7 @@ Reactdroid makes it extremely easy to build a modern app. With
 clear contracts between components, clear and easy managed app state,
 standardized coding, and predictable, bug free app flow with very fast development times.
 
-_Note: while it is currently built for _Android_, it's core is pure _Kotlin_ (and _RxKotlin_)
+_Note: while it is currently built for _Android_, its core is pure _Kotlin_ (and _RxKotlin_)
       and is destined to be separated from this project, to serve _iOS_ (_ReactIOs_) as well,
       using [_Kotlin_ _Multiplatform_](https://kotlinlang.org/lp/mobile/).
       **Any developer that would like to take part in this project, please contact me.**
