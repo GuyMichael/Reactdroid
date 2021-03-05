@@ -8,12 +8,7 @@ import com.guymichael.kotlinreact.Utils
 /**
  * should be extended as an 'object' (Kotlin's singleton)
  */
-abstract class Reducer {
-    private val childReducers : List<Reducer>
-
-    constructor(childReducers : List<Reducer> = emptyList()) {
-        this.childReducers = childReducers
-    }
+abstract class Reducer(private val childReducers: List<Reducer> = emptyList()) {
 
     internal fun onNewAction_mapToNextState(state: GlobalState, action: Action) : GlobalState {
 
