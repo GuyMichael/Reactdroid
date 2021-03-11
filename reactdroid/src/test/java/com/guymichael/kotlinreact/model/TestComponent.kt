@@ -1,6 +1,8 @@
 package com.guymichael.kotlinreact.model
 
 import com.guymichael.kotlinreact.model.ownstate.BooleanState
+import com.guymichael.kotlinreact.model.ownstate.DoubleState
+import com.guymichael.kotlinreact.model.ownstate.IntState
 import com.guymichael.kotlinreact.model.props.BooleanProps
 
 internal abstract class TestComponent<P : OwnProps, S : OwnState> : Component<P, S> {
@@ -90,4 +92,13 @@ internal abstract class TestComponent<P : OwnProps, S : OwnState> : Component<P,
 
 internal class TestComponent_Boolean : TestComponent<BooleanProps, BooleanState>() {
     override fun createInitialState(props: BooleanProps) = BooleanState(props.value)
+}
+
+internal class TestComponent_Complex : TestComponent<ComplexProps, DoubleState>() {
+    override fun createInitialState(props: ComplexProps) = DoubleState(props.init_c)
+}
+internal data class ComplexProps(val a: Int, val b: List<String>, val init_c: Double) : OwnProps() {
+    override fun getAllMembers() = listOf(
+        a, b
+    )
 }

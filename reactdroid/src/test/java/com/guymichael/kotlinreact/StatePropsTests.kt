@@ -4,6 +4,7 @@ import com.guymichael.kotlinreact.model.Component
 import com.guymichael.kotlinreact.model.OwnProps
 import com.guymichael.kotlinreact.model.OwnState
 import com.guymichael.kotlinreact.model.ownstate.BooleanState
+import com.guymichael.kotlinreact.model.ownstate.DoubleState
 import com.guymichael.kotlinreact.model.props.BooleanProps
 
 fun <S : OwnState> assertOwnState(component: Component<*, S>, expect: S

@@ -21,6 +21,12 @@ internal fun assertRenderCount(component: TestComponent<*, *>, expect: Int, cust
     })
 }
 
+internal fun assertDidMountCount(component: TestComponent<*, *>, expect: Int, customLazyLog: (() -> Unit)? = null) {
+    assert(component.didMountCount == expect, customLazyLog ?: {
+        println("component's didMount was called ${component.didMountCount} times instead the expected $expect")
+    })
+}
+
 internal fun assertWillUnmountCount(component: TestComponent<*, *>, expect: Int, customLazyLog: (() -> Unit)? = null) {
     assert(component.willUnmountCount == expect, customLazyLog ?: {
         println("component's willUnmount was called ${component.willUnmountCount} times instead the expected $expect")

@@ -294,8 +294,9 @@ interface Component<P : OwnProps, S : OwnState> {
     }
 
     private fun performFirstRenderChain(isRemount: Boolean) {
-        if (forceReRenderOnRemount || reRenderPendingRemountDueToNewProps || !isRemount) {
+        if ( !isRemount || forceReRenderOnRemount || reRenderPendingRemountDueToNewProps) {
             reRenderPendingRemountDueToNewProps = false
+            reRenderPendingRemountDueToNewState = false
 
             //first render (not a remount), or a remount and force due to props updated during unmount time
 
@@ -308,6 +309,9 @@ interface Component<P : OwnProps, S : OwnState> {
 
             render()
         } else if (isRemount && reRenderPendingRemountDueToNewState) {
+            //if setState was called in-between mounts and props haven't changed, we re-render
+            //due to new state instead of resetting the state (due to new props)
+            reRenderPendingRemountDueToNewState = false
             render()
         }
 
