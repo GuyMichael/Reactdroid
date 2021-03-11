@@ -8,6 +8,6 @@ import java.io.Serializable
 data class BooleanState(val value: Boolean) : OwnState(), Serializable {
     override fun getAllMembers() = listOf(value)
 }
-fun Component<*, BooleanState>.setState(value: Boolean) {
-    this.setState(BooleanState(value))
+fun Component<*, BooleanState>.setState(nextValue: Boolean) {
+    this.setState(BooleanState(nextValue))
 }
