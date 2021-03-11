@@ -28,7 +28,10 @@ class ComponentFlowUnitTest {
                     "and before 1st onRender()")
         }
 
-        //THINK setState
+        //setState - while onRender was never called - make sure it throws
+        assertThrows(IllegalStateException::class, {
+            component.setState( !initialPropsAndState)
+        })
 
         //first onRender - while dismounted.
         //make sure doesn't cause mounts and that it's still not rendered
