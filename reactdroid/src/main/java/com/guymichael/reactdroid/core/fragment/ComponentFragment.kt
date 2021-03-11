@@ -39,7 +39,9 @@ abstract class ComponentFragment<P : OwnProps> : Fragment(), Component<P, EmptyO
     final override val forceReRenderOnRemount: Boolean = true
 
     /** **DO NOT set yourself.** */
-    final override var reRenderOnRemountDueToNewProps: Boolean = false
+    final override var reRenderPendingRemountDueToNewProps: Boolean = false
+//        private set THINK
+    final override var reRenderPendingRemountDueToNewState: Boolean = false
 //        private set THINK
 
 

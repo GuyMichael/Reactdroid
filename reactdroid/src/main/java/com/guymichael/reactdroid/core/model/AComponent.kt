@@ -23,7 +23,9 @@ abstract class AComponent<P : OwnProps, S : OwnState, V : View>(
     final override lateinit var props: P
 
     /** **DO NOT set yourself.** */
-    final override var reRenderOnRemountDueToNewProps: Boolean = false
+    final override var reRenderPendingRemountDueToNewProps: Boolean = false
+//        private set THINK
+    final override var reRenderPendingRemountDueToNewState: Boolean = false
 //        private set THINK
 
     init {

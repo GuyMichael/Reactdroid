@@ -37,7 +37,13 @@ interface Component<P : OwnProps, S : OwnState> {
      * 1. DO NOT set yourself! Never!
      * 2. Just override and define as 'var' and init with `false`
      * */
-    var reRenderOnRemountDueToNewProps: Boolean//re-render if props have been updated during unmount period
+    var reRenderPendingRemountDueToNewProps: Boolean//re-render if props have been updated during unmount period
+
+    /** **CONTRACT:**
+     * 1. DO NOT set yourself! Never!
+     * 2. Just override and define as 'var' and init with `false`
+     * */
+    var reRenderPendingRemountDueToNewState: Boolean//re-render if ownState have been updated during unmount period
 
     /* To override (or optional) */
 
@@ -150,7 +156,16 @@ interface Component<P : OwnProps, S : OwnState> {
             isMounted() -> onStandardRender(nextState)
 
             //not mounted, skip this render
-            else -> {} //no need/desire(anti-pattern) to keep track of state. State resets on re-mounts
+            else -> {
+                if( !reRenderPendingRemountDueToNewState
+                    && (forceReRenderOnRemount || shouldComponentUpdate(nextState))) { //THINK performance
+                    reRenderPendingRemountDueToNewState = true
+                    //if forceReRenderOnRemount is true, reRenderOnRemountDueToNewState's value doesn't matter
+                }
+
+                //keep track of ownState, in case we're waiting for a re-mount
+                updateState(nextState)
+            }
         }
     }
 
@@ -206,9 +221,9 @@ interface Component<P : OwnProps, S : OwnState> {
 
                 //keep track of props, in case we're still waiting for the first render or a re-mount
 
-                if( !reRenderOnRemountDueToNewProps
+                if( !reRenderPendingRemountDueToNewProps
                         && (forceReRenderOnRemount || shouldComponentUpdate(nextProps))) { //THINK performance
-                    reRenderOnRemountDueToNewProps = true
+                    reRenderPendingRemountDueToNewProps = true
                     //if forceReRenderOnRemount is true, reRenderOnRemountDueToNewProps's value doesn't matter
                 }
 
@@ -279,8 +294,8 @@ interface Component<P : OwnProps, S : OwnState> {
     }
 
     private fun performFirstRenderChain(isRemount: Boolean) {
-        if (forceReRenderOnRemount || reRenderOnRemountDueToNewProps || !isRemount) {
-            reRenderOnRemountDueToNewProps = false
+        if (forceReRenderOnRemount || reRenderPendingRemountDueToNewProps || !isRemount) {
+            reRenderPendingRemountDueToNewProps = false
 
             //first render (not a remount), or a remount and force due to props updated during unmount time
 
@@ -291,6 +306,8 @@ interface Component<P : OwnProps, S : OwnState> {
             //if it's not the first render, we reset the state using the latest props,
             // as props may have changed during unmount period, and state may be derived from them
 
+            render()
+        } else if (isRemount && reRenderPendingRemountDueToNewState) {
             render()
         }
 
