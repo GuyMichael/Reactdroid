@@ -7,7 +7,7 @@ import com.guymichael.kotlinreact.model.props.onRender
 import org.junit.Test
 
 /**
- * Example local unit test, which will execute on the development machine (host).
+ * Local unit test, which will execute on the development machine (host).
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
@@ -28,10 +28,16 @@ class ComponentFlowUnitTest {
                     "and before 1st onRender()")
         }
 
-        //setState - while onRender was never called - make sure it throws
-        assertThrows(IllegalStateException::class, {
-            component.setState( !initialPropsAndState)
-        })
+        //setState - while onRender was never called - make sure not allowed
+        if (BuildConfig.DEBUG) {
+            assertThrows(IllegalStateException::class, {
+                component.setState( !initialPropsAndState)
+            })
+        }
+        assert( !component.reRenderPendingRemountDueToNewState) {
+            println("componentSimpleRenderFlow: component has pending setState while dismounted," +
+                    "although setState was called before first onRender - which is not allowed")
+        }
 
         //first onRender - while dismounted.
         //make sure doesn't cause mounts and that it's still not rendered
