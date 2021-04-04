@@ -9,7 +9,7 @@ import java.util.List;
 //TODO move to Kotlin, carefully
 public class Utils {
 
-    private static boolean strictMode = BuildConfig.DEBUG;
+    private final static boolean strictMode = BuildConfig.DEBUG;
 
 
     public static boolean shallowEquality(@Nullable OwnState first, @Nullable OwnState second) throws IllegalArgumentException {
@@ -63,23 +63,5 @@ public class Utils {
         }
 
         return result;
-    }
-
-    /**
-     * @param first
-     * @param second
-     * @return true if both objects are null, same reference or an instance of the same class
-     */
-    public static boolean equalClasses(@Nullable Object first, @Nullable Object second) {
-        if (first == null || second == null) {
-            return first == null && second == null;
-        }
-
-        if (first == second) {
-            //THINK throw error as two different states have the same object reference
-            return true;
-        }
-
-        return first.getClass().equals(second.getClass());
     }
 }
