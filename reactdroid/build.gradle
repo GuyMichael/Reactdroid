@@ -23,8 +23,21 @@ android {
         }
     }
 
+    // makes building with JavaVersion.VERSION_11 possible, when mixing kotlin and java code
+    sourceSets {
+        main.java.srcDirs = []
+    }
+
     testOptions {
         unitTests.includeAndroidResources = true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_11.toString()
     }
 }
 
