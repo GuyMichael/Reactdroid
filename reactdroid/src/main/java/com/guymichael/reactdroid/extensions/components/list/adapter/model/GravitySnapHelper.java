@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class GravitySnapHelper extends LinearSnapHelper {
 
-    private GravityDelegate delegate;
+    private final GravityDelegate delegate;
 
     public GravitySnapHelper(int gravity) {
         this(gravity, false, null);

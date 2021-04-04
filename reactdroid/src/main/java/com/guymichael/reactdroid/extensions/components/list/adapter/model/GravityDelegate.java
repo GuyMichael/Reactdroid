@@ -9,19 +9,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.OrientationHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.guymichael.reactdroid.extensions.components.list.adapter.model.GravitySnapHelper;
-
 public class GravityDelegate {
     private OrientationHelper verticalHelper;
     private OrientationHelper horizontalHelper;
-    private int gravity;
+    private final int gravity;
     private boolean isRtlHorizontal;
     private boolean snapLastItem;
     GravitySnapHelper.SnapListener listener;
     boolean snapping;
-    private RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
+    private final RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
         @Override
-        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+        public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
             if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
                 snapping = false;
